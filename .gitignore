@@ -1,0 +1,209 @@
+# ============================================
+# DEPENDENCIAS Y MÓDULOS
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# ============================================
+# ENTORNOS Y CONFIGURACIÓN SENSIBLE
+# ============================================
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env*.local
+
+# Configuraciones secretas
+*.key
+*.pem
+*.crt
+*.cert
+secrets/
+config/secrets/
+
+# ============================================
+# NEXT.JS
+# ============================================
+.next/
+out/
+build/
+dist/
+.vercel
+.turbo
+
+# ============================================
+# PRISMA
+# ============================================
+prisma/*.db
+prisma/*.db-journal
+
+# ============================================
+# BASES DE DATOS
+# ============================================
+*.sqlite
+*.sqlite3
+*.db
+postgres-data/
+pgdata/
+mongodb-data/
+
+# DBeaver
+.dbeaver/
+*.dbeaver-workspace
+.idea/
+
+# ============================================
+# DOCKER
+# ============================================
+docker-compose.override.yml
+*.log
+
+# Volúmenes de Docker
+volumes/
+data/
+
+# ============================================
+# LOGS
+# ============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pnpm-debug.log*
+
+# ============================================
+# TESTING
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+.vitest/
+junit.xml
+test-results/
+
+# ============================================
+# CACHE Y TEMPORALES
+# ============================================
+.cache/
+*.cache
+.temp/
+tmp/
+temp/
+redis-data/
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================
+# IDEs Y EDITORES
+# ============================================
+# VSCode
+.vscode/
+.vs/
+*.code-workspace
+
+# ============================================
+# ARCHIVOS MULTIMEDIA (Procesamiento)
+# ============================================
+uploads/
+processed/
+media-temp/
+*.tmp
+*.temp
+
+# Directorios de salida de procesamiento
+output/
+converted/
+
+# ============================================
+# AMAZON S3 Y AWS
+# ============================================
+.aws/
+aws-exports.js
+
+# ============================================
+# KAFKA
+# ============================================
+kafka-data/
+zookeeper-data/
+kafka-logs/
+
+# ============================================
+# KUBERNETES Y ORQUESTACIÓN
+# ============================================
+*.kubeconfig
+kubeconfig
+k8s-secrets/
+helm-charts/*.tgz
+
+# ============================================
+# CI/CD
+# ============================================
+.github/workflows/secrets/
+deployment-logs/
+
+# ============================================
+# SCRIPTS Y AUTOMATIZACIÓN
+# ============================================
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Bash
+*.swp
+*.swo
+
+# ============================================
+# OTROS
+# ============================================
+# TypeScript
+*.tsbuildinfo
+
+# Build artifacts
+*.tar.gz
+*.zip
+*.rar
+
+# Backups
+*.bak
+*.backup
+*.old
+
+# Certificados y JWT
+jwt-keys/
+certificates/
+
+# Nginx
+nginx-logs/
+nginx.pid
+
+# Monitoring
+alerts/
+dashboards/backup/
+
+
