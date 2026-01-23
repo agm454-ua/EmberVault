@@ -28,6 +28,8 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
         working-directory: ./EmberVault/services/auth
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Run ESLint
         run: npm run lint
