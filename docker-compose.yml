@@ -1,20 +1,42 @@
-
 services:
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_BACKEND_USER: ${DB_BACKEND_USER}
-      DB_BACKEND_PASSWORD: ${DB_BACKEND_PASSWORD}
-      DB_ADMIN_USER: ${DB_ADMIN_USER}
-      DB_ADMIN_PASSWORD: ${DB_ADMIN_PASSWORD}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./infrastructure/db:/docker-entrypoint-initdb.d
+    postgres:
+        image: postgres:15-alpine
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            DB_BACKEND_USER: ${DB_BACKEND_USER}
+            DB_BACKEND_PASSWORD: ${DB_BACKEND_PASSWORD}
+            DB_ADMIN_USER: ${DB_ADMIN_USER}
+            DB_ADMIN_PASSWORD: ${DB_ADMIN_PASSWORD}
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+            - ./infrastructure/db:/docker-entrypoint-initdb.d
+        networks:
+            - backend
+
+    auth:
+        build:
+            context: ./EmberVault/services/auth
+            secrets:
+                - github_token
+        container_name: auth-service
+        ports:
+            - 3100:3100
+        depends_on:
+            - postgres
+        networks:
+            - backend
 
 volumes:
-  postgres_data:
+    postgres_data:
+
+networks:
+    backend:
+        driver: bridge
+
+secrets:
+  github_token:
+    environment: GITHUB_TOKEN
