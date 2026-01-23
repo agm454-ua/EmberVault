@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Reset Password</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: 'Segoe UI', Arial, sans-serif;
+                background-color: #f5f5f5;
+            }
+
+            .email-container {
+                max-width: 600px;
+                margin: 40px auto;
+                background-color: #ffffff;
+                border: 1px solid #e0e0e0;
+                border-radius: 16px;
+            }
+
+            .logo-container {
+                text-align: center;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .logo-container p {
+                font-family: 'GFS Didot', Georgia, 'Times New Roman', serif;
+                font-size: 2rem;
+                color: #3b3b3b;
+            }
+
+            .content {
+                padding: 40px 30px;
+                color: #333333;
+                line-height: 1.6;
+            }
+
+            .content p {
+                margin: 0 0 20px 0;
+                font-size: 1rem;
+            }
+
+            .button-container {
+                text-align: center;
+                margin: 40px 0;
+            }
+
+            .reset-button {
+                display: inline-block;
+                padding: 12px 32px;
+                background-color: #c1663f;
+                color: #ffffff;
+                text-decoration: none;
+                font-size: 1rem;
+                font-weight: 500;
+                letter-spacing: 0.5px;
+                border-radius: 8px;
+            }
+
+            .warning {
+                background-color: #f5e9dd;
+                border-left: 2px solid #c1663f;
+                padding: 15px;
+                margin: 25px 0;
+                font-size: 0.875rem;
+                color: #000;
+            }
+
+            .link-text {
+                word-break: break-all;
+                color: #666666;
+                font-size: 1rem;
+            }
+
+            .footer {
+                padding: 30px;
+                text-align: center;
+                font-size: 0.75rem;
+                color: #999999;
+                border-top: 1px solid #e0e0e0;
+            }
+
+            .footer p {
+                margin: 5px 0;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="email-container">
+            <div class="logo-container">
+                <!--<img src="cid:embervaultlogo">-->
+                <p>EmberVault</p>
+            </div>
+
+            <div class="content">
+                <p>Hello,</p>
+
+                <p>
+                    We received a request to reset your password. Click the
+                    button below to create a new password.
+                </p>
+
+                <div class="button-container">
+                    <a
+                        href="{{reset-passwod-page-url}}"
+                        class="reset-button"
+                        style="
+                            color: #ffffff !important;
+                            text-decoration: none !important;
+                        "
+                        >RESET PASSWORD</a
+                    >
+                </div>
+
+                <div class="warning">
+                    This link will expire in 15 minutes. If you didn't request
+                    this password reset, please ignore this email.
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>&copy; 2026 Ember Vault</p>
+                <p>This is an automated email, please do not reply.</p>
+            </div>
+        </div>
+    </body>
+</html>
