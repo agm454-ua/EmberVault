@@ -24,6 +24,7 @@ jobs:
         env:
           AUTH_LIB_TOKEN: ${{ secrets.AUTH_LIB_TOKEN }}
 
+
       - name: Generate Prisma client
         run: npx prisma generate
         working-directory: ./EmberVault/services/auth
