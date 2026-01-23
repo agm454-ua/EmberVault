@@ -6,8 +6,8 @@ COPY package*.json ./
 
 COPY .npmrc ./
 
-RUN --mount=type=secret,id=github_token \
-    export GITHUB_TOKEN=$(cat /run/secrets/github_token) && \
+RUN --mount=type=secret,id=auth_lib_token \
+    export AUTH_LIB_TOKEN=$(cat /run/secrets/auth_lib_token) && \
     npm ci
 
 COPY . .

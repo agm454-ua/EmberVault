@@ -21,7 +21,7 @@ services:
         build:
             context: ./EmberVault/services/auth
             secrets:
-                - github_token
+                - auth_lib_token
         container_name: auth-service
         ports:
             - 3100:3100
@@ -38,5 +38,5 @@ networks:
         driver: bridge
 
 secrets:
-  github_token:
-    environment: GITHUB_TOKEN
+  auth_lib_token:
+    environment: AUTH_LIB_TOKEN
