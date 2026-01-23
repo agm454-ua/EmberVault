@@ -5,3 +5,6 @@ export interface TokenPayload {
     iat?: number;   // issued at
     exp?: number;   // expiration
 }
+
+// for readability
+export type Token = string
