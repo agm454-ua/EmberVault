@@ -1,15 +1,27 @@
 import js from '@eslint/js'
 import tseslint from 'typescript-eslint'
 import prettier from 'eslint-config-prettier'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default [
-    js.configs.recommended,
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
 
-    ...tseslint.configs.recommended,
-
-    prettier,
-
-    {
-        ignores: ['dist/', 'node_modules/'],
+  {
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: __dirname,
+        project: './tsconfig.json',
+      },
     },
+  },
+
+  prettier,
+
+  {
+    ignores: ['dist/', 'node_modules/'],
+  },
 ]
