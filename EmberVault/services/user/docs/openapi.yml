@@ -95,6 +95,12 @@ paths:
         put:
             summary: Update user's data
             operationId: updateUser
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/UpdateUserRequest"
             responses:
                 "200":
                     description: Updated user data
@@ -137,6 +143,13 @@ components:
                     type: string
                 systemRole:
                     type: string
+                status:
+                    type: string
+                storageLimitGB:
+                    type: integer
+                storageUsedGB:
+                    type: number
+
         CreateUserRequest:
             type: object
             properties:
@@ -153,3 +166,23 @@ components:
                 birthDate:
                     type: string
                     format: date
+
+        UpdateUserRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                email:
+                    type: string
+                profilePictureURL:
+                    type: string
+                birthDate:
+                    type: string
+                    format: date
+                systemRole:
+                    type: string
+                status:
+                    type: string
+                storageLimitGB:
+                    type: integer
+            
