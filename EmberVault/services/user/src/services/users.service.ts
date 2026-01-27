@@ -1,5 +1,27 @@
 import type { TCreateUserRequest, TUpdateUserRequest, TUser, TUserID } from '@customTypes/user.js'
 import { prisma } from '@utils/prisma.js'
+import type { TSystemRoleID } from '@customTypes/roles.js'
+import type { Decimal } from '@prisma/client/runtime/client'
+
+const mapUser = (user: {
+    id: TUserID
+    email: string
+    username: string
+    system_role: TSystemRoleID
+    avatar_url: string | null
+    status?: string | null
+    storage_limit_gb?: number | null
+    storage_used_gb?: Decimal | null
+}): TUser => ({
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    avatarURL: user.avatar_url,
+    systemRole: user.system_role,
+    ...(user.status !== undefined && { status: user.status }),
+    ...(user.storage_limit_gb !== undefined && { storageLimitGB: user.storage_limit_gb }),
+    ...(user.storage_used_gb !== undefined && { storageUsedGB: user.storage_used_gb }),
+})
 
 export const getUser = async (
     identifier: string,
@@ -13,21 +35,18 @@ export const getUser = async (
             email: true,
             username: true,
             system_role: true,
-            avatar_url: true
-        },
+            avatar_url: true,
+            status: true,
+            storage_limit_gb: true,
+            storage_used_gb: true
+        }
     })
 
     if (!result) {
         return null
     }
 
-    return {
-        id: result.id,
-        username: result.username,
-        email: result.email,
-        avatarURL: result.avatar_url,
-        systemRole: result.system_role
-    }
+    return mapUser(result)
 }
 
 /*
@@ -66,17 +85,14 @@ export const createUser = async (userData: TCreateUserRequest): Promise<TUser | 
             email: true,
             username: true,
             system_role: true,
-            avatar_url: true
-        },
+            avatar_url: true,
+            status: true,
+            storage_limit_gb: true,
+            storage_used_gb: true
+        }
     })
 
-    return {
-        id: result.id,
-        username: result.username,
-        email: result.email,
-        avatarURL: result.avatar_url,
-        systemRole: result.system_role
-    }
+    return mapUser(result)
 }
 
 export const countUsers = async (): Promise<number> => {
@@ -137,20 +153,11 @@ export const updateUser = async (userId: TUserID, data: TUpdateUserRequest): Pro
         return null
     }
 
-    return {
-        id: result.id,
-        username: result.username,
-        email: result.email,
-        avatarURL: result.avatar_url,
-        systemRole: result.system_role,
-        status: result.status,
-        storageLimitGB: result.storage_limit_gb,
-        storageUsedGB: result.storage_used_gb
-    }
+    return mapUser(result)
 }
 
 export const deleteUser = async (userId: TUserID): Promise<boolean> => {
-    const result = prisma.users.update({
+    const result = await prisma.users.update({
         where: {
             id: userId
         },
@@ -160,4 +167,37 @@ export const deleteUser = async (userId: TUserID): Promise<boolean> => {
     })
 
     return result !== null
+}
+
+export const getUsers = async (lastCursor: TUserID, take?: string): Promise<TUser[] | null> => {
+    const myTake = take ? parseInt(take) : 10
+
+    const results = await prisma.users.findMany({
+        take: myTake,
+        ...(lastCursor && {
+            skip: 1,
+            cursor: {
+                id: lastCursor
+            }
+        }),
+        orderBy: {
+            created_at: "desc"
+        },
+        select: {
+            id: true,
+            email: true,
+            username: true,
+            system_role: true,
+            avatar_url: true,
+            status: true,
+            storage_limit_gb: true,
+            storage_used_gb: true
+        }
+    })
+
+    if (!results) {
+        return null
+    }
+
+    return results.map(mapUser)
 }
