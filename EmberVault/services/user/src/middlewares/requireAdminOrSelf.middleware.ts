@@ -19,7 +19,7 @@ const requireAdminOrSelf = async (
 
     // check if the target user is the user sending the request
     if (targetUserId === payload.userId) {
-        next()
+        return next()
     }
 
     // check if admin

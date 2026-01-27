@@ -24,7 +24,8 @@
             "@middlewares/*": ["src/middlewares/*"],
             "@routes/*": ["src/routes/*"],
             "@config/*": ["src/config/*"],
-            "@customTypes/*": ["src/types/*"]
+            "@customTypes/*": ["src/types/*"],
+            "@validators/*": ["src/validators/*"]
         }
     },
     "include": ["src/**/*", "prisma.config.ts", "tests/*", "vitest.config.ts"],

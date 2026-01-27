@@ -37,31 +37,31 @@ router.get('/health', (_req, res) => {
     res.status(200).json({ message: 'ok' })
 })
 
-router.get('users/count', authenticate, requireAdmin, getUserCountController)
-router.get('users/all', authenticate, requireAdmin, listUsersController)
+router.get('/users/count', authenticate, requireAdmin, getUserCountController)
+router.get('/users/all', authenticate, requireAdmin, listUsersController)
 router.get(
-    'users/added-last-week',
+    '/users/added-last-week',
     authenticate,
     requireAdmin,
     getUsersAddedLastWeekController,
 )
 router.post(
-    'users',
+    '/users',
     authenticate,
     requireAdmin,
     validateCreateUserRequest,
     createUserController,
 )
-router.get('users/:userId', authenticate, getUserController)
+router.get('/users/:userId', authenticate, getUserController)
 router.put(
-    'users/:userId',
+    '/users/:userId',
     authenticate,
     requireAdminOrSelf,
     validateUpdateUserRequest,
     updateUserController,
 )
 router.delete(
-    'users/:userId',
+    '/users/:userId',
     authenticate,
     requireAdminOrSelf,
     deleteUserController,

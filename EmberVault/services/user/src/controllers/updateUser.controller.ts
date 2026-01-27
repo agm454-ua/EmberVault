@@ -7,10 +7,10 @@ import type { TUpdateUserRequest, TUserID } from '@customTypes/user.js'
 import { updateUser } from '@services/users.service.js'
 import logger from '@utils/logger.js'
 import type { Response, Request, NextFunction } from 'express'
-import validateBirthDate from 'src/validators/birthDate.validator.js'
-import validateMail from 'src/validators/mail.validator.js'
-import validatePassword from 'src/validators/password.validator.js'
-import validateUsername from 'src/validators/username.validator.js'
+import validateBirthDate from '@validators/birthDate.validator.js'
+import validateMail from '@validators/mail.validator.js'
+import validatePassword from '@validators/password.validator.js'
+import validateUsername from '@validators/username.validator.js'
 
 export function validateUpdateUserRequest(
     req: Request,

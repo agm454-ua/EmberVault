@@ -17,6 +17,7 @@ export default defineConfig({
             '@routes': path.resolve(__dirname, './src/routes'),
             '@config': path.resolve(__dirname, './src/config'),
             '@types': path.resolve(__dirname, './src/types'),
+            '@validators': path.resolve(__dirname, './src/validators'),
         },
     },
 })
