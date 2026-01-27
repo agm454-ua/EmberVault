@@ -1,5 +1,5 @@
 import type { TResourceID } from './resource.js'
-import type { TUserID } from './user.js'
+import type { TUserID } from './user.ts'
 
 export type TResourceRoleID = string
 export type TSystemRoleID = string
