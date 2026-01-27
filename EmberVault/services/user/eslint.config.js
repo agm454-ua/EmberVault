@@ -7,21 +7,21 @@ import { fileURLToPath } from 'node:url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default [
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
+    js.configs.recommended,
+    ...tseslint.configs.recommended,
 
-  {
-    languageOptions: {
-      parserOptions: {
-        tsconfigRootDir: __dirname,
-        project: './tsconfig.json',
-      },
+    {
+        languageOptions: {
+            parserOptions: {
+                tsconfigRootDir: __dirname,
+                project: './tsconfig.json',
+            },
+        },
     },
-  },
 
-  prettier,
+    prettier,
 
-  {
-    ignores: ['dist/', 'node_modules/', 'eslint.config.js'],
-  },
+    {
+        ignores: ['dist/', 'node_modules/', 'eslint.config.js'],
+    },
 ]

@@ -2,7 +2,7 @@ openapi: 3.1.0
 
 info:
     title: User API
-    version: "1.0.0"
+    version: '1.0.0'
     summary: User service for the EmberVault project
 
 servers:
@@ -17,7 +17,7 @@ paths:
             summary: Get current amount of users
             operationId: getUserCount
             responses:
-                "200":
+                '200':
                     description: Number of users
                     content:
                         application/json:
@@ -26,7 +26,7 @@ paths:
                                 properties:
                                     current_users:
                                         type: integer
-                "401":
+                '401':
                     description: Unauthorized
     /users/all:
         get:
@@ -37,15 +37,15 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: "#/components/schemas/GetAllUsersRequest"
+                            $ref: '#/components/schemas/GetAllUsersRequest'
             responses:
-                "200":
+                '200':
                     description: Users
                     content:
                         application/json:
                             schema:
-                                $ref: "#/components/schemas/User"
-                "401":
+                                $ref: '#/components/schemas/User'
+                '401':
                     description: Unauthorized
 
     /users/added-last-week:
@@ -53,7 +53,7 @@ paths:
             summary: Get amount of new users in the last week
             operationId: getUsersAddedLastWeek
             responses:
-                "200":
+                '200':
                     description: Number of users added last week
                     content:
                         application/json:
@@ -62,7 +62,7 @@ paths:
                                 properties:
                                     added_last_week:
                                         type: integer
-                "401":
+                '401':
                     description: Unauthorized
     /users:
         post:
@@ -73,30 +73,30 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: "#/components/schemas/CreateUserRequest"
+                            $ref: '#/components/schemas/CreateUserRequest'
             responses:
-                "200":
+                '200':
                     description: User created
                     content:
                         application/json:
                             schema:
-                                $ref: "#/components/schemas/User"
-                "400":
+                                $ref: '#/components/schemas/User'
+                '400':
                     description: Bad Request
-                "401":
+                '401':
                     description: Unauthorized
     /users/{userId}:
         get:
             summary: Get user data
             operationId: getUser
             responses:
-                "200":
+                '200':
                     description: User data
                     content:
                         application/json:
                             schema:
-                                $ref: "#/components/schemas/User"
-                "401":
+                                $ref: '#/components/schemas/User'
+                '401':
                     description: Unauthorized
         put:
             summary: Update user's data
@@ -106,23 +106,23 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: "#/components/schemas/UpdateUserRequest"
+                            $ref: '#/components/schemas/UpdateUserRequest'
             responses:
-                "200":
+                '200':
                     description: Updated user data
                     content:
                         application/json:
                             schema:
-                                $ref: "#/components/schemas/User"
-                "400":
+                                $ref: '#/components/schemas/User'
+                '400':
                     description: Bad Request
-                "401":
+                '401':
                     description: Unauthorized
         delete:
             summary: Delete user
             operationId: deleteUser
             responses:
-                "200":
+                '200':
                     description: Deleted user ID
                     content:
                         application/json:
@@ -198,4 +198,3 @@ components:
                     type: number
                 lastCursor:
                     type: string
-            

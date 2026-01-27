@@ -34,9 +34,7 @@ export function validatePasswordFormat(
     }
 }
 
-export function validatePassword(
-    password?: string,
-): string | null {
+export function validatePassword(password?: string): string | null {
     if (!password) return 'Password is required'
 
     const { valid, formatErrors }: TPasswordValidationResult =

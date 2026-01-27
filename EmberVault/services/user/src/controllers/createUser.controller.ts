@@ -1,24 +1,24 @@
-import { hashPassword, sendBadRequestResponse, sendErrorResponse, sendSuccessResponse } from "@agm454-ua/auth-utils"
-import type { TCreateUserRequest } from "@customTypes/user.js"
-import { createUser } from "@services/users.service.js"
-import type { Response, Request, NextFunction } from "express"
-import validateBirthDate from "src/validators/birthDate.validator.js"
-import validateMail from "src/validators/mail.validator.js"
-import validatePassword from "src/validators/password.validator.js"
-import validateUsername from "src/validators/username.validator.js"
-
+import {
+    hashPassword,
+    sendBadRequestResponse,
+    sendErrorResponse,
+    sendSuccessResponse,
+} from '@agm454-ua/auth-utils'
+import type { TCreateUserRequest } from '@customTypes/user.js'
+import { createUser } from '@services/users.service.js'
+import type { Response, Request, NextFunction } from 'express'
+import validateBirthDate from 'src/validators/birthDate.validator.js'
+import validateMail from 'src/validators/mail.validator.js'
+import validatePassword from 'src/validators/password.validator.js'
+import validateUsername from 'src/validators/username.validator.js'
 
 export function validateCreateUserRequest(
     req: Request,
     res: Response,
     next: NextFunction,
 ) {
-    const {
-        username,
-        email,
-        password,
-        birthDate,
-    }: TCreateUserRequest = req.body
+    const { username, email, password, birthDate }: TCreateUserRequest =
+        req.body
     const errors: string[] = []
 
     // Run validators
@@ -44,12 +44,12 @@ export function validateCreateUserRequest(
 export async function createUserController(req: Request, res: Response) {
     const createUserData = req.body as TCreateUserRequest
     createUserData.password = await hashPassword(createUserData.password)
-    
+
     const user = await createUser(createUserData)
 
-    if(!user) {
+    if (!user) {
         return sendErrorResponse(res)
     }
 
-    return sendSuccessResponse(res, {user})
+    return sendSuccessResponse(res, { user })
 }

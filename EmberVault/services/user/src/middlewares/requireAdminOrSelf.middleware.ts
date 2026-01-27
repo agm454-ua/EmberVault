@@ -1,6 +1,9 @@
-import { sendErrorResponse, sendUnauthorizedResponse } from "@agm454-ua/auth-utils"
-import { getAdminRole } from "@services/system_roles.service.js"
-import type { NextFunction, Response, Request } from "express"
+import {
+    sendErrorResponse,
+    sendUnauthorizedResponse,
+} from '@agm454-ua/auth-utils'
+import { getAdminRole } from '@services/system_roles.service.js'
+import type { NextFunction, Response, Request } from 'express'
 
 const requireAdminOrSelf = async (
     req: Request,
@@ -8,8 +11,8 @@ const requireAdminOrSelf = async (
     next: NextFunction,
 ) => {
     const payload = req.user
-    const targetUserId =  req.params.userId as string
-    
+    const targetUserId = req.params.userId as string
+
     if (!payload) {
         return sendErrorResponse(res)
     }

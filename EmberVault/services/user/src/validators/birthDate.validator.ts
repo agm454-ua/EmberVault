@@ -1,4 +1,3 @@
-
 const minAge = 13
 
 export function validateBirthDate(birthDate?: string): string | null {

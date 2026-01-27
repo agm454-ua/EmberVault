@@ -1,4 +1,4 @@
-import type { TSystemRoleID } from "./roles.js"
+import type { TSystemRoleID } from './roles.js'
 import type { Decimal } from '@prisma/client/runtime/client'
 
 export type TUserID = string

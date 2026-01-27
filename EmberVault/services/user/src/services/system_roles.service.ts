@@ -1,7 +1,6 @@
 import { prisma } from '@utils/prisma.js'
 import type { TSystemRoleID } from '@customTypes/roles.js'
 
-
 export const getStandardRole = async (): Promise<TSystemRoleID | null> => {
     const result = await prisma.system_roles.findFirst({
         where: {

@@ -1,4 +1,9 @@
-import type { TCreateUserRequest, TUpdateUserRequest, TUser, TUserID } from '@customTypes/user.js'
+import type {
+    TCreateUserRequest,
+    TUpdateUserRequest,
+    TUser,
+    TUserID,
+} from '@customTypes/user.js'
 import { prisma } from '@utils/prisma.js'
 import type { TSystemRoleID } from '@customTypes/roles.js'
 import type { Decimal } from '@prisma/client/runtime/client'
@@ -19,13 +24,15 @@ const mapUser = (user: {
     avatarURL: user.avatar_url,
     systemRole: user.system_role,
     ...(user.status !== undefined && { status: user.status }),
-    ...(user.storage_limit_gb !== undefined && { storageLimitGB: user.storage_limit_gb }),
-    ...(user.storage_used_gb !== undefined && { storageUsedGB: user.storage_used_gb }),
+    ...(user.storage_limit_gb !== undefined && {
+        storageLimitGB: user.storage_limit_gb,
+    }),
+    ...(user.storage_used_gb !== undefined && {
+        storageUsedGB: user.storage_used_gb,
+    }),
 })
 
-export const getUser = async (
-    identifier: string,
-): Promise<TUser | null> => {
+export const getUser = async (identifier: string): Promise<TUser | null> => {
     const result = await prisma.users.findFirst({
         where: {
             OR: [{ email: identifier }, { username: identifier }],
@@ -38,8 +45,8 @@ export const getUser = async (
             avatar_url: true,
             status: true,
             storage_limit_gb: true,
-            storage_used_gb: true
-        }
+            storage_used_gb: true,
+        },
     })
 
     if (!result) {
@@ -49,12 +56,10 @@ export const getUser = async (
     return mapUser(result)
 }
 
-export const getUserById = async (
-    id: string,
-): Promise<TUser | null> => {
+export const getUserById = async (id: string): Promise<TUser | null> => {
     const result = await prisma.users.findFirst({
         where: {
-            id: id
+            id: id,
         },
         select: {
             id: true,
@@ -64,8 +69,8 @@ export const getUserById = async (
             avatar_url: true,
             status: true,
             storage_limit_gb: true,
-            storage_used_gb: true
-        }
+            storage_used_gb: true,
+        },
     })
 
     if (!result) {
@@ -75,7 +80,9 @@ export const getUserById = async (
     return mapUser(result)
 }
 
-export const createUser = async (userData: TCreateUserRequest): Promise<TUser | null> => {
+export const createUser = async (
+    userData: TCreateUserRequest,
+): Promise<TUser | null> => {
     const result = await prisma.users.create({
         data: {
             email: userData.email,
@@ -97,8 +104,8 @@ export const createUser = async (userData: TCreateUserRequest): Promise<TUser | 
             avatar_url: true,
             status: true,
             storage_limit_gb: true,
-            storage_used_gb: true
-        }
+            storage_used_gb: true,
+        },
     })
 
     return mapUser(result)
@@ -118,14 +125,16 @@ export const usersAddedLastWeek = async (): Promise<number> => {
     return await prisma.users.count({
         where: {
             created_at: {
-                gte: lastWeek
+                gte: lastWeek,
             },
-        }
-    }
-    )
+        },
+    })
 }
 
-export const updateUser = async (userId: TUserID, data: TUpdateUserRequest): Promise<TUser | null> => {
+export const updateUser = async (
+    userId: TUserID,
+    data: TUpdateUserRequest,
+): Promise<TUser | null> => {
     // only uses values that are defined
     const parsedData = Object.fromEntries(
         Object.entries({
@@ -136,14 +145,13 @@ export const updateUser = async (userId: TUserID, data: TUpdateUserRequest): Pro
             birth_date: data.birthDate,
             system_role: data.systemRole,
             status: data.status,
-            storage_limit_gb: data.storageLimitGB
-        }).filter(([, value]) => value !== undefined)
+            storage_limit_gb: data.storageLimitGB,
+        }).filter(([, value]) => value !== undefined),
     )
-
 
     const result = await prisma.users.update({
         where: {
-            id: userId
+            id: userId,
         },
         data: parsedData,
         select: {
@@ -154,10 +162,9 @@ export const updateUser = async (userId: TUserID, data: TUpdateUserRequest): Pro
             avatar_url: true,
             status: true,
             storage_limit_gb: true,
-            storage_used_gb: true
-        }
+            storage_used_gb: true,
+        },
     })
-
 
     if (!result) {
         return null
@@ -169,17 +176,20 @@ export const updateUser = async (userId: TUserID, data: TUpdateUserRequest): Pro
 export const deleteUser = async (userId: TUserID): Promise<boolean> => {
     const result = await prisma.users.update({
         where: {
-            id: userId
+            id: userId,
         },
         data: {
-            status: 'deleted'
-        }
+            status: 'deleted',
+        },
     })
 
     return result !== null
 }
 
-export const getUsers = async (lastCursor: TUserID, take?: string): Promise<TUser[] | null> => {
+export const getUsers = async (
+    lastCursor: TUserID,
+    take?: string,
+): Promise<TUser[] | null> => {
     const myTake = take ? parseInt(take) : 10
 
     const results = await prisma.users.findMany({
@@ -187,11 +197,11 @@ export const getUsers = async (lastCursor: TUserID, take?: string): Promise<TUse
         ...(lastCursor && {
             skip: 1,
             cursor: {
-                id: lastCursor
-            }
+                id: lastCursor,
+            },
         }),
         orderBy: {
-            created_at: "desc"
+            created_at: 'desc',
         },
         select: {
             id: true,
@@ -201,8 +211,8 @@ export const getUsers = async (lastCursor: TUserID, take?: string): Promise<TUse
             avatar_url: true,
             status: true,
             storage_limit_gb: true,
-            storage_used_gb: true
-        }
+            storage_used_gb: true,
+        },
     })
 
     if (!results) {
