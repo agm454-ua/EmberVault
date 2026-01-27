@@ -27,6 +27,6 @@
             "@customTypes/*": ["src/types/*"]
         }
     },
-    "include": ["src/**/*", "prisma.config.ts", "tests/*", "eslint.config.js"],
+    "include": ["src/**/*", "prisma.config.ts", "tests/*", "vitest.config.ts"],
     "exclude": ["node_modules"]
 }
