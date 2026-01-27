@@ -49,22 +49,31 @@ export const getUser = async (
     return mapUser(result)
 }
 
-/*
-export const getUserById = async (id: string): Promise<TUser | null> => {
-    return await prisma.users.findFirst({
+export const getUserById = async (
+    id: string,
+): Promise<TUser | null> => {
+    const result = await prisma.users.findFirst({
         where: {
-            id: id,
+            id: id
         },
         select: {
             id: true,
             email: true,
             username: true,
             system_role: true,
-            password: true,
-        },
+            avatar_url: true,
+            status: true,
+            storage_limit_gb: true,
+            storage_used_gb: true
+        }
     })
+
+    if (!result) {
+        return null
+    }
+
+    return mapUser(result)
 }
-*/
 
 export const createUser = async (userData: TCreateUserRequest): Promise<TUser | null> => {
     const result = await prisma.users.create({
@@ -122,6 +131,7 @@ export const updateUser = async (userId: TUserID, data: TUpdateUserRequest): Pro
         Object.entries({
             username: data.username,
             email: data.email,
+            password: data.password,
             avatar_url: data.avatarURL,
             birth_date: data.birthDate,
             system_role: data.systemRole,
