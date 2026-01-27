@@ -29,6 +29,19 @@ services:
             - postgres
         networks:
             - backend
+    
+    user:
+        build:
+            context: ./EmberVault/services/user
+            secrets:
+                - auth_lib_token
+        container_name: user-service
+        ports:
+            - 3200:3200
+        depends_on:
+            - postgres
+        networks:
+            - backend
 
 volumes:
     postgres_data:
