@@ -1,4 +1,4 @@
-import { sendBadRequestResponse, sendErrorResponse, sendSuccessResponse } from "@agm454-ua/auth-utils"
+import { hashPassword, sendBadRequestResponse, sendErrorResponse, sendSuccessResponse } from "@agm454-ua/auth-utils"
 import type { TCreateUserRequest } from "@customTypes/user.js"
 import { createUser } from "@services/users.service.js"
 import type { Response, Request, NextFunction } from "express"
@@ -43,7 +43,8 @@ export function validateCreateUserRequest(
 
 export async function createUserController(req: Request, res: Response) {
     const createUserData = req.body as TCreateUserRequest
-
+    createUserData.password = await hashPassword(createUserData.password)
+    
     const user = await createUser(createUserData)
 
     if(!user) {

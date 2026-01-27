@@ -1,4 +1,4 @@
-import { sendBadRequestResponse, sendSuccessResponse } from "@agm454-ua/auth-utils"
+import { hashPassword, sendBadRequestResponse, sendSuccessResponse } from "@agm454-ua/auth-utils"
 import type { TUpdateUserRequest, TUserID } from "@customTypes/user.js"
 import { updateUser } from "@services/users.service.js"
 import logger from "@utils/logger.js"
@@ -51,6 +51,11 @@ export async function updateUserController(req: Request, res: Response) {
     }
     if (!userId) {
         return sendBadRequestResponse(res, "Missing User ID in request params")
+    }
+
+    // hash password
+    if (userUpdateRequest.password) {
+        userUpdateRequest.password = await hashPassword(userUpdateRequest.password)
     }
 
     // try/catch so the error message is clear
