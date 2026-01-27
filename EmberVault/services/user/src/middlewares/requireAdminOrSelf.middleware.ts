@@ -2,7 +2,7 @@ import { sendErrorResponse, sendUnauthorizedResponse } from "@agm454-ua/auth-uti
 import { getAdminRole } from "@services/system_roles.service.js"
 import type { NextFunction, Response, Request } from "express"
 
-const requireAdmin = async (
+const requireAdminOrSelf = async (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -33,4 +33,4 @@ const requireAdmin = async (
     next()
 }
 
-export default requireAdmin
+export default requireAdminOrSelf
