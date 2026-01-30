@@ -11,13 +11,25 @@ import {
     updateUserController,
     validateUpdateUserRequest,
 } from '@controllers/updateUser.controller.js'
-import authenticate from '@middlewares/authenticate.middleware.js'
 import { requestLogger } from '@middlewares/requestLogger.middleware.js'
 import requireAdmin from '@middlewares/requireAdmin.middleware.js'
 import requireAdminOrSelf from '@middlewares/requireAdminOrSelf.middleware.js'
 import { Router } from 'express'
+import { asyncHandler } from '@utils/asyncHandler.js'
+import authenticate from '@middlewares/authenticate.middleware.js'
+
+// for code readability
+const a = asyncHandler
 
 const router = Router()
+
+// Request Logger
+router.use(requestLogger)
+
+// Health route
+router.get('/health', (_req, res) => {
+    res.status(200).json({ message: 'ok' })
+})
 
 /*
     GET     /users/count
@@ -29,42 +41,44 @@ const router = Router()
     DELETE  /users/:userId
 */
 
-// Request Logger
-router.use(requestLogger)
-
-// Health route
-router.get('/health', (_req, res) => {
-    res.status(200).json({ message: 'ok' })
-})
-
-router.get('/users/count', authenticate, requireAdmin, getUserCountController)
-router.get('/users/all', authenticate, requireAdmin, listUsersController)
+router.get(
+    '/users/count',
+    a(authenticate),
+    a(requireAdmin),
+    a(getUserCountController),
+)
+router.get(
+    '/users/all',
+    a(authenticate),
+    a(requireAdmin),
+    a(listUsersController),
+)
 router.get(
     '/users/added-last-week',
-    authenticate,
-    requireAdmin,
-    getUsersAddedLastWeekController,
+    a(authenticate),
+    a(requireAdmin),
+    a(getUsersAddedLastWeekController),
 )
 router.post(
     '/users',
-    authenticate,
-    requireAdmin,
+    a(authenticate),
+    a(requireAdmin),
     validateCreateUserRequest,
-    createUserController,
+    a(createUserController),
 )
-router.get('/users/:userId', authenticate, getUserController)
+router.get('/users/:userId', a(authenticate), getUserController)
 router.put(
     '/users/:userId',
-    authenticate,
-    requireAdminOrSelf,
+    a(authenticate),
+    a(requireAdminOrSelf),
     validateUpdateUserRequest,
-    updateUserController,
+    a(updateUserController),
 )
 router.delete(
     '/users/:userId',
-    authenticate,
-    requireAdminOrSelf,
-    deleteUserController,
+    a(authenticate),
+    a(requireAdminOrSelf),
+    a(deleteUserController),
 )
 
 export default router
