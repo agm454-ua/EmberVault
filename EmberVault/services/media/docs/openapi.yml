@@ -1,0 +1,465 @@
+openapi: 3.1.0
+
+info:
+    title: Media API
+    version: '1.0.0'
+    summary: Media service for the EmberVault project
+
+servers:
+    - url: http://localhost:3300/api
+
+security:
+    - bearerAuth: []
+
+paths:
+    /stats/storage-used:
+        get:
+            summary: Get how much storage does the MinIO bucket take
+            operationId: getStorageUsed
+            responses:
+                '200':
+                    description: Storage used
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/StorageUsedResponse'
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not retrieve storage used
+    
+    /stats/files/count:
+        get:
+            summary: Get how many files are stored
+            operationId: getFileCount
+            responses:
+                '200':
+                    description: Numbers of files stored
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    file_number:
+                                        type: integer
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not retrieve number of files
+
+    /stats/files:
+        get:
+            summary: List all files using cursor-based pagination
+            operationId: listFiles
+            parameters:
+                - in: query
+                  name: cursor
+                  schema:
+                      type: string
+                  required: false
+                - in: query
+                  name: take
+                  schema:
+                      type: integer
+                  required: false
+            responses:
+                '200':
+                    description: Files
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/File'
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not retrieve files
+
+    /users/{userId}/resources/{resourceId}:
+        get:
+            summary: Get resource
+            operationId: getResource
+            responses:
+                '200':
+                    description: Resource
+                    content:
+                        application/json:
+                            schema:
+                                oneOf:
+                                    - $ref: '#/components/schemas/File'
+                                    - $ref: '#/components/schemas/Folder'
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not retrieve resource
+        put:
+            summary: Update resource
+            operationId: updateResource
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            oneOf:
+                                - $ref: '#/components/schemas/File'
+                                - $ref: '#/components/schemas/Folder'
+            responses:
+                '200':
+                    description: Updated resource
+                    content:
+                        application/json:
+                            schema:
+                                oneOf:
+                                    - $ref: '#/components/schemas/File'
+                                    - $ref: '#/components/schemas/Folder'
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not update resource
+        delete:
+            summary: Delete resource. This operation completely deletes a file.
+            operationId: deleteResource
+            responses:
+                '200':
+                    description: File deleted
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not delete resource
+
+    /users/{userId}/resources:
+        get:
+            summary: Search a file or folder by name
+            operationId: searchFileByName
+            parameters:
+              - in: query
+                name: q
+                schema:
+                    type: string
+            responses:
+                '200':
+                    description: Found resources
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    oneOf:
+                                        - $ref: '#/components/schemas/File'
+                                        - $ref: '#/components/schemas/Folder'
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error.
+
+
+        post:
+            summary: Create a resource metadata and store it in the database and returns a presigned URL to upload the file directly to the bucket
+            operationId: createResource
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateResourceRequest'
+            responses:
+                '200':
+                    description: Resource created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateResourceResponse'
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not create resources
+
+    /users/{userId}/resources/{resourceId}/upload-complete:
+        post:
+            summary: After uploading the file directly to the bucket, this endpoint updates the metadata in the database (file size, storage path, hash, etc.)
+            operationId: completeUpload
+            responses:
+                '200':
+                    description: Complete upload
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error
+
+    /users/{userId}/resources/{resourceId}/copy:
+        post:
+            summary: Copy a resources. This will generate another resource with the same content as the requested.
+            operationId: copyResource
+            responses:
+                '200':
+                    description: Copied resource/s
+                    content:
+                        application/json:
+                            schema:
+                                oneOf:
+                                    - $ref: '#/components/schemas/File'
+                                    - $ref: '#/components/schemas/Folder'
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not copy resource
+
+    /users/{userId}/resources/{resourceId}/thumbnail:
+        get:
+            summary: Get the thumbnail to preview a file.
+            operationId: getThumbnail
+            responses:
+                '200':
+                    description: Thumbnail.
+                    content:
+                        image/*:
+                            schema:
+                                type: string
+                                format: binary
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not get thumbnail
+
+    /users/{userId}/resources/{resourceId}/download:
+        get:
+            summary: Download resource. In case the resource is a folder, a compressed file will be sent
+            operationId: downloadResource
+            responses:
+                '200':
+                    description: Resource binary
+                    content:
+                        application/octet-stream:
+                            schema:
+                                type: string
+                                format: binary
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not retrieve resource
+
+    /users/{userId}/resources/{resourceId}/resources:
+        get:
+            summary: List all the items inside a folder
+            operationId: listFoldersResources
+            parameters:
+                - in: query
+                  name: cursor
+                  schema:
+                      type: string
+                  required: false
+                - in: query
+                  name: take
+                  schema:
+                      type: integer
+                  required: false
+            responses:
+                '200':
+                    description: Folder's resources
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    oneOf:
+                                        - $ref: '#/components/schemas/File'
+                                        - $ref: '#/components/schemas/Folder'
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not list resources
+
+    /users/{userId}/trash:
+        get:
+            summary: Get all elements in trash bin. Also using cursor-based pagination.
+            operationId: getTrashItems
+            responses:
+                '200':
+                    description: Folder's resources
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    oneOf:
+                                        - $ref: '#/components/schemas/File'
+                                        - $ref: '#/components/schemas/Folder'
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not list resources
+        delete:
+            summary: Empty trash. Give null value to every deleted_at column.
+            operationId: restoreAll
+            responses:
+                '200':
+                    description: Trash empty
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error
+
+    /users/{userId}/resources/{resourceId}/trash:
+        post:
+            summary: Send a resource into the trash. This gives a value to the deleted_at column.
+            operationId: sendResourceToTrash
+            responses:
+                '200':
+                    description: Resource sent to trash.
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error.
+
+    /users/{userId}/resources/{resourceId}/restore:
+        post:
+            summary: Restore a resource from the trash. This gives a null value to the deleted_at column.
+            operationId: restoreResource
+            responses:
+                '200':
+                    description: Resource restored.
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error.
+
+components:
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+
+    parameters:
+        UserId:
+            in: path
+            name: userId
+            required: true
+            schema:
+                type: string
+
+        ResourceId:
+            in: path
+            name: resourceId
+            required: true
+            schema:
+                type: string
+
+    schemas:
+        File:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                deletedAt:
+                    type: string
+                    format: date-time
+                mimeType:
+                    type: string
+                sizeBytes:
+                    type: integer
+                isPrivate:
+                    type: boolean
+                storagePath:
+                    type: string
+                hash:
+                    type: string
+                isCompressed:
+                    type: boolean
+                tumbnailPath:
+                    type: string
+                parentFolder:
+                    type: string
+        Folder:
+            type: object
+            properties:
+                id:
+                    type: string
+                name:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                deletedAt:
+                    type: string
+                    format: date-time
+                isPrivate:
+                    type: boolean
+                parentFolder:
+                    type: string
+
+        StorageUsedResponse:
+            type: object
+            properties:
+                size:
+                    type: integer
+                unit:
+                    type: string
+
+        CreateResourceRequest:
+            type: object
+            required: [name, parentFolder, type]
+            properties:
+                name:
+                    type: string
+                parentFolder:
+                    type: string
+                isPrivate:
+                    type: boolean
+                type:
+                    type: string # FILE or FOLDER
+                mimeType:
+                    type: string # Only required if creating a file
+
+        CreateResourceResponse:
+            type: object
+            required: [presignedURL, objectName]
+            properties:
+                id:
+                    type: string
+                presignedURL:
+                    type: string
+                objectName:
+                    type: string
