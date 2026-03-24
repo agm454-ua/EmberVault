@@ -166,4 +166,5 @@ enum state {
   ready
   error
   processing
+  deleted
 }

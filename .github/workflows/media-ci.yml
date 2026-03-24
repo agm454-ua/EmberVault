@@ -1,0 +1,48 @@
+name: Media Service CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "EmberVault/services/media/**"
+
+jobs:
+  service-media-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./EmberVault/services/media
+        env:
+          AUTH_LIB_TOKEN: ${{ secrets.AUTH_LIB_TOKEN }}
+
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: ./EmberVault/services/media
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Run ESLint
+        run: npm run lint
+        working-directory: ./EmberVault/services/media
+
+      - name: Run Prettier check
+        run: npm run prettier
+        working-directory: ./EmberVault/services/media
+
+      - name: Run TypeScript type check
+        run: npm run typecheck
+        working-directory: ./EmberVault/services/media
+
+      - name: Run tests
+        run: npm run test
+        working-directory: ./EmberVault/services/media
