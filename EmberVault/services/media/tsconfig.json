@@ -24,9 +24,16 @@
             "@middlewares/*": ["src/middlewares/*"],
             "@routes/*": ["src/routes/*"],
             "@config/*": ["src/config/*"],
-            "@customTypes/*": ["src/types/*"]
+            "@customTypes/*": ["src/types/*"],
+            "@mappers/*": ["src/mappers/*"],
+            "@constants/*": ["src/constants/*"]
         }
     },
-    "include": ["src/**/*", "prisma.config.ts", "tests/*", "vitest.config.ts"],
+    "include": [
+        "src/**/*",
+        "prisma.config.ts",
+        "tests/**/*",
+        "vitest.config.ts"
+    ],
     "exclude": ["node_modules"]
 }

@@ -7,6 +7,9 @@ export default defineConfig({
         include: ['tests/**/*.test.ts'],
         globals: true,
         setupFiles: ['./tests/setup.ts'],
+        coverage: {
+            provider: 'v8',
+        },
     },
     resolve: {
         alias: {
@@ -16,7 +19,9 @@ export default defineConfig({
             '@middlewares': path.resolve(__dirname, './src/middlewares'),
             '@routes': path.resolve(__dirname, './src/routes'),
             '@config': path.resolve(__dirname, './src/config'),
-            '@types': path.resolve(__dirname, './src/types'),
+            '@mappers': path.resolve(__dirname, './src/mappers'),
+            '@constants': path.resolve(__dirname, './src/constants'),
+            '@customTypes': path.resolve(__dirname, './src/types'),
         },
     },
 })
