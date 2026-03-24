@@ -9,7 +9,8 @@ CREATE TYPE state AS ENUM (
     'uploading',
     'ready',
     'error',
-    'processing'
+    'processing',
+    'deleted'
 );
 
 CREATE TABLE resources (
@@ -30,6 +31,7 @@ CREATE TABLE folders (
 -- parent_folder foreign key after creating folders table
 ALTER TABLE resources
 ADD CONSTRAINT fk_parent_folder FOREIGN KEY (parent_folder) REFERENCES folders(id) ON DELETE CASCADE;
+
 CREATE TABLE files (
     id UUID PRIMARY KEY REFERENCES resources(id) ON DELETE CASCADE,
     mime_type VARCHAR(100),
