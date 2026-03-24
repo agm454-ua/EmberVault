@@ -25,7 +25,7 @@ import {
     getDownloadUrl,
 } from '@utils/storage.js'
 import { state } from 'src/generated/prisma/client.js'
-import { OWNER_ROLE } from '@customTypes/roles.js'
+import { OWNER_ROLE } from '@constants/roles.js'
 
 const baseSelect = {
     id: true,
