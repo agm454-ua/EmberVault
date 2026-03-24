@@ -13,7 +13,7 @@ const authenticate = async (
     const authHeader = req.headers.authorization
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return sendUnauthorizedResponse(res, 'No token provided.')
+        return sendUnauthorizedResponse(res, 'No token provided')
     }
     const token = authHeader.split(' ')[1]
     if (token) {

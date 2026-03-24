@@ -42,3 +42,12 @@ export const getUserById = async (id: TUserID): Promise<TUser | null> => {
         systemRole: result.system_role,
     }
 }
+
+export const getUserRole = async (id: string): Promise<string | null> => {
+    const result = await prisma.users.findFirst({
+        where: { id },
+        select: { system_role: true },
+    })
+
+    return result?.system_role ?? null
+}

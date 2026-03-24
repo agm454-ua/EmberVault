@@ -1,10 +1,8 @@
 import { requestLogger } from '@middlewares/requestLogger.middleware.js'
 import { Router } from 'express'
-import { asyncHandler } from '@utils/asyncHandler.js'
-import authenticate from '@middlewares/authenticate.middleware.js'
-
-// for code readability
-const a = asyncHandler
+import statsRoutes from './stats.routes.js'
+import resourceRoutes from './resources.routes.js'
+import trashRoutes from './trash.routes.js'
 
 const router = Router()
 
@@ -15,5 +13,10 @@ router.use(requestLogger)
 router.get('/health', (_req, res) => {
     res.status(200).json({ message: 'ok' })
 })
+
+// Routes
+router.use(statsRoutes)
+router.use(resourceRoutes)
+router.use(trashRoutes)
 
 export default router
