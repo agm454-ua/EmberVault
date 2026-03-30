@@ -22,6 +22,9 @@ services:
             context: ./EmberVault/services/auth
             secrets:
                 - auth_lib_token
+                - database_url
+        env_file:
+            - ./EmberVault/services/auth/.env
         ports:
             - 3100:3100
         depends_on:
@@ -34,8 +37,26 @@ services:
             context: ./EmberVault/services/user
             secrets:
                 - auth_lib_token
+                - database_url
+        env_file:
+            - ./EmberVault/services/user/.env
         ports:
             - 3200:3200
+        depends_on:
+            - postgres
+        networks:
+            - backend
+
+    media:
+        build:
+            context: ./EmberVault/services/media
+            secrets:
+                - auth_lib_token
+                - database_url
+        env_file:
+            - ./EmberVault/services/media/.env
+        ports:
+            - 3300:3300
         depends_on:
             - postgres
         networks:
@@ -121,11 +142,13 @@ services:
         secrets:
             - seaweedfs_access_key
             - seaweedfs_secret_key
+            - seaweedfs_bucket
         depends_on:
             seaweedfs-s3:
                 condition: service_healthy
         networks:
             - backend
+
 
 volumes:
     postgres_data:
@@ -140,7 +163,11 @@ networks:
 secrets:
     auth_lib_token:
         environment: AUTH_LIB_TOKEN
+    database_url:
+        environment: DATABASE_URL
     seaweedfs_access_key:
         environment: SEAWEEDFS_ACCESS_KEY
     seaweedfs_secret_key:
         environment: SEAWEEDFS_SECRET_KEY
+    seaweedfs_bucket:
+        environment: SEAWEEDFS_BUCKET
