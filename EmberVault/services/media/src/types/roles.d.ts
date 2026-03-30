@@ -6,7 +6,6 @@ import type { TUserID } from './user.ts'
 export type TResourceRoleID = string
 export type TSystemRoleID = string
 
-export const OWNER_ROLE = 'owner'
 
 export interface TUserResourcePermissions {
     userId: TUserID

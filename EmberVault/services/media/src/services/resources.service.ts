@@ -8,7 +8,7 @@ import { mapResource, resourceSelect } from '@mappers/resource.mapper.js'
 import { fileSelect, mapFile } from '@mappers/file.mapper.js'
 import { state } from 'src/generated/prisma/client.js'
 import type { TUserID } from '@customTypes/user.js'
-import { OWNER_ROLE } from '@customTypes/roles.js'
+import { OWNER_ROLE } from '@constants/roles.js'
 
 export const getResourceById = async (
     resourceId: TResourceID,

@@ -1,6 +1,13 @@
 node_modules
 dist
-Dockerfile
-.dockerignore
 .git
+.gitignore
+.gitattributes
+Dockerfile
+*.log
+coverage
+tmp
 tests
+.dockerignore
+generated
+logs
