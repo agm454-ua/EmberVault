@@ -1,11 +1,4 @@
 services:
-    certs:
-        image: alpine:latest
-        command: sh /scripts/generate-certs.sh
-        volumes:
-            - ./infrastructure/certs/generate-certs.sh:/scripts/generate-certs.sh:ro
-            - certs:/certs
-
     postgres:
         image: postgres:15-alpine
         environment:
@@ -212,7 +205,6 @@ volumes:
     seaweedfs-master-data:
     seaweedfs-volume-data:
     seaweedfs-filer-data:
-    certs:
 
 networks:
     backend:
