@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["partialIndexes"]
 }
 
 datasource db {
@@ -82,6 +83,7 @@ model resources {
 
   @@index([parent_folder], map: "idx_resources_parent_folder")
   @@index([parent_folder, name], map: "idx_resources_parent_name")
+  @@index([deleted_at], map: "idx_resources_not_deleted", where: raw("(deleted_at IS NULL)"))
 }
 
 model system_permissions {
@@ -166,4 +168,5 @@ enum state {
   ready
   error
   processing
+  deleted
 }

@@ -12,6 +12,7 @@ vi.mock('@agm454-ua/auth-utils', async () => {
     const actual = await vi.importActual('@agm454-ua/auth-utils')
     return {
         ...actual,
+        hashPassword: vi.fn(),
         validatePassword: vi.fn(),
         generateToken: vi.fn(),
         validateToken: vi.fn(),
@@ -154,6 +155,7 @@ describe('Auth Endpoints', () => {
                 system_role: 'user',
             }
 
+            vi.mocked(authUtils.hashPassword).mockResolvedValue('hashed-password')
             vi.mocked(usersService.createUser).mockResolvedValue(mockNewUser)
             vi.mocked(authUtils.generateToken).mockReturnValue('mock-jwt-token')
             vi.mocked(sendRefreshTokenCookie).mockReturnValue({} as Response)
