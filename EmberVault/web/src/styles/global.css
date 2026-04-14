@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+@config '../../tailwind.config.ts';
+@import '@fontsource-variable/noto-sans/wght.css';
+@import '@fontsource/gfs-didot';
+
+@layer base {
+	body {
+		@apply font-sans;
+	}
+}
+
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
