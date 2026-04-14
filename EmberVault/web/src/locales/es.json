@@ -1,0 +1,77 @@
+{
+	"nav": {
+		"back": "Volver",
+		"library": "Mi Biblioteca",
+		"shared": "Compartido conmigo",
+		"trash": "Papelera",
+		"profile": "Perfil",
+		"adminPanel": "Administración",
+		"notFound": "Página no encontrada"
+	},
+	"auth": {
+		"login": "Iniciar sesión",
+		"logout": "Cerrar sesión",
+		"usernameOrEmail": "Correo o nombre de usuario",
+		"confirmPassword": "Confirmar contraseña",
+		"register": "Registrarse",
+		"haveAccount": "¿Ya tienes una cuenta? Inicia sesión",
+		"noAccount": "¿No tienes una cuenta? Crea tu biblioteca",
+		"forgotPassword": "Has olvidado tu contraseña?",
+		"createAccount": "Crear cuenta",
+		"recoverPassword": "Recuperar contraseña",
+		"insertEmailToRecover": "Por favor, introduzca su correo electrónico para recibir el código de recuperación",
+		"sendRecoveryCode": "Enviar código de recuperación",
+		"newPassword": "Nueva contraseña",
+		"insertNewPassword": "Por favor, introduzca su nueva contraseña",
+		"modifyPassword": "Modificar contraseña"
+	},
+	"userData": {
+		"email": "Correo electrónico",
+		"username": "Nombre de usuario",
+		"password": "Contraseña",
+		"birthdate": "Fecha de nacimiento",
+		"profilePicture": "Foto de perfil"
+	},
+	"media": {
+		"files": "Archivos",
+		"dragAndDropImage": "Sube o arrastra tu imagen aquí"
+	},
+	"user": {
+		"users": "Usuarios"
+	},
+	"actions": {
+		"actions": "Acciones",
+		"delete": "Eliminar",
+		"restore": "Restaurar",
+		"permanentlyDelete": "Eliminar permanentemente",
+		"share": "Compartir",
+		"edit": "Editar",
+		"save": "Guardar",
+		"cancel": "Cancelar",
+		"confirm": "Confirmar",
+		"close": "Cerrar",
+		"remove": "Borrar",
+		"new": "Nuevo"
+	},
+	"admin": {
+		"storageUsed": "Almacenamiento utilizado",
+		"totalStorage": "Almacenamiento total",
+		"totalFiles": "Archivos totales",
+		"totalUsers": "Usuarios totales",
+		"usersAddedLastWeek": "Usuarios creados en la última semana"
+	},
+	"resourceData": {
+		"name": "Nombre",
+		"owner": "Propietario",
+		"size": "Tamaño",
+		"lastModified": "Última modificación"
+	},
+	"errors": {
+		"generic": "Ha ocurrido un error. Por favor, inténtalo de nuevo.",
+		"network": "Error de red. Por favor, verifica tu conexión a internet.",
+		"unauthorized": "No autorizado. Por favor, inicia sesión para continuar.",
+		"forbidden": "Prohibido. No tienes permiso para realizar esta acción.",
+		"notFound": "No encontrado. El recurso que buscas no existe.",
+		"validation": "Error de validación. Por favor, revisa los datos ingresados."
+	}
+}

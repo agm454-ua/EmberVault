@@ -1,0 +1,77 @@
+{
+	"nav": {
+		"back": "Go back",
+		"library": "My Library",
+		"shared": "Shared with me",
+		"trash": "Trash",
+		"profile": "Profile",
+		"adminPanel": "Admin Panel",
+		"notFound": "Page not found"
+	},
+	"auth": {
+		"login": "Sign in",
+		"logout": "Sign out",
+		"usernameOrEmail": "Username or email address",
+		"confirmPassword": "Confirm password",
+		"register": "Register",
+		"haveAccount": "Already have an account? Sign in",
+		"noAccount": "Don't have an account? Create your library now",
+		"forgotPassword": "Forgot your password?",
+		"createAccount": "Create account",
+		"recoverPassword": "Recover password",
+		"insertEmailToRecover": "Please, insert your email address to receive the recovery code",
+		"sendRecoveryCode": "Send recovery code",
+		"newPassword": "New password",
+		"insertNewPassword": "Please, insert your new password",
+		"modifyPassword": "Modify password"
+	},
+	"userData": {
+		"email": "Email address",
+		"username": "Username",
+		"password": "Password",
+		"birthdate": "Birth date",
+		"profilePicture": "Profile picture"
+	},
+	"media": {
+		"files": "Files",
+		"dragAndDropImage": "Upload or drag and drop your image here"
+	},
+	"user": {
+		"users": "Users"
+	},
+	"actions": {
+		"actions": "Actions",
+		"delete": "Delete",
+		"restore": "Restore",
+		"permanentlyDelete": "Permanently Delete",
+		"share": "Share",
+		"edit": "Edit",
+		"save": "Save",
+		"cancel": "Cancel",
+		"confirm": "Confirm",
+		"close": "Close",
+		"remove": "Remove",
+		"new": "New"
+	},
+	"admin": {
+		"storageUsed": "Storage used",
+		"totalStorage": "Total storage",
+		"totalFiles": "Total files",
+		"totalUsers": "Total users",
+		"usersAddedLastWeek": "Users added last week"
+	},
+	"resourceData": {
+		"name": "Name",
+		"owner": "Owner",
+		"size": "Size",
+		"lastModified": "Last modified"
+	},
+	"errors": {
+		"generic": "An error has occurred. Please, try again later.",
+		"network": "Network error. Please, check your connection and try again.",
+		"unauthorized": "You are not authorized to perform this action. Please, log in and try again.",
+		"forbidden": "You don't have permission to perform this action.",
+		"notFound": "The requested resource was not found.",
+		"validation": "There are validation errors. Please, check the form and try again."
+	}
+}
