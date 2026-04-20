@@ -1,3 +1,5 @@
+export type TResourceID = string
+
 export interface TResource {
 	id: TResourceID
 	name: string

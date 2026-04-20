@@ -90,4 +90,5 @@ export const FileTypeExtensions: Record<string, string[]> = {
 		'dockerfile',
 	],
 	executable: ['exe', 'msi', 'apk', 'dmg', 'pkg', 'deb', 'rpm', 'appimage', 'bin'],
+	book: ['epub', 'mobi', 'azw', 'fb2', 'djvu'],
 }

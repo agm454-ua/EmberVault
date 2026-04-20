@@ -6,7 +6,10 @@
 		"trash": "Papelera",
 		"profile": "Perfil",
 		"adminPanel": "Administración",
-		"notFound": "Página no encontrada"
+		"notFound": "Página no encontrada",
+		"forbidden": "Acceso denegado",
+		"loading": "Cargando...",
+		"wip": "Estamos trabajando en ello. ¡Vuelve más tarde!"
 	},
 	"auth": {
 		"login": "Iniciar sesión",
@@ -23,26 +26,59 @@
 		"sendRecoveryCode": "Enviar código de recuperación",
 		"newPassword": "Nueva contraseña",
 		"insertNewPassword": "Por favor, introduzca su nueva contraseña",
-		"modifyPassword": "Modificar contraseña"
+		"modifyPassword": "Modificar contraseña",
+		"resendRecoveryCode": "Reenviar código de recuperación",
+		"recoveryCodeSent": "Se ha enviado un código de recuperación. Por favor, revise su bandeja de entrada y carpeta de spam. Ahora puede cerrar esta ventana."
 	},
 	"userData": {
 		"email": "Correo electrónico",
 		"username": "Nombre de usuario",
 		"password": "Contraseña",
 		"birthdate": "Fecha de nacimiento",
-		"profilePicture": "Foto de perfil"
+		"profilePicture": "Foto de perfil",
+		"role": "Rol",
+		"status": "Estado"
 	},
 	"media": {
 		"files": "Archivos",
-		"dragAndDropImage": "Sube o arrastra tu imagen aquí"
+		"dragAndDropImage": "Sube o arrastra tu imagen aquí",
+		"dragAndDropResource": "Arrastra archivos aqui o haz clic para seleccionarlos",
+		"selectFiles": "Seleccionar archivos",
+		"filesSelected": "{{count}} archivos seleccionados",
+		"totalSize": "Tamaño total",
+		"uploadFiles": "Subir archivos",
+		"uploading": "Subiendo...",
+		"uploadCompleted": "{{count}} archivos subidos correctamente",
+		"noFiles": "Esta carpeta está vacia.",
+		"download": "Descargar",
+		"open": "Abrir",
+		"rename": "Renombrar",
+		"newName": "Nuevo nombre",
+		"delete": "Eliminar",
+		"restore": "Restaurar",
+		"restoreAll": "Restaurar todo",
+		"permanentlyDelete": "Eliminar permanentemente",
+		"moveToTrash": "Mover a la papelera",
+		"emptyTrash": "Vaciar papelera",
+		"trashEmptied": "Papelera vaciada correctamente",
+		"createFolder": "Crear carpeta",
+		"creatingFolder": "Creando...",
+		"folderNamePlaceholder": "Nombre de la carpeta"
 	},
 	"user": {
-		"users": "Usuarios"
+		"users": "Usuarios",
+		"user": "Usuario",
+		"statusValues": {
+			"active": "Activo",
+			"suspended": "Suspendido",
+			"deleted": "Eliminado"
+		}
 	},
 	"actions": {
 		"actions": "Acciones",
 		"delete": "Eliminar",
 		"restore": "Restaurar",
+		"restoreAll": "Restaurar todo",
 		"permanentlyDelete": "Eliminar permanentemente",
 		"share": "Compartir",
 		"edit": "Editar",
@@ -58,7 +94,12 @@
 		"totalStorage": "Almacenamiento total",
 		"totalFiles": "Archivos totales",
 		"totalUsers": "Usuarios totales",
-		"usersAddedLastWeek": "Usuarios creados en la última semana"
+		"usersAddedLastWeek": "Usuarios creados en la última semana",
+		"createUser": "Crear usuario",
+		"promoteToAdmin": "Promover a administrador",
+		"suspendUser": "Suspender usuario",
+		"reactivateUser": "Reactivar usuario",
+		"confirmDeleteUser": "¿Eliminar al usuario {{username}}?"
 	},
 	"resourceData": {
 		"name": "Nombre",
@@ -72,6 +113,29 @@
 		"unauthorized": "No autorizado. Por favor, inicia sesión para continuar.",
 		"forbidden": "Prohibido. No tienes permiso para realizar esta acción.",
 		"notFound": "No encontrado. El recurso que buscas no existe.",
-		"validation": "Error de validación. Por favor, revisa los datos ingresados."
+		"validation": "Error de validación. Por favor, revisa los datos ingresados.",
+		"allFieldsRequired": "Por favor, rellene todos los campos.",
+		"passwordsDontMatch": "Las contraseñas no coinciden.",
+		"invalidEmail": "Correo invalido.",
+		"weakPassword": "La contraseña es demasiado débil. Debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y símbolos.",
+		"usernameTaken": "Este nombre de usuario ya está en uso. Por favor, elige otro.",
+		"emailTaken": "Esta dirección de correo electrónico ya está registrada. Por favor, usa otra.",
+		"registrationFailed": "Fallo en el registro. Por favor, inténtalo de nuevo más tarde.",
+		"loginFailed": "Fallo al iniciar sesión. Por favor, verifica tus credenciales y vuelve a intentarlo.",
+		"uploadFailed": "Fallo al cargar el archivo. Por favor, inténtalo de nuevo.",
+		"deleteFailed": "No se pudo eliminar el recurso. Por favor, inténtalo de nuevo.",
+		"restoreFailed": "No se pudo restaurar el recurso. Por favor, inténtalo de nuevo.",
+		"permanentDeleteFailed": "No se pudo eliminar permanentemente el recurso. Por favor, inténtalo de nuevo.",
+		"shareFailed": "No se pudo compartir el recurso. Por favor, inténtalo de nuevo.",
+		"editFailed": "No se pudo editar el recurso. Por favor, inténtalo de nuevo.",
+		"fetchDataFailed": "No se pudieron obtener los datos. Por favor, inténtalo de nuevo.",
+		"resetPasswordFailed": "No se pudo restablecer la contraseña. Por favor, inténtalo de nuevo. Compruebe que su nueva contraseña cumple con los requisitos de seguridad."
+	},
+	"profilePage": {
+		"uploadProfilePicture": "Subir nueva foto de perfil",
+		"changePassword": "Cambiar contraseña",
+		"currentPassword": "Contraseña actual",
+		"newPassword": "Nueva contraseña",
+		"confirmNewPassword": "Confirmar nueva contraseña"
 	}
 }

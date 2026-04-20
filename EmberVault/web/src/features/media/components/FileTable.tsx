@@ -1,332 +1,413 @@
 import FileRow from './FileRow'
 import type { TResourceResponse } from '../types/resources'
 import { useTranslation } from 'react-i18next'
+import FolderOpenIcon from '../icons/FolderOpenIcon'
+import FolderIcon from '../icons/FolderIcon'
+import { useEffect, useRef, useState, type DragEvent, type SubmitEvent } from 'react'
+import Button from '@/shared/components/Button'
+import useCreateResource from '../hooks/useCreateResource'
+import { useContextMenu } from '@/shared/hooks/useContextMenu'
+import { ContextMenu } from '@/shared/components/ContextMenu'
+import useUpdateResource from '../hooks/useUpdateResource'
+import SuccessMessage from '@/shared/components/SuccessMessage'
+import ErrorMessage from '@/shared/components/ErrorMessage'
+import sortResources from '../utils/sortResources'
 
-const mockedResources = [
-	{
-		id: 'fld_01j8k2m4n6p9q1r3s5t7u9v0',
-		name: 'Projects',
-		type: 'FOLDER',
-		isPrivate: false,
-		state: 'ACTIVE',
-		size: '1.2 GB',
-		createdAt: '2024-01-15T09:23:11.000Z',
-		updatedAt: '2025-03-28T14:05:42.000Z',
-		deletedAt: null,
-		parentFolder: null,
-		owner: 'Alex',
-	},
-	{
-		id: 'fld_02a9b3c5d7e1f4g6h8i0j2k4',
-		name: 'Design Assets',
-		type: 'FOLDER',
-		isPrivate: false,
-		state: 'ACTIVE',
-		size: '540.3 MB',
-		createdAt: '2024-02-03T11:10:00.000Z',
-		updatedAt: '2025-04-01T08:30:00.000Z',
-		deletedAt: null,
-		parentFolder: 'fld_01j8k2m4n6p9q1r3s5t7u9v0',
-		owner: 'Alex',
-	},
-	{
-		id: 'fld_03l5m7n9o1p3q5r7s9t1u3v5',
-		name: 'Archive 2023',
-		type: 'FOLDER',
-		isPrivate: true,
-		state: 'ACTIVE',
-		size: '3.7 GB',
-		createdAt: '2023-12-31T23:59:00.000Z',
-		updatedAt: null,
-		deletedAt: null,
-		parentFolder: null,
-		owner: 'Alex',
-	},
-	{
-		id: 'fld_04w6x8y0z2a4b6c8d0e2f4g6',
-		name: 'Trash',
-		type: 'FOLDER',
-		isPrivate: true,
-		state: 'ACTIVE',
-		size: '82.1 MB',
-		createdAt: '2024-01-15T09:23:12.000Z',
-		updatedAt: '2025-04-10T17:44:21.000Z',
-		deletedAt: null,
-		parentFolder: null,
-		owner: 'Alex',
-	},
-	{
-		id: 'fil_05h7i9j1k3l5m7n9o1p3q5r7',
-		name: 'brand_guidelines.pdf',
-		type: 'FILE',
-		isPrivate: false,
-		state: 'ACTIVE',
-		mimeType: 'application/pdf',
-		size: '4.8 MB',
-		storagePath: 'storage/Alex/projects/brand_guidelines.pdf',
-		checksum: 'sha256:a3f1c2e4b5d6789012345678abcdef01234567890abcdef1234567890abcdef12',
-		thumbnailPath: 'thumbnails/Alex/fil_05h7i9j1k3l5m7n9o1p3q5r7.webp',
-		metadata: {
-			pageCount: 34,
-			author: 'Sarah Connors',
-			pdfVersion: '1.7',
-		},
-		createdAt: '2024-03-12T10:15:33.000Z',
-		updatedAt: '2024-11-20T16:42:00.000Z',
-		deletedAt: null,
-		parentFolder: 'fld_01j8k2m4n6p9q1r3s5t7u9v0',
-		owner: 'Alex',
-	},
-	{
-		id: 'fil_06s8t0u2v4w6x8y0z2a4b6c8',
-		name: 'hero_banner.png',
-		type: 'FILE',
-		isPrivate: false,
-		state: 'ACTIVE',
-		mimeType: 'image/png',
-		size: '2.1 MB',
-		storagePath: 'storage/Alex/projects/design/hero_banner.png',
-		checksum: 'sha256:b4e2d3f5c6a789012345678abcdef01234567890abcdef1234567890abcdef34',
-		thumbnailPath: 'thumbnails/Alex/fil_06s8t0u2v4w6x8y0z2a4b6c8.webp',
-		metadata: {
-			width: 2560,
-			height: 1440,
-			colorSpace: 'sRGB',
-			hasAlpha: true,
-			dpi: 144,
-		},
-		createdAt: '2024-04-05T13:22:00.000Z',
-		updatedAt: null,
-		deletedAt: null,
-		parentFolder: 'fld_02a9b3c5d7e1f4g6h8i0j2k4',
-		owner: 'Alex',
-	},
-	{
-		id: 'fil_07d9e1f3g5h7i9j1k3l5m7n9',
-		name: 'product_demo.mp4',
-		type: 'FILE',
-		isPrivate: false,
-		state: 'ACTIVE',
-		mimeType: 'video/mp4',
-		size: '184.6 MB',
-		storagePath: 'storage/Alex/projects/product_demo.mp4',
-		checksum: 'sha256:c5f3e4g6d7b890123456789abcdef01234567890abcdef1234567890abcdef56',
-		thumbnailPath: 'thumbnails/Alex/fil_07d9e1f3g5h7i9j1k3l5m7n9.webp',
-		metadata: {
-			duration: 312,
-			width: 1920,
-			height: 1080,
-			frameRate: 30,
-			codec: 'H.264',
-			audioTracks: 1,
-			bitrate: '4800kbps',
-		},
-		createdAt: '2024-05-18T09:00:00.000Z',
-		updatedAt: '2024-06-01T11:30:00.000Z',
-		deletedAt: null,
-		parentFolder: 'fld_01j8k2m4n6p9q1r3s5t7u9v0',
-		owner: 'Alex',
-	},
-	{
-		id: 'fil_08o0p2q4r6s8t0u2v4w6x8y0',
-		name: 'Q1_2025_report.xlsx',
-		type: 'FILE',
-		isPrivate: true,
-		state: 'ACTIVE',
-		mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-		size: '1.3 MB',
-		storagePath: 'storage/Alex/projects/Q1_2025_report.xlsx',
-		checksum: 'sha256:d6g4f5h7e8c901234567890abcdef01234567890abcdef1234567890abcdef78',
-		thumbnailPath: null,
-		metadata: {
-			sheetCount: 5,
-			sheets: ['Summary', 'Revenue', 'Expenses', 'Headcount', 'KPIs'],
-			lastModifiedBy: 'user_james_miller',
-		},
-		createdAt: '2025-01-10T08:45:00.000Z',
-		updatedAt: '2025-03-31T17:59:00.000Z',
-		deletedAt: null,
-		parentFolder: 'fld_01j8k2m4n6p9q1r3s5t7u9v0',
-		owner: 'Alex',
-	},
-	{
-		id: 'fil_09z1a3b5c7d9e1f3g5h7i9j1',
-		name: 'pitch_deck_v3.pptx',
-		type: 'FILE',
-		isPrivate: true,
-		state: 'ACTIVE',
-		mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-		size: '9.7 MB',
-		storagePath: 'storage/Alex/projects/pitch_deck_v3.pptx',
-		checksum: 'sha256:e7h5g6i8f9d012345678901abcdef01234567890abcdef1234567890abcdef90',
-		thumbnailPath: 'thumbnails/Alex/fil_09z1a3b5c7d9e1f3g5h7i9j1.webp',
-		metadata: {
-			slideCount: 22,
-			theme: 'Corporate Dark',
-			hasAnimations: true,
-		},
-		createdAt: '2025-02-14T15:00:00.000Z',
-		updatedAt: '2025-04-08T10:20:00.000Z',
-		deletedAt: null,
-		parentFolder: 'fld_01j8k2m4n6p9q1r3s5t7u9v0',
-		owner: 'Alex',
-	},
-	{
-		id: 'fil_10k2l4m6n8o0p2q4r6s8t0u2',
-		name: 'soundtrack_intro.mp3',
-		type: 'FILE',
-		isPrivate: false,
-		state: 'ACTIVE',
-		mimeType: 'audio/mpeg',
-		size: '6.2 MB',
-		storagePath: 'storage/Alex/projects/audio/soundtrack_intro.mp3',
-		checksum: 'sha256:f8i6h7j9g0e123456789012abcdef01234567890abcdef1234567890abcdef12',
-		thumbnailPath: null,
-		metadata: {
-			duration: 214,
-			bitrate: '320kbps',
-			sampleRate: 44100,
-			channels: 2,
-			artist: 'Studio Sound Co.',
-			album: 'Brand Kit 2025',
-		},
-		createdAt: '2024-09-03T14:11:00.000Z',
-		updatedAt: null,
-		deletedAt: null,
-		parentFolder: 'fld_02a9b3c5d7e1f4g6h8i0j2k4',
-		owner: 'Alex',
-	},
-	{
-		id: 'fil_11v3w5x7y9z1a3b5c7d9e1f3',
-		name: 'api_schema.json',
-		type: 'FILE',
-		isPrivate: false,
-		state: 'ACTIVE',
-		mimeType: 'application/json',
-		size: '48.0 KB',
-		storagePath: 'storage/Alex/projects/dev/api_schema.json',
-		checksum: 'sha256:g9j7i8k0h1f234567890123abcdef01234567890abcdef1234567890abcdef34',
-		thumbnailPath: null,
-		metadata: {
-			schemaVersion: '3.1.0',
-			endpointCount: 42,
-			format: 'OpenAPI',
-		},
-		createdAt: '2024-07-22T10:00:00.000Z',
-		updatedAt: '2025-04-11T09:15:00.000Z',
-		deletedAt: null,
-		parentFolder: 'fld_01j8k2m4n6p9q1r3s5t7u9v0',
-		owner: 'Alex',
-	},
-	{
-		id: 'fil_12g4h6i8j0k2l4m6n8o0p2q4',
-		name: 'source_backup.zip',
-		type: 'FILE',
-		isPrivate: true,
-		state: 'ACTIVE',
-		mimeType: 'application/zip',
-		size: '312.5 MB',
-		storagePath: 'storage/Alex/archive2023/source_backup.zip',
-		checksum: 'sha256:h0k8j9l1i2g345678901234abcdef01234567890abcdef1234567890abcdef56',
-		thumbnailPath: null,
-		metadata: {
-			fileCount: 1842,
-			compressionRatio: '68%',
-			uncompressedSize: '976.1 MB',
-		},
-		createdAt: '2023-12-31T22:00:00.000Z',
-		updatedAt: null,
-		deletedAt: null,
-		parentFolder: 'fld_03l5m7n9o1p3q5r7s9t1u3v5',
-		owner: 'Alex',
-	},
-	{
-		id: 'fil_13r5s7t9u1v3w5x7y9z1a3b5',
-		name: 'logo_vector.ai',
-		type: 'FILE',
-		isPrivate: false,
-		state: 'ACTIVE',
-		mimeType: 'application/postscript',
-		size: '3.4 MB',
-		storagePath: 'storage/Alex/projects/design/logo_vector.ai',
-		checksum: 'sha256:i1l9k0m2j3h456789012345abcdef01234567890abcdef1234567890abcdef78',
-		thumbnailPath: 'thumbnails/Alex/fil_13r5s7t9u1v3w5x7y9z1a3b5.webp',
-		metadata: {
-			artboardCount: 6,
-			colorMode: 'CMYK',
-			illustratorVersion: '28.0',
-		},
-		createdAt: '2024-02-10T09:30:00.000Z',
-		updatedAt: '2024-08-15T14:00:00.000Z',
-		deletedAt: null,
-		parentFolder: 'fld_02a9b3c5d7e1f4g6h8i0j2k4',
-		owner: 'Alex',
-	},
-	{
-		id: 'fil_14c6d8e0f2g4h6i8j0k2l4m6',
-		name: 'meeting_notes.md',
-		type: 'FILE',
-		isPrivate: false,
-		state: 'ACTIVE',
-		mimeType: 'text/markdown',
-		size: '12.0 KB',
-		storagePath: 'storage/Alex/projects/meeting_notes.md',
-		checksum: 'sha256:j2m0l1n3k4i567890123456abcdef01234567890abcdef1234567890abcdef90',
-		thumbnailPath: null,
-		metadata: {
-			wordCount: 1840,
-			lineCount: 112,
-		},
-		createdAt: '2025-03-05T11:00:00.000Z',
-		updatedAt: '2025-04-12T09:45:00.000Z',
-		deletedAt: null,
-		parentFolder: 'fld_01j8k2m4n6p9q1r3s5t7u9v0',
-		owner: 'Alex',
-	},
-	{
-		id: 'fil_15n7o9p1q3r5s7t9u1v3w5x7',
-		name: 'old_invoice_jan.pdf',
-		type: 'FILE',
-		isPrivate: true,
-		state: 'DELETED',
-		mimeType: 'application/pdf',
-		size: '220.0 KB',
-		storagePath: null,
-		checksum: 'sha256:',
-		thumbnailPath: null,
-		metadata: {
-			pageCount: 2,
-			invoiceNumber: 'INV-2024-0042',
-		},
-		createdAt: '2024-01-31T17:00:00.000Z',
-		updatedAt: '2025-04-10T17:44:21.000Z',
-		deletedAt: '2025-04-10T17:44:21.000Z',
-		parentFolder: 'fld_04w6x8y0z2a4b6c8d0e2f4g6',
-		owner: 'Alex',
-	}
-] as const satisfies TResourceResponse[]
+export default function FileTable({
+	resources = [],
+	className,
+	mode = 'library',
+	enableFolderControls = false,
+	currentFolderId,
+	path = [],
+	onOpenFolder,
+	onNavigateToPath,
+	fullPage = true,
+}: {
+	resources?: TResourceResponse[]
+	className?: string
+	mode?: 'library' | 'trash' | 'admin'
+	enableFolderControls?: boolean
+	currentFolderId?: string | null
+	path?: Array<{ id: string; name: string }>
+	onOpenFolder?: (resource: TResourceResponse) => void
+	onNavigateToPath?: (index: number) => void
+	fullPage?: boolean
+}) {
+	const sortedResources = sortResources(resources)
 
-export default function FileTable({ resources = mockedResources, className }: { resources?: TResourceResponse[]; className?: string }) {
 	const { t } = useTranslation()
+	const createResourceMutation = useCreateResource()
+	const [newFolderName, setNewFolderName] = useState('')
+	const [createFolderError, setCreateFolderError] = useState<string | null>(null)
+	const [isInlineCreateOpen, setIsInlineCreateOpen] = useState(false)
+	const [draggingFile, setDraggingFile] = useState<TResourceResponse | null>(null)
+	const [dropTargetFolderId, setDropTargetFolderId] = useState<string | null>(null)
+	const [movingFileError, setMovingFileError] = useState<string | null>(null)
+	const [isTableFileDragOver, setIsTableFileDragOver] = useState(false)
+	const [uploadError, setUploadError] = useState<string | null>(null)
+	const [uploadedCount, setUploadedCount] = useState(0)
+	const tableFileDragDepth = useRef(0)
+	const newFolderInputRef = useRef<HTMLInputElement>(null)
+	const headerMenu = useContextMenu()
+	const moveFileMutation = useUpdateResource(draggingFile?.id ?? '')
+
+	useEffect(() => {
+		if (!isInlineCreateOpen) {
+			return
+		}
+
+		newFolderInputRef.current?.focus()
+	}, [isInlineCreateOpen])
+
+	const openInlineCreateRow = () => {
+		setCreateFolderError(null)
+		setNewFolderName('')
+		setIsInlineCreateOpen(true)
+	}
+
+	const closeInlineCreateRow = () => {
+		if (createResourceMutation.isPending) {
+			return
+		}
+
+		setCreateFolderError(null)
+		setNewFolderName('')
+		setIsInlineCreateOpen(false)
+	}
+
+	const handleCreateFolder = async (event: SubmitEvent<HTMLElement>) => {
+		event.preventDefault()
+
+		const normalizedName = newFolderName.trim()
+		if (!normalizedName || createResourceMutation.isPending) {
+			return
+		}
+
+		setCreateFolderError(null)
+
+		try {
+			await createResourceMutation.mutateAsync({
+				name: normalizedName,
+				type: 'FOLDER',
+				isPrivate: false,
+				parentFolder: currentFolderId ?? null,
+			})
+
+			setNewFolderName('')
+			setCreateFolderError(null)
+			setIsInlineCreateOpen(false)
+		} catch {
+			setCreateFolderError(t('errors.generic'))
+		}
+	}
+
+	const canNavigateBack = path.length > 1
+	const isDraggingFile = Boolean(draggingFile)
+	const isTrashMode = mode === 'trash'
+	const isAdminMode = mode === 'admin'
+	const canCreateFolders = !isTrashMode && !isAdminMode
+	const canUploadFiles = !isTrashMode && !isAdminMode
+
+	const hasExternalFiles = (event: DragEvent<HTMLElement>) => Array.from(event.dataTransfer.types).includes('Files')
+
+	const clearDragState = () => {
+		setDraggingFile(null)
+		setDropTargetFolderId(null)
+	}
+
+	const handleFileDragStart = (resource: TResourceResponse) => {
+		if (resource.type !== 'FILE') {
+			return
+		}
+
+		setMovingFileError(null)
+		setDraggingFile(resource)
+	}
+
+	const handleFolderDragOver = (resource: TResourceResponse) => {
+		if (!draggingFile || resource.type !== 'FOLDER') {
+			return
+		}
+
+		if (draggingFile.parentFolder === resource.id) {
+			setDropTargetFolderId(null)
+			return
+		}
+
+		setDropTargetFolderId(resource.id)
+	}
+
+	const handleFolderDrop = async (resource: TResourceResponse) => {
+		if (!draggingFile || resource.type !== 'FOLDER') {
+			return
+		}
+
+		if (draggingFile.parentFolder === resource.id || moveFileMutation.isPending) {
+			clearDragState()
+			return
+		}
+
+		setMovingFileError(null)
+
+		try {
+			await moveFileMutation.mutateAsync({ parentFolder: resource.id })
+			clearDragState()
+		} catch {
+			setMovingFileError(t('errors.editFailed'))
+			clearDragState()
+		}
+	}
+
+	const handleTableDragEnter = (event: DragEvent<HTMLDivElement>) => {
+		if (!canUploadFiles) {
+			return
+		}
+
+		if (!hasExternalFiles(event)) {
+			return
+		}
+
+		event.preventDefault()
+		tableFileDragDepth.current += 1
+		setIsTableFileDragOver(true)
+	}
+
+	const handleTableDragOver = (event: DragEvent<HTMLDivElement>) => {
+		if (!canUploadFiles) {
+			return
+		}
+
+		if (!hasExternalFiles(event)) {
+			return
+		}
+
+		event.preventDefault()
+		event.dataTransfer.dropEffect = 'copy'
+	}
+
+	const handleTableDragLeave = (event: DragEvent<HTMLDivElement>) => {
+		if (!canUploadFiles) {
+			return
+		}
+
+		if (!hasExternalFiles(event)) {
+			return
+		}
+
+		event.preventDefault()
+		tableFileDragDepth.current = Math.max(0, tableFileDragDepth.current - 1)
+		if (tableFileDragDepth.current === 0) {
+			setIsTableFileDragOver(false)
+		}
+	}
+
+	const handleTableDrop = async (event: DragEvent<HTMLDivElement>) => {
+		if (!canUploadFiles) {
+			return
+		}
+
+		if (!hasExternalFiles(event)) {
+			return
+		}
+
+		event.preventDefault()
+		tableFileDragDepth.current = 0
+		setIsTableFileDragOver(false)
+
+		const droppedFiles = Array.from(event.dataTransfer.files ?? [])
+		if (!droppedFiles.length || createResourceMutation.isPending) {
+			return
+		}
+
+		setUploadError(null)
+		setUploadedCount(0)
+
+		let successfulUploads = 0
+		const failedFiles: string[] = []
+
+		for (const file of droppedFiles) {
+			try {
+				await createResourceMutation.mutateAsync({
+					name: file.name,
+					type: 'FILE',
+					isPrivate: false,
+					parentFolder: currentFolderId ?? null,
+					mimeType: file.type || 'application/octet-stream',
+					file,
+				})
+				successfulUploads += 1
+			} catch {
+				failedFiles.push(file.name)
+			}
+		}
+
+		setUploadedCount(successfulUploads)
+
+		setTimeout(() => {
+			setUploadedCount(0)
+		}, 5000)
+
+		if (failedFiles.length) {
+			setUploadError(`${t('errors.uploadFailed')} (${failedFiles.join(', ')})`)
+		}
+	}
+
+	const headerMenuItems = [
+		{
+			label: t('media.createFolder'),
+			onClick: openInlineCreateRow,
+			disabled: !canCreateFolders || isInlineCreateOpen || createResourceMutation.isPending,
+		},
+	]
+
+	const hasResources = Boolean(sortedResources && sortedResources.length > 0)
 
 	return (
-		<div className={`h-[calc(100vh-8rem)] min-w-0 w-full max-w-full overflow-y-auto overflow-x-hidden no-scrollbar ${className || ''}`}>
-			<table className="min-w-0 w-full table-fixed border-collapse">
-				<thead className="h-12 text-sm text-ink">
-					<tr>
-						<th className="sticky top-0 z-10 bg-surface-gray text-start pl-4 font-medium">{t('resourceData.name')}</th>
-						<th className="sticky top-0 z-10 bg-surface-gray font-medium">{t('resourceData.owner')}</th>
-						<th className="sticky top-0 z-10 bg-surface-gray font-medium">{t('resourceData.lastModified')}</th>
-						<th className="sticky top-0 z-10 bg-surface-gray font-medium">{t('resourceData.size')}</th>
-						<th className="sticky top-0 z-10 w-12 bg-surface-gray font-medium"></th>
-					</tr>
-				</thead>
-				<tbody>
-					{resources.map((resource) => (
-						<FileRow key={resource.id} resource={resource} />
-					))}
-				</tbody>
-			</table>
+		<div className={`w-full flex flex-col gap-4 ${fullPage ? 'h-[calc(100vh-8rem)]' : ''}`}>
+			{headerMenu.isOpen && (
+				<ContextMenu
+					x={headerMenu.position.x}
+					y={headerMenu.position.y}
+					items={headerMenuItems}
+					onClose={headerMenu.close}
+				/>
+			)}
+
+			{enableFolderControls && (
+				<div className="absolute bottom-8 right-4 z-2000">
+					<Button
+						type="button"
+						variant="secondary"
+						disabled={!canNavigateBack}
+						onClick={() => onNavigateToPath?.(path.length - 2)}
+					>
+						{t('nav.back')}
+					</Button>
+				</div>
+			)}
+
+			<div
+				className={`relative min-w-0 w-full max-w-full overflow-y-auto overflow-x-hidden no-scrollbar ${className || ''}`}
+				onDragEnter={handleTableDragEnter}
+				onDragOver={handleTableDragOver}
+				onDragLeave={handleTableDragLeave}
+				onDrop={handleTableDrop}
+			>
+				{movingFileError && <ErrorMessage text={movingFileError} />}
+				{uploadError && <ErrorMessage text={uploadError} />}
+				{uploadedCount > 0 && <SuccessMessage text={t('media.uploadCompleted', { count: uploadedCount })} />}
+
+				{canUploadFiles && isTableFileDragOver && (
+					<div className="absolute inset-0 z-20 bg-surface-canvas/85 border-2 border-dashed border-stroke-focus rounded-lg flex items-center justify-center pointer-events-none">
+						<div className="text-sm text-ink-muted">{t('media.dragAndDropResource')}</div>
+					</div>
+				)}
+				<table className="min-w-0 w-full table-fixed border-collapse">
+					<thead className="h-12 text-sm text-ink" {...headerMenu.bind()}>
+						<tr>
+							<th className="w-1/3 sticky top-0 z-10 bg-surface-gray text-start pl-4 font-medium">
+								{t('resourceData.name')}
+							</th>
+							<th className="sticky top-0 z-10 bg-surface-gray font-medium">{t('resourceData.owner')}</th>
+							<th className="sticky top-0 z-10 bg-surface-gray font-medium">
+								{t('resourceData.lastModified')}
+							</th>
+							<th className="sticky top-0 z-10 bg-surface-gray font-medium">{t('resourceData.size')}</th>
+							<th className="sticky top-0 z-10 w-12 bg-surface-gray font-medium"></th>
+						</tr>
+					</thead>
+					<tbody>
+						{enableFolderControls && canNavigateBack && (
+							<tr
+								className="border-b border-stroke-muted h-12 text-sm text-ink-muted hover:bg-surface-muted cursor-pointer"
+								onClick={() => onNavigateToPath?.(path.length - 2)}
+							>
+								<td>
+									<div className="flex min-w-0 gap-2 items-center pl-4">
+										<FolderIcon />
+										<span className="truncate" title="..">
+											..
+										</span>
+									</div>
+								</td>
+								<td className="text-center">-</td>
+								<td className="text-center">-</td>
+								<td className="text-center">-</td>
+								<td className="h-12"></td>
+							</tr>
+						)}
+
+						{canCreateFolders && isInlineCreateOpen && (
+							<>
+								<tr className="border-b border-stroke-muted bg-surface-muted/40">
+									<td colSpan={5}>
+										<form onSubmit={handleCreateFolder} className="px-4 py-3 flex flex-col gap-2">
+											<div className="flex items-center gap-2">
+												<input
+													ref={newFolderInputRef}
+													type="text"
+													value={newFolderName}
+													onChange={(event) => setNewFolderName(event.target.value)}
+													placeholder={t('media.folderNamePlaceholder')}
+													className="flex-1 rounded-md border border-stroke bg-surface-canvas px-3 py-2 text-sm text-ink placeholder:text-ink-muted focus:border-stroke-focus focus:outline-none"
+													maxLength={120}
+												/>
+												<Button
+													type="button"
+													variant="ghost"
+													disabled={createResourceMutation.isPending}
+													onClick={closeInlineCreateRow}
+												>
+													{t('actions.cancel')}
+												</Button>
+												<Button
+													type="submit"
+													disabled={!newFolderName.trim() || createResourceMutation.isPending}
+												>
+													{createResourceMutation.isPending
+														? t('media.creatingFolder')
+														: t('media.createFolder')}
+												</Button>
+											</div>
+											{createFolderError && (
+												<p className="text-sm text-danger-500">{createFolderError}</p>
+											)}
+										</form>
+									</td>
+								</tr>
+							</>
+						)}
+
+						{sortedResources.map((resource) => (
+							<FileRow
+								key={resource.id}
+								resource={resource}
+								mode={mode}
+								onOpenFolder={onOpenFolder}
+								onFileDragStart={handleFileDragStart}
+								onFileDragEnd={clearDragState}
+								onFolderDragOver={handleFolderDragOver}
+								onFolderDragLeave={() => setDropTargetFolderId(null)}
+								onFolderDrop={handleFolderDrop}
+								isDropTarget={dropTargetFolderId === resource.id}
+								isDraggingFile={isDraggingFile}
+							/>
+						))}
+
+						{!hasResources && !isInlineCreateOpen && (
+							<tr>
+								<td colSpan={5}>
+									<div className="w-full py-16 flex flex-col items-center justify-center gap-4">
+										<FolderOpenIcon className="text-ink-muted w-8 h-8 " />
+										<div className="text-lg text-ink-muted">{t('media.noFiles')}</div>
+									</div>
+								</td>
+							</tr>
+						)}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	)
 }

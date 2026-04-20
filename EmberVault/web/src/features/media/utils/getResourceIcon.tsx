@@ -15,6 +15,7 @@ import TextFileIcon from '../icons/TextFileIcon'
 import CodeFileIcon from '../icons/CodeFileIcon'
 import ExecutableFileIcon from '../icons/ExecutableFileIcon'
 import FileIcon from '../icons/FileIcon'
+import BookFileIcon from '../icons/BookFileIcon'
 
 export const ResourceIconDict = {
 	image: <ImageFileIcon />,
@@ -28,6 +29,7 @@ export const ResourceIconDict = {
 	text: <TextFileIcon />,
 	code: <CodeFileIcon />,
 	executable: <ExecutableFileIcon />,
+	book: <BookFileIcon />,
 	default: <FileIcon />,
 }
 

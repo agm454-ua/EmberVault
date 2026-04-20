@@ -6,7 +6,7 @@ export default function GlobalTotalUsersCard() {
 	const { t } = useTranslation()
 
 	const { data: totalUsers } = useCountUsers()
-
+	const totalUsersValue = totalUsers ?? '--'
 
 	return (
 		<div className="flex items-center gap-4 p-4 border border-stroke w-sm rounded-xl">
@@ -15,7 +15,7 @@ export default function GlobalTotalUsersCard() {
 			</div>
 			<div className="h-full flex flex-col gap-1">
 				<p className=" text-ink">{t('admin.totalUsers')}</p>
-				<p className="text-2xl font-semibold">{totalUsers}</p>
+				<p className="text-2xl font-semibold">{totalUsersValue}</p>
 			</div>
 		</div>
 	)

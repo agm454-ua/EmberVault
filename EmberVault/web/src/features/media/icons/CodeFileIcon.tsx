@@ -6,11 +6,11 @@ export default function CodeFileIcon({ className }: { className?: string }) {
 			height="24"
 			viewBox="0 0 24 24"
 			fill="none"
-			stroke="#0089d2"
+			stroke="#22C55E"
 			strokeWidth="2"
 			strokeLinecap="round"
 			strokeLinejoin="round"
-			className={className ?? 'w-6 h-6'}
+			className={'shrink-0 ' + (className ?? 'w-6 h-6')}
 		>
 			<path d="M4 12.15V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2h-3.35" />
 			<path d="M14 2v5a1 1 0 0 0 1 1h5" />

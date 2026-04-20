@@ -14,28 +14,37 @@ import AdminPanelUsersPage from '@/features/user/pages/AdminPanelUsersPage'
 import AdminPanelResourcesPage from '@/features/media/pages/AdminPanelResourcesPage'
 import AdminLayout from '@/shared/layouts/AdminLayout'
 import NotFoundPage from '@/shared/pages/NotFound'
+import { RequireAuth } from '@/features/auth/components/RequireAuth'
+import { RequireAdmin } from '@/features/auth/components/RequireAdmin'
+import { PublicOnly } from '@/features/auth/components/PublicOnly'
 
 export function AppRoutes() {
 	return (
 		<Routes>
 			<Route element={<MainLayout />}>
-				<Route path="/" element={<LibraryPage />} />
-				<Route path={routes.library} element={<LibraryPage />} />
-				<Route path={routes.shared} element={<SharedPage />} />
-				<Route path={routes.trash} element={<TrashPage />} />
-				<Route path={routes.profile} element={<ProfilePage />} />
+				<Route element={<RequireAuth />}>
+					<Route path="/" element={<LibraryPage />} />
+					<Route path={routes.library} element={<LibraryPage />} />
+					<Route path={routes.shared} element={<SharedPage />} />
+					<Route path={routes.trash} element={<TrashPage />} />
+					<Route path={routes.profile} element={<ProfilePage />} />
+				</Route>
 
 				{/* Admin routes */}
-				<Route element={<AdminLayout />}>
-					<Route path={routes.adminUsers} element={<AdminPanelUsersPage />} />
-					<Route path={routes.adminResources} element={<AdminPanelResourcesPage />} />
+				<Route element={<RequireAdmin />}>
+					<Route element={<AdminLayout />}>
+						<Route path={routes.adminUsers} element={<AdminPanelUsersPage />} />
+						<Route path={routes.adminResources} element={<AdminPanelResourcesPage />} />
+					</Route>
 				</Route>
 			</Route>
-			<Route element={<FormLayout />}>
-				<Route path={routes.login} element={<LoginPage />} />
-				<Route path={routes.register} element={<RegisterPage />} />
-				<Route path={routes.resetPasswordLink} element={<ResetPasswordLinkPage />} />
-				<Route path={routes.resetPassword} element={<ResetPasswordPage />} />
+			<Route element={<PublicOnly />}>
+				<Route element={<FormLayout />}>
+					<Route path={routes.login} element={<LoginPage />} />
+					<Route path={routes.register} element={<RegisterPage />} />
+					<Route path={routes.resetPasswordLink} element={<ResetPasswordLinkPage />} />
+					<Route path={routes.resetPassword} element={<ResetPasswordPage />} />
+				</Route>
 			</Route>
 
 			{/* Not Found */}

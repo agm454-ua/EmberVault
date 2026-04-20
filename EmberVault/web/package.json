@@ -8,6 +8,7 @@
 		"dev": "vite",
 		"build": "tsc -b && vite build",
 		"lint": "eslint .",
+		"typecheck": "tsc --noEmit",
 		"prettier": "npx prettier --write .",
 		"preview": "vite preview",
 		"dev:host": "vite --host"

@@ -5,13 +5,14 @@ export default function ProfilePicture({
 	alt = 'Profile Picture',
 	className = '',
 }: {
-	pictureUrl?: string
+	pictureUrl?: string | null
 	alt?: string
 	className?: string
 }) {
+	const finalPictureUrl = pictureUrl ?? ENV.VITE_DEFAULT_PROFILE_PICTURE_URL
 	return (
 		<img
-			src={pictureUrl}
+			src={finalPictureUrl}
 			alt={alt}
 			className={`aspect-square rounded-full border-stroke object-cover h-8 ${className}`}
 		/>

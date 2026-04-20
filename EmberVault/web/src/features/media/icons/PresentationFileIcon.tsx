@@ -10,7 +10,7 @@ export default function PresentationFileIcon({ className }: { className?: string
 			strokeWidth="2"
 			strokeLinecap="round"
 			strokeLinejoin="round"
-			className={className ?? 'w-6 h-6'}
+			className={'shrink-0 ' + (className ?? 'w-6 h-6')}
 		>
 			<path d="M2 3h20" />
 			<path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3" />

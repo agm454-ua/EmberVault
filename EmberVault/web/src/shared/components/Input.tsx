@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type InputHTMLAttributes } from 'react'
 import Button from './Button'
 import ShowIcon from '@shared/icons/ShowIcon'
 import HideIcon from '@shared/icons/HideIcon'
@@ -7,9 +7,10 @@ type InputProps = {
 	label?: string
 	error?: string
 	type?: string | 'text' | 'email' | 'password' | 'date'
-} & React.InputHTMLAttributes<HTMLInputElement>
+	disabled?: boolean
+} & InputHTMLAttributes<HTMLInputElement>
 
-export default function Input({ label, error, className, type, ...props }: InputProps) {
+export default function Input({ label, error, className, type, disabled, ...props }: InputProps) {
 	const [showPassword, setShowPassword] = useState(false)
 
 	return (
@@ -18,10 +19,12 @@ export default function Input({ label, error, className, type, ...props }: Input
 
 			<div className="relative w-full">
 				<input
-					className={`text-ink-muted text-sm border rounded-md px-4 py-2 w-full transition-colors duration-100 outline-none ${
-						error ? 'border-danger-500' : 'border-stroke focus:border-stroke-focus'
-					} ${className ?? ''}`}
+					className={`text-ink-muted text-sm border rounded-md px-4 py-2 w-full transition-colors duration-100 outline-none 
+						${error ? 'border-danger-500' : 'border-stroke focus:border-stroke-focus'}
+						${disabled ? 'bg-stroke-muted cursor-not-allowed' : 'bg-surface-canvas'}
+					 ${className ?? ''}`}
 					type={type === 'password' ? (showPassword ? 'text' : 'password') : type}
+					disabled={disabled}
 					{...props}
 				/>
 

@@ -10,7 +10,7 @@ export default function ImageFileIcon({ className }: { className?: string }) {
 			strokeWidth="2"
 			strokeLinecap="round"
 			strokeLinejoin="round"
-			className={className ?? 'w-6 h-6'}
+			className={'shrink-0 ' + (className ?? 'w-6 h-6')}
 		>
 			<rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
 			<circle cx="9" cy="9" r="2" />
