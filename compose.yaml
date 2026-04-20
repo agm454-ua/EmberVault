@@ -179,7 +179,8 @@ services:
         networks:
             - backend
     nginx:
-        image: nginx:latest
+        build:
+            context: ./EmberVault/web
         ports:
             - "80:80"
             - "443:443"
@@ -198,6 +199,7 @@ services:
             timeout: 5s
             retries: 3
             start_period: 20s
+        restart: unless-stopped
 
 
 volumes:
