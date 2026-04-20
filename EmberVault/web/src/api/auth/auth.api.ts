@@ -1,6 +1,7 @@
 import { client } from '@api/client'
-import type { ChangePasswordDTO, ForgotPasswordDTO, LoginDTO, RegisterDTO, ResetPasswordDTO, TRole, TUser, TUserWithToken } from './auth.types'
+import type { ChangePasswordDTO, ForgotPasswordDTO, LoginDTO, RegisterDTO, ResetPasswordDTO, TUserWithToken } from './auth.types'
 import { handleResponse, type ApiResponse } from '@/api/responses'
+import type { TRole, TUser } from '../user/user.types';
 
 export const authApi = {
 	// Auth

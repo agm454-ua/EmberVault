@@ -6,7 +6,6 @@ export type LoginDTO = {
 	password: string
 }
 
-
 export type TUserWithToken = {
 	token: string
 	user: TUser
@@ -34,10 +33,4 @@ export type ResetPasswordDTO = {
 	id: string
 	code: string
 	password: string
-}
-
-export type TRole = {
-	id?: string
-	name: string
-	description?: string
 }

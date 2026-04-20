@@ -1,4 +1,9 @@
-import type { TRole } from "../auth/auth.types"
+
+export type TRole = {
+	id?: string
+	name: string
+	description?: string
+}
 
 export type TUser = {
 	id: string

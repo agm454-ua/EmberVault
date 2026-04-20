@@ -33,7 +33,7 @@ export const mediaApi = {
 	deleteResource: (userId: string, resourceId: string) => handleResponse(client.delete(`/media/api/users/${userId}/resources/${resourceId}`)),
 
 	createResource: (userId: string, data: TCreateResourceRequest) => handleResponse(client.post<ApiResponse<TCreateResourceResponse>>(`/media/api/users/${userId}/resources`, { ...data })),
-	completeUpload: (userId: string, resourceId: string) => handleResponse(client.post(`/media/api/users/${userId}/resources/${resourceId}/upload-complete`)),
+	completeUpload: (userId: string, resourceId: string) => handleResponse(client.post<ApiResponse<TResourceResponse>>(`/media/api/users/${userId}/resources/${resourceId}/upload-complete`)),
 	downloadResource: async (userId: string, resourceId: string) => {
 		const res = await client.get(`/media/api/users/${userId}/resources/${resourceId}/download`, { responseType: 'blob' })
 		const contentType = String(res.headers['content-type'] ?? '')
