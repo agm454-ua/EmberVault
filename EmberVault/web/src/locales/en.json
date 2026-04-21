@@ -9,7 +9,8 @@
 		"notFound": "Page not found",
 		"forbidden": "Access denied",
 		"loading": "Loading...",
-		"wip": "Work in progress. Check back later!"
+		"wip": "Work in progress. Check back later!",
+		"page": "Page {{page}}"
 	},
 	"auth": {
 		"login": "Sign in",
@@ -87,7 +88,9 @@
 		"confirm": "Confirm",
 		"close": "Close",
 		"remove": "Remove",
-		"new": "New"
+		"new": "New",
+		"nextPage": "Next page",
+		"previousPage": "Previous page"
 	},
 	"admin": {
 		"storageUsed": "Storage used",

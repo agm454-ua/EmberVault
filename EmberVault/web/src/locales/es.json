@@ -9,7 +9,8 @@
 		"notFound": "Página no encontrada",
 		"forbidden": "Acceso denegado",
 		"loading": "Cargando...",
-		"wip": "Estamos trabajando en ello. ¡Vuelve más tarde!"
+		"wip": "Estamos trabajando en ello. ¡Vuelve más tarde!",
+		"page": "Página {{page}}"
 	},
 	"auth": {
 		"login": "Iniciar sesión",
@@ -87,7 +88,9 @@
 		"confirm": "Confirmar",
 		"close": "Cerrar",
 		"remove": "Borrar",
-		"new": "Nuevo"
+		"new": "Nuevo",
+		"nextPage": "Siguiente página",
+		"previousPage": "Página anterior"
 	},
 	"admin": {
 		"storageUsed": "Almacenamiento utilizado",
