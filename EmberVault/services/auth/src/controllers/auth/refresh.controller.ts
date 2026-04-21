@@ -8,6 +8,7 @@ import {
     sendUnauthorizedResponse,
 } from '@agm454-ua/auth-utils'
 import type { TUserWithToken } from '@customTypes/user.js'
+import { sendRefreshTokenCookie } from '@utils/cookieHandler.js'
 
 export async function refreshController(req: Request, res: Response) {
     // get token
@@ -30,7 +31,7 @@ export async function refreshController(req: Request, res: Response) {
 
     const payload: TokenPayload = {
         userId: user.id,
-        systemRole: user.system_role,
+        systemRole: user.system_role.id,
     }
 
     // refresh the access token
@@ -40,11 +41,21 @@ export async function refreshController(req: Request, res: Response) {
         ENV.JWT_EXPIRATION_MINUTES,
     )
 
+    // refresh the refresh token as well to implement sliding expiration
+    const newRefreshToken = generateToken(
+        payload,
+        ENV.REFRESH_SECRET,
+        ENV.REFRESH_TOKEN_EXPIRATION_MINUTES,
+    )
+    sendRefreshTokenCookie(req, res, newRefreshToken)
+
     const responseData: TUserWithToken = {
         user: {
             id: user.id,
             username: user.username,
             email: user.email,
+            system_role: user.system_role.name,
+            root_folder: user.root_folder,
         },
         token: jwt,
     }
