@@ -3,7 +3,7 @@ import { sendSuccessResponse } from '@agm454-ua/auth-utils'
 import { clearRefreshTokenCookie } from '@utils/cookieHandler.js'
 
 export function logoutController(req: Request, res: Response) {
-    clearRefreshTokenCookie(res)
+    clearRefreshTokenCookie(req, res)
 
     return sendSuccessResponse(res)
 }
