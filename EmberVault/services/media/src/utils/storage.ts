@@ -21,6 +21,16 @@ const s3 = new S3Client({
     forcePathStyle: true,
 })
 
+const s3Presign = new S3Client({
+    endpoint: ENV.S3_PUBLIC_ENDPOINT ?? ENV.S3_ENDPOINT,
+    region: 'us-east-1',
+    credentials: {
+        accessKeyId: ENV.S3_ACCESS_KEY,
+        secretAccessKey: ENV.S3_SECRET_KEY,
+    },
+    forcePathStyle: true,
+})
+
 const BUCKET = ENV.S3_BUCKET
 
 export const buildStoragePath = (
@@ -41,7 +51,7 @@ export const getUploadUrl = async (
         Key: storagePath,
         ContentType: mimeType,
     })
-    return getSignedUrl(s3, command, { expiresIn })
+    return getSignedUrl(s3Presign, command, { expiresIn })
 }
 
 export const deleteObject = async (storagePath: string): Promise<void> => {
@@ -108,7 +118,7 @@ export const getFileSignedUrl = async (
         Bucket: BUCKET,
         Key: path,
     })
-    return getSignedUrl(s3, command, { expiresIn })
+    return getSignedUrl(s3Presign, command, { expiresIn })
 }
 
 export const getDownloadUrl = async (
@@ -121,7 +131,7 @@ export const getDownloadUrl = async (
         Key: storagePath,
         ResponseContentDisposition: `attachment; filename="${encodeURIComponent(fileName)}"`,
     })
-    return getSignedUrl(s3, command, { expiresIn })
+    return getSignedUrl(s3Presign, command, { expiresIn })
 }
 
 // For zipping

@@ -32,12 +32,17 @@ paths:
         get:
             summary: List users. Using cursor-based pagination
             operationId: getAllUsers
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/GetAllUsersRequest'
+            parameters:
+                - in: query
+                  name: take
+                  required: false
+                  schema:
+                      type: number
+                - in: query
+                  name: lastCursor
+                  required: false
+                  schema:
+                      type: string
             responses:
                 '200':
                     description: Users
@@ -191,10 +196,3 @@ components:
                     type: string
                 storageLimitGB:
                     type: integer
-        GetAllUsersRequest:
-            type: object
-            properties:
-                take:
-                    type: number
-                lastCursor:
-                    type: string

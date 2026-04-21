@@ -3,7 +3,7 @@ import { getUsers } from '@services/users.service.js'
 import type { Response, Request } from 'express'
 
 export async function listUsersController(req: Request, res: Response) {
-    const { take, lastCursor } = req.body
+    const { take, lastCursor } = req.query as { take?: string; lastCursor?: string }
 
     const users = await getUsers(lastCursor, take)
 

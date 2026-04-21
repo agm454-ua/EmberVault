@@ -95,8 +95,8 @@ export default function ProfilePage() {
 		if (!meData && !fullUserData) return
 
 		const nextUsername = fullUserData?.username ?? meData?.username ?? ''
-		const nextBirthDate = toDateInputValue(fullUserData?.birthDate ?? fullUserData?.birthdate ?? meData?.birthdate)
-		const nextAvatarURL = normalizeAvatar(fullUserData?.avatarURL ?? fullUserData?.profilePictureUrl)
+		const nextBirthDate = toDateInputValue(fullUserData?.birthdate ?? fullUserData?.birthdate ?? meData?.birthdate)
+		const nextAvatarURL = normalizeAvatar(fullUserData?.profile_picture_url ?? fullUserData?.profile_picture_url)
 
 		if (!isEditing) {
 			setUsername(nextUsername)

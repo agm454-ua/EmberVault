@@ -44,7 +44,7 @@ export async function forgotPasswordController(req: Request, res: Response) {
 
     const totpCode = generateTOTP(user)
 
-    const html = await loadMailHTML(totpCode)
+    const html = await loadMailHTML(totpCode, user)
     sendEmail(email, html)
 
     return sendSuccessResponse(res, { id: user })

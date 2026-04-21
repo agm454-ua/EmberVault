@@ -22,15 +22,18 @@ export const getStandardRole = async (): Promise<TSystemRoleID | null> => {
     return result?.id ?? null
 }
 
-export const getAdminRole = async (): Promise<TSystemRoleID | null> => {
+
+
+export const getAdminRole = async (): Promise<TSystemRole | null> => {
     const result = await prisma.system_roles.findFirst({
         where: {
             name: 'admin',
         },
         select: {
             id: true,
+            name: true
         },
     })
 
-    return result?.id ?? null
+    return result ?? null
 }

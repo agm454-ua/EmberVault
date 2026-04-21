@@ -4,8 +4,10 @@ import request from 'supertest'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 const trashFor = (userId: string) => `/api/users/${userId}/trash`
+const restoreAllFor = (userId: string) => `/api/users/${userId}/trash/restore-all`
 const trashR1 = '/api/users/user-1/resources/r1/trash'
 const restoreR1 = '/api/users/user-1/resources/r1/restore'
+const deleteTrashR1 = '/api/users/user-1/trash/r1'
 
 describe('HTTP trash routes', () => {
     beforeEach(() => {
@@ -24,7 +26,7 @@ describe('HTTP trash routes', () => {
     })
 
     it('GET trash → 500 when admin role missing (admin acting for another user)', async () => {
-        getHttpMocks().getAdminRole.mockResolvedValue(null as unknown as string)
+        getHttpMocks().getAdminRole.mockResolvedValue(null)
         const res = await request(createHttpTestApp())
             .get(trashFor('user-1'))
             .set('Authorization', 'Bearer admin')
@@ -58,15 +60,39 @@ describe('HTTP trash routes', () => {
         expect(res.body.success).toBe(false)
     })
 
-    it('DELETE trash (restore all) → 401 for wrong user', async () => {
+    it('POST restore-all → 401 for wrong user', async () => {
+        await request(createHttpTestApp())
+            .post(restoreAllFor('user-1'))
+            .set('Authorization', 'Bearer user-2')
+            .expect(401)
+    })
+
+    it('POST restore-all → 500 when restoreAll fails', async () => {
+        getHttpMocks().resources.restoreAll.mockResolvedValue(false)
+        const res = await request(createHttpTestApp())
+            .post(restoreAllFor('user-1'))
+            .set('Authorization', 'Bearer user-1')
+            .expect(500)
+        expect(res.body.success).toBe(false)
+    })
+
+    it('POST restore-all → 200 on success', async () => {
+        const res = await request(createHttpTestApp())
+            .post(restoreAllFor('user-1'))
+            .set('Authorization', 'Bearer user-1')
+            .expect(200)
+        expect(res.body.success).toBe(true)
+    })
+
+    it('DELETE trash (delete all) → 401 for wrong user', async () => {
         await request(createHttpTestApp())
             .delete(trashFor('user-1'))
             .set('Authorization', 'Bearer user-2')
             .expect(401)
     })
 
-    it('DELETE trash → 500 when restoreAll fails', async () => {
-        getHttpMocks().resources.restoreAll.mockResolvedValue(false)
+    it('DELETE trash (delete all) → 500 when deleteAllFromTrash fails', async () => {
+        getHttpMocks().resources.deleteAllFromTrash.mockResolvedValue(false)
         const res = await request(createHttpTestApp())
             .delete(trashFor('user-1'))
             .set('Authorization', 'Bearer user-1')
@@ -74,7 +100,7 @@ describe('HTTP trash routes', () => {
         expect(res.body.success).toBe(false)
     })
 
-    it('DELETE trash → 200 on success', async () => {
+    it('DELETE trash (delete all) → 200 on success', async () => {
         const res = await request(createHttpTestApp())
             .delete(trashFor('user-1'))
             .set('Authorization', 'Bearer user-1')
@@ -125,6 +151,30 @@ describe('HTTP trash routes', () => {
     it('POST restore → 200', async () => {
         const res = await request(createHttpTestApp())
             .post(restoreR1)
+            .set('Authorization', 'Bearer user-1')
+            .expect(200)
+        expect(res.body.success).toBe(true)
+    })
+
+    it('DELETE trash resource → 401 for wrong user', async () => {
+        await request(createHttpTestApp())
+            .delete(deleteTrashR1)
+            .set('Authorization', 'Bearer user-2')
+            .expect(401)
+    })
+
+    it('DELETE trash resource → 404 when delete fails', async () => {
+        getHttpMocks().resources.deleteResourceFromTrash.mockResolvedValue(false)
+        const res = await request(createHttpTestApp())
+            .delete(deleteTrashR1)
+            .set('Authorization', 'Bearer user-1')
+            .expect(404)
+        expect(res.body.success).toBe(false)
+    })
+
+    it('DELETE trash resource → 200 on success', async () => {
+        const res = await request(createHttpTestApp())
+            .delete(deleteTrashR1)
             .set('Authorization', 'Bearer user-1')
             .expect(200)
         expect(res.body.success).toBe(true)

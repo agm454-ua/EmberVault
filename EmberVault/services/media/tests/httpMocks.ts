@@ -1,10 +1,13 @@
 import type { NextFunction, Request, Response } from 'express'
 import { vi } from 'vitest'
 
+const ADMIN_ROLE_ID = 'role-admin-id'
+const USER_ROLE_ID = 'role-user-id'
+
 const TOKEN_PROFILE: Record<string, { userId: string; systemRole: string }> = {
-    admin: { userId: 'admin-1', systemRole: 'ADMIN' },
-    'user-1': { userId: 'user-1', systemRole: 'USER' },
-    'user-2': { userId: 'user-2', systemRole: 'USER' },
+    admin: { userId: 'admin-1', systemRole: ADMIN_ROLE_ID },
+    'user-1': { userId: 'user-1', systemRole: USER_ROLE_ID },
+    'user-2': { userId: 'user-2', systemRole: USER_ROLE_ID },
 }
 
 const httpMocks = vi.hoisted(() => ({
@@ -40,9 +43,9 @@ const httpMocks = vi.hoisted(() => ({
         },
     ),
     getUserRole: vi.fn(async (userId: string) =>
-        userId === 'admin-1' ? 'ADMIN' : 'USER',
+        userId === 'admin-1' ? ADMIN_ROLE_ID : USER_ROLE_ID,
     ),
-    getAdminRole: vi.fn(async () => 'ADMIN'),
+    getAdminRole: vi.fn(async () => ({ id: ADMIN_ROLE_ID, name: 'admin' })),
     isOwnerOfResource: vi.fn(async () => true),
     canUserPerformResourceAction: vi.fn(async () => true),
     files: {
@@ -54,6 +57,7 @@ const httpMocks = vi.hoisted(() => ({
         copyFile: vi.fn(),
         getFileThumbnail: vi.fn(),
         getFileDownloadUrl: vi.fn(),
+        streamFileDownload: vi.fn(),
     },
     folders: {
         createFolder: vi.fn(),
@@ -69,7 +73,9 @@ const httpMocks = vi.hoisted(() => ({
         listResourcesInFolder: vi.fn(),
         listResourcesInTrash: vi.fn(),
         restoreAll: vi.fn(),
+        deleteAllFromTrash: vi.fn(),
         restoreResource: vi.fn(),
+        deleteResourceFromTrash: vi.fn(),
         sendResourceToTrash: vi.fn(),
     },
 }))
@@ -114,9 +120,9 @@ export function getHttpMocks(): typeof httpMocks {
 export function resetHttpServiceMocks(): void {
     const m = httpMocks
     m.getUserRole.mockImplementation(async (userId: string) =>
-        userId === 'admin-1' ? 'ADMIN' : 'USER',
+        userId === 'admin-1' ? ADMIN_ROLE_ID : USER_ROLE_ID,
     )
-    m.getAdminRole.mockResolvedValue('ADMIN')
+    m.getAdminRole.mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
     m.isOwnerOfResource.mockResolvedValue(true)
     m.canUserPerformResourceAction.mockResolvedValue(true)
 
@@ -131,6 +137,14 @@ export function resetHttpServiceMocks(): void {
     m.files.copyFile.mockResolvedValue({ id: 'copy-f' })
     m.files.getFileThumbnail.mockResolvedValue('https://thumb.example/x')
     m.files.getFileDownloadUrl.mockResolvedValue('https://download.example/x')
+    m.files.streamFileDownload.mockImplementation(
+        async (_id: string, res: Response) => {
+            res.status(200)
+            res.setHeader('Content-Type', 'application/octet-stream')
+            res.send(Buffer.from('file-content'))
+            return true
+        },
+    )
 
     m.folders.createFolder.mockResolvedValue({ id: 'new-folder' })
     m.folders.copyFolder.mockResolvedValue({ id: 'copy-folder' })
@@ -156,7 +170,9 @@ export function resetHttpServiceMocks(): void {
     m.resources.listResourcesInFolder.mockResolvedValue([{ id: 'child' }])
     m.resources.listResourcesInTrash.mockResolvedValue([{ id: 't1' }])
     m.resources.restoreAll.mockResolvedValue(true)
+    m.resources.deleteAllFromTrash.mockResolvedValue(true)
     m.resources.restoreResource.mockResolvedValue(true)
+    m.resources.deleteResourceFromTrash.mockResolvedValue(true)
     m.resources.sendResourceToTrash.mockResolvedValue({ id: 't1' })
 }
 

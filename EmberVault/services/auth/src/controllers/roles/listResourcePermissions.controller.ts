@@ -2,9 +2,9 @@ import {
     sendBadRequestResponse,
     sendSuccessResponse,
 } from '@agm454-ua/auth-utils'
+import type { TResourceID } from '@customTypes/resource.js'
 import { listResourcePermissions } from '@services/resource_roles.service.js'
 import type { Request, Response } from 'express'
-import type { TResourceID } from 'src/types/resource.js'
 
 export async function listResourcePermissionsController(
     req: Request,

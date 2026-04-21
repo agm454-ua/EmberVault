@@ -15,10 +15,10 @@ export async function validateUpdateResourceRequest(
     const { type, name, isPrivate, parentFolder } =
         req.body as TUpdateResourceRequest
 
-    if (!type || (type !== 'FILE' && type !== 'FOLDER')) {
+    if (type !== undefined && type !== 'FILE' && type !== 'FOLDER') {
         return sendBadRequestResponse(
             res,
-            'Invalid or missing type (must be "FILE" or "FOLDER")',
+            'Invalid type (must be "FILE" or "FOLDER")',
         )
     }
 

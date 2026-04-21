@@ -1,4 +1,4 @@
-import type { Prisma } from 'src/generated/prisma/client.js'
+import type { Prisma } from '../generated/prisma/client.js'
 import type { TFile, TResource } from '@customTypes/resource.js'
 import { metaSelect, extractMetadata } from '@mappers/meta/index.js'
 import formatBytes from '@utils/formatBytes.js'

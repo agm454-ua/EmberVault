@@ -1,4 +1,4 @@
-import type { Prisma } from 'src/generated/prisma/client.js'
+import type { Prisma } from '../../generated/prisma/client.js'
 
 export interface MetaMapper<TSelect extends Prisma.filesSelect> {
     select: TSelect

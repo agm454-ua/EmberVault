@@ -25,10 +25,7 @@ export interface TCreateUserRequest {
 export interface TUpdateUserRequest {
     username?: string
     email?: string
-    password?: string
-    avatarURL?: string
     birthDate?: string
-    systemRole?: string
     status?: string
     storageLimitGB?: number
 }

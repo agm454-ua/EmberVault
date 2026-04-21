@@ -43,7 +43,7 @@ describe('HTTP resources routes', () => {
     })
 
     it('GET resource → 500 when admin role lookup fails', async () => {
-        getHttpMocks().getAdminRole.mockResolvedValue(null as unknown as string)
+        getHttpMocks().getAdminRole.mockResolvedValue(null)
         const res = await request(createHttpTestApp())
             .get(R1)
             .set('Authorization', 'Bearer user-1')
@@ -52,9 +52,7 @@ describe('HTTP resources routes', () => {
     })
 
     it('GET resource → 500 when user role lookup fails', async () => {
-        getHttpMocks().getUserRole.mockResolvedValue(
-            null as unknown as 'ADMIN' | 'USER',
-        )
+        getHttpMocks().getUserRole.mockResolvedValue(null)
         const res = await request(createHttpTestApp())
             .get(R1)
             .set('Authorization', 'Bearer user-1')
@@ -360,14 +358,23 @@ describe('HTTP resources routes', () => {
         expect(res.body.data).toBe('https://thumb.example/x')
     })
 
-    it('GET download file → 400 when presign fails', async () => {
+    it('GET download file → 400 when stream fails', async () => {
         getHttpMocks().resources.isResourceAFile.mockResolvedValue(true)
-        getHttpMocks().files.getFileDownloadUrl.mockResolvedValue(null)
+        getHttpMocks().files.streamFileDownload.mockResolvedValue(false)
         const res = await request(createHttpTestApp())
             .get(`${R1}/download`)
             .set('Authorization', 'Bearer user-1')
             .expect(400)
         expect(res.body.success).toBe(false)
+    })
+
+    it('GET download file → 200 binary body', async () => {
+        getHttpMocks().resources.isResourceAFile.mockResolvedValue(true)
+        const res = await request(createHttpTestApp())
+            .get(`${R1}/download`)
+            .set('Authorization', 'Bearer user-1')
+            .expect(200)
+        expect(res.headers['content-type']).toMatch(/octet-stream/)
     })
 
     it('GET download → 400 when resource unknown', async () => {

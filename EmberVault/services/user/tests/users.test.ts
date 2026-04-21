@@ -156,7 +156,7 @@ describe('User API Endpoints', () => {
             const response = await request(app)
                 .get('/api/users/all')
                 .set('Authorization', 'Bearer admin-token')
-                .send({ take: '10' })
+                .query({ take: '10' })
 
             expect(response.status).toBe(200)
             expect(response.body.success).toBe(true)
@@ -178,7 +178,7 @@ describe('User API Endpoints', () => {
             const response = await request(app)
                 .get('/api/users/all')
                 .set('Authorization', 'Bearer admin-token')
-                .send({ take: '5', lastCursor: regularUserId })
+                .query({ take: '5', lastCursor: regularUserId })
 
             expect(response.status).toBe(200)
             expect(mockPrisma.users.findMany).toHaveBeenCalledWith(
@@ -202,7 +202,6 @@ describe('User API Endpoints', () => {
             const response = await request(app)
                 .get('/api/users/all')
                 .set('Authorization', 'Bearer admin-token')
-                .send({})
 
             expect(response.status).toBe(200)
             expect(mockPrisma.users.findMany).toHaveBeenCalledWith(
@@ -223,7 +222,6 @@ describe('User API Endpoints', () => {
             const response = await request(app)
                 .get('/api/users/all')
                 .set('Authorization', 'Bearer regular-token')
-                .send({})
 
             expect(response.status).toBe(401)
         })
@@ -242,7 +240,6 @@ describe('User API Endpoints', () => {
             const response = await request(app)
                 .get('/api/users/all')
                 .set('Authorization', 'Bearer admin-token')
-                .send({})
 
             expect(response.status).toBe(500)
         })
@@ -777,6 +774,43 @@ describe('User API Endpoints', () => {
 
             expect(response.status).toBe(200)
         })
+
+        it('should update birthDate with valid date input', async () => {
+            vi.mocked(mockPrisma.users.findFirst)
+                .mockResolvedValueOnce(mockAdminUser as any)
+                .mockResolvedValueOnce({ id: adminRoleId } as any)
+            vi.mocked(mockPrisma.users.update).mockResolvedValue(
+                mockRegularUser as any,
+            )
+
+            const response = await request(app)
+                .put(`/api/users/${regularUserId}`)
+                .set('Authorization', 'Bearer admin-token')
+                .send({ birthDate: '2000-01-01' })
+
+            expect(response.status).toBe(200)
+            expect(mockPrisma.users.update).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    where: { id: regularUserId },
+                    data: expect.objectContaining({
+                        birth_date: new Date('2000-01-01'),
+                    }),
+                }),
+            )
+        })
+
+        it('should return 400 for empty birthDate', async () => {
+            vi.mocked(mockPrisma.users.findFirst)
+                .mockResolvedValueOnce(mockAdminUser as any)
+                .mockResolvedValueOnce({ id: adminRoleId } as any)
+
+            const response = await request(app)
+                .put(`/api/users/${regularUserId}`)
+                .set('Authorization', 'Bearer admin-token')
+                .send({ birthDate: '' })
+
+            expect(response.status).toBe(400)
+        })
     })
 
     describe('DELETE /api/users/:userId', () => {
@@ -892,7 +926,6 @@ describe('User API Endpoints', () => {
             const response = await request(app)
                 .get('/api/users/all')
                 .set('Authorization', 'Bearer admin-token')
-                .send({})
 
             expect(response.status).toBe(200)
             expect(Array.isArray(response.body.data)).toBe(true)

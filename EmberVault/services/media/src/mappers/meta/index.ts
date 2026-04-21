@@ -1,4 +1,4 @@
-import type { Prisma } from 'src/generated/prisma/client.js'
+import type { Prisma } from '../../generated/prisma/client.js'
 import type { MetaMapper } from './types.js'
 import imageMeta from './image.meta.js'
 import videoMeta from './video.meta.js'

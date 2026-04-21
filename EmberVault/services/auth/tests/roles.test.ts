@@ -18,6 +18,25 @@ vi.mock('@agm454-ua/auth-utils', async () => {
     }
 })
 
+const ADMIN_ROLE_ID = 'role-admin-id'
+const USER_ROLE_ID = 'role-user-id'
+
+const buildUserData = (
+    id: string,
+    roleId: string = USER_ROLE_ID,
+    roleName: string = 'user',
+) => ({
+    id,
+    email: `${id}@example.com`,
+    username: id,
+    system_role: {
+        id: roleId,
+        name: roleName,
+    },
+    password: 'hashed-password',
+    root_folder: null,
+})
+
 describe('Roles Endpoints', () => {
     beforeEach(() => {
         vi.clearAllMocks()
@@ -27,7 +46,7 @@ describe('Roles Endpoints', () => {
         it('should list system roles for admin', async () => {
             const mockPayload = {
                 userId: 'admin-1',
-                systemRole: 'admin',
+                systemRole: ADMIN_ROLE_ID,
             }
 
             const mockRoles = [
@@ -36,16 +55,8 @@ describe('Roles Endpoints', () => {
             ]
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'admin-1',
-                email: 'admin@example.com',
-                username: 'admin',
-                system_role: 'admin',
-                password: 'hashed',
-            })
-            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue(
-                'admin',
-            )
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('admin-1', ADMIN_ROLE_ID, 'admin'))
+            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
             vi.mocked(systemRolesService.listSystemRoles).mockResolvedValue(
                 mockRoles,
             )
@@ -62,20 +73,12 @@ describe('Roles Endpoints', () => {
         it('should return 401 when user is not admin', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
-            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue(
-                'admin',
-            )
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
+            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
 
             const response = await request(app)
                 .get('/api/users/roles')
@@ -95,21 +98,13 @@ describe('Roles Endpoints', () => {
         it('should get user system role for same user', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
-            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue(
-                'admin',
-            )
-            vi.mocked(usersService.getUserRole).mockResolvedValue('user')
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
+            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
+            vi.mocked(usersService.getUserRole).mockResolvedValue(USER_ROLE_ID)
 
             const response = await request(app)
                 .get('/api/users/user-1/roles')
@@ -117,27 +112,19 @@ describe('Roles Endpoints', () => {
 
             expect(response.status).toBe(200)
             expect(response.body.success).toBe(true)
-            expect(response.body.data).toBe('user')
+            expect(response.body.data).toBe(USER_ROLE_ID)
         })
 
         it('should get user system role for admin', async () => {
             const mockPayload = {
                 userId: 'admin-1',
-                systemRole: 'admin',
+                systemRole: ADMIN_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'admin-1',
-                email: 'admin@example.com',
-                username: 'admin',
-                system_role: 'admin',
-                password: 'hashed',
-            })
-            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue(
-                'admin',
-            )
-            vi.mocked(usersService.getUserRole).mockResolvedValue('user')
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('admin-1', ADMIN_ROLE_ID, 'admin'))
+            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
+            vi.mocked(usersService.getUserRole).mockResolvedValue(USER_ROLE_ID)
 
             const response = await request(app)
                 .get('/api/users/user-1/roles')
@@ -150,21 +137,13 @@ describe('Roles Endpoints', () => {
         it('should return 401 when user is not admin or self', async () => {
             const mockPayload = {
                 userId: 'user-2',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-2',
-                email: 'user2@example.com',
-                username: 'user2',
-                system_role: 'user',
-                password: 'hashed',
-            })
-            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue(
-                'admin',
-            )
-            vi.mocked(usersService.getUserRole).mockResolvedValue('user')
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-2', USER_ROLE_ID, 'user'))
+            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
+            vi.mocked(usersService.getUserRole).mockResolvedValue(USER_ROLE_ID)
 
             const response = await request(app)
                 .get('/api/users/user-1/roles')
@@ -176,17 +155,11 @@ describe('Roles Endpoints', () => {
         it('should return 400 when userId is missing', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
 
             const response = await request(app)
                 .get('/api/users//roles')
@@ -200,20 +173,12 @@ describe('Roles Endpoints', () => {
         it('should set user system role for admin', async () => {
             const mockPayload = {
                 userId: 'admin-1',
-                systemRole: 'admin',
+                systemRole: ADMIN_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'admin-1',
-                email: 'admin@example.com',
-                username: 'admin',
-                system_role: 'admin',
-                password: 'hashed',
-            })
-            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue(
-                'admin',
-            )
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('admin-1', ADMIN_ROLE_ID, 'admin'))
+            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
             vi.mocked(usersService.updateUserSystemRole).mockResolvedValue(
                 'moderator',
             )
@@ -229,20 +194,12 @@ describe('Roles Endpoints', () => {
         it('should return 401 when user is not admin', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
-            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue(
-                'admin',
-            )
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
+            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
 
             const response = await request(app)
                 .post('/api/users/user-1/roles/moderator')
@@ -256,7 +213,7 @@ describe('Roles Endpoints', () => {
         it('should list resource permissions for owner', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             const mockPermissions = [
@@ -279,13 +236,7 @@ describe('Roles Endpoints', () => {
             ]
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
             vi.mocked(resourceRolesService.isOwnerOfResource).mockResolvedValue(
                 true,
             )
@@ -305,17 +256,11 @@ describe('Roles Endpoints', () => {
         it('should return 401 when user is not owner', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
             vi.mocked(resourceRolesService.isOwnerOfResource).mockResolvedValue(
                 false,
             )
@@ -330,17 +275,11 @@ describe('Roles Endpoints', () => {
         it('should return 400 when resourceId is missing', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
 
             const response = await request(app)
                 .get('/api/resource//roles')
@@ -354,7 +293,7 @@ describe('Roles Endpoints', () => {
         it('should get user resource role for owner', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             const mockRole = {
@@ -368,17 +307,9 @@ describe('Roles Endpoints', () => {
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
-            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue(
-                'admin',
-            )
-            vi.mocked(usersService.getUserRole).mockResolvedValue('user')
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
+            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
+            vi.mocked(usersService.getUserRole).mockResolvedValue(USER_ROLE_ID)
             vi.mocked(resourceRolesService.isOwnerOfResource).mockResolvedValue(
                 true,
             )
@@ -403,7 +334,7 @@ describe('Roles Endpoints', () => {
         it('should get user resource role for self', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             const mockRole = {
@@ -417,17 +348,9 @@ describe('Roles Endpoints', () => {
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
-            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue(
-                'admin',
-            )
-            vi.mocked(usersService.getUserRole).mockResolvedValue('user')
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
+            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
+            vi.mocked(usersService.getUserRole).mockResolvedValue(USER_ROLE_ID)
             vi.mocked(
                 resourceRolesService.getUserResourceRole,
             ).mockResolvedValue(mockRole)
@@ -446,21 +369,13 @@ describe('Roles Endpoints', () => {
         it('should return 401 when user lacks permission', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
-            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue(
-                'admin',
-            )
-            vi.mocked(usersService.getUserRole).mockResolvedValue('user')
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
+            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
+            vi.mocked(usersService.getUserRole).mockResolvedValue(USER_ROLE_ID)
             vi.mocked(resourceRolesService.isOwnerOfResource).mockResolvedValue(
                 false,
             )
@@ -477,21 +392,13 @@ describe('Roles Endpoints', () => {
         it('should assign role to resource for owner', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
-            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue(
-                'admin',
-            )
-            vi.mocked(usersService.getUserRole).mockResolvedValue('user')
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
+            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
+            vi.mocked(usersService.getUserRole).mockResolvedValue(USER_ROLE_ID)
             vi.mocked(resourceRolesService.isOwnerOfResource).mockResolvedValue(
                 true,
             )
@@ -517,17 +424,11 @@ describe('Roles Endpoints', () => {
         it('should return 400 when role is missing', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
             vi.mocked(resourceRolesService.isOwnerOfResource).mockResolvedValue(
                 true,
             )
@@ -543,17 +444,11 @@ describe('Roles Endpoints', () => {
         it('should return 401 when user is not owner', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
             vi.mocked(resourceRolesService.isOwnerOfResource).mockResolvedValue(
                 false,
             )
@@ -573,21 +468,13 @@ describe('Roles Endpoints', () => {
         it('should remove user role from resource for owner', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
-            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue(
-                'admin',
-            )
-            vi.mocked(usersService.getUserRole).mockResolvedValue('user')
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
+            vi.mocked(systemRolesService.getAdminRole).mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
+            vi.mocked(usersService.getUserRole).mockResolvedValue(USER_ROLE_ID)
             vi.mocked(resourceRolesService.isOwnerOfResource).mockResolvedValue(
                 true,
             )
@@ -610,17 +497,11 @@ describe('Roles Endpoints', () => {
         it('should return 400 when fields are missing', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
             vi.mocked(resourceRolesService.isOwnerOfResource).mockResolvedValue(
                 true,
             )
@@ -635,17 +516,11 @@ describe('Roles Endpoints', () => {
         it('should return 401 when user is not owner', async () => {
             const mockPayload = {
                 userId: 'user-1',
-                systemRole: 'user',
+                systemRole: USER_ROLE_ID,
             }
 
             vi.mocked(authUtils.validateToken).mockReturnValue(mockPayload)
-            vi.mocked(usersService.getUserById).mockResolvedValue({
-                id: 'user-1',
-                email: 'user@example.com',
-                username: 'user',
-                system_role: 'user',
-                password: 'hashed',
-            })
+            vi.mocked(usersService.getUserById).mockResolvedValue(buildUserData('user-1', USER_ROLE_ID, 'user'))
             vi.mocked(resourceRolesService.isOwnerOfResource).mockResolvedValue(
                 false,
             )
@@ -658,3 +533,5 @@ describe('Roles Endpoints', () => {
         })
     })
 })
+
+

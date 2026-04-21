@@ -1,8 +1,7 @@
 import {
     sendBadRequestResponse,
-    sendSuccessResponse,
 } from '@agm454-ua/auth-utils'
-import { getFileDownloadUrl } from '@services/files.service.js'
+import { streamFileDownload } from '@services/files.service.js'
 import { streamFolderDownload } from '@services/folders.service.js'
 import { isResourceAFile } from '@services/resources.service.js'
 import type { Request, Response } from 'express'
@@ -19,16 +18,16 @@ export async function downloadResourceController(req: Request, res: Response) {
         return sendBadRequestResponse(res, 'Resource not found')
 
     if (isFile) {
-        const downloadUrl = await getFileDownloadUrl(resourceId)
+        const streamStarted = await streamFileDownload(resourceId, res)
 
-        if (!downloadUrl) {
+        if (!streamStarted) {
             return sendBadRequestResponse(
                 res,
-                'Failed to generate download url',
+                'Failed to stream file download',
             )
         }
 
-        return sendSuccessResponse(res, downloadUrl)
+        return
     } else {
         // if it is a folder, all the logic is managed in the service
         return streamFolderDownload(resourceId, res)

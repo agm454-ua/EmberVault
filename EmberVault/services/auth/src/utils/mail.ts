@@ -36,12 +36,15 @@ export async function sendEmail(
     await transporter.sendMail(mailOptions)
 }
 
-export async function loadMailHTML(code: string): Promise<string> {
+export async function loadMailHTML(
+    code: string,
+    userId: string,
+): Promise<string> {
     const htmlTemplatePath = path.join(process.cwd(), 'public', 'mail.html')
     const htmlContent = await fs.readFile(htmlTemplatePath, 'utf-8')
 
     // Add the url with the code to the html
-    const resetPasswordPageUrlWithCode = `${ENV.FRONTEND_URL}/reset-password?code=${code}`
+    const resetPasswordPageUrlWithCode = `${ENV.FRONTEND_URL}/reset-password?code=${encodeURIComponent(code)}&id=${encodeURIComponent(userId)}`
     const htmlWithCode = htmlContent.replace(
         /{{\s*[^}]+\s*}}/g,
         resetPasswordPageUrlWithCode,

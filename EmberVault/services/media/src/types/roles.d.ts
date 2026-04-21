@@ -19,7 +19,7 @@ export interface TUserResourcePermissions {
 export interface TSystemRole {
     id?: TSystemRoleID
     name: string
-    description: string | null
+    description?: string | null
 }
 
 export interface TUserIsResourceRoleForResource {
