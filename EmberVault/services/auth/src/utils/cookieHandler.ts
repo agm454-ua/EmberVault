@@ -19,7 +19,7 @@ export const sendRefreshTokenCookie = (
         httpOnly: true,
         ...cookieSecurity,
         maxAge: ENV.REFRESH_TOKEN_EXPIRATION_MINUTES * 60 * 1000,
-        path: '/',
+        path: '/auth/api/refresh',
     })
 }
 
@@ -27,6 +27,6 @@ export const clearRefreshTokenCookie = (req: Request, res: Response): Response =
     return res.clearCookie('refreshToken', {
         httpOnly: true,
         ...cookieSecurity,
-        path: '/',
+        path: '/auth/api/refresh',
     })
 }
