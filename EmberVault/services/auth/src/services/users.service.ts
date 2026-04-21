@@ -16,11 +16,17 @@ export const getUser = async (
             system_role: true,
             system_roles: {
                 select: {
+                    id: true,
                     name: true,
-                },
+                }
             },
             password: true,
             root_folder: true,
+            birth_date: true,
+            avatar_url: true,
+            storage_limit_gb: true,
+            storage_used_gb: true,
+            status: true,
         },
     })
 
@@ -38,6 +44,11 @@ export const getUser = async (
         },
         password: result.password,
         root_folder: result.root_folder,
+        birthdate: result.birth_date ? result.birth_date.toISOString().split('T')[0] : undefined,
+        profile_picture_url: result.avatar_url,
+        storage_limit_gb: result.storage_limit_gb,
+        storage_used_gb: result.storage_used_gb?.toNumber(),
+        status: result.status,
     }
 }
 
@@ -76,6 +87,9 @@ export const getUserById = async (id: string): Promise<TUserData | null> => {
             root_folder: true,
             birth_date: true,
             avatar_url: true,
+            storage_limit_gb: true,
+            storage_used_gb: true,
+            status: true,
         },
     })
 
@@ -95,6 +109,9 @@ export const getUserById = async (id: string): Promise<TUserData | null> => {
         root_folder: result.root_folder,
         birthdate: result.birth_date ? result.birth_date.toISOString().split('T')[0] : undefined,
         profile_picture_url: result.avatar_url,
+        storage_limit_gb: result.storage_limit_gb,
+        storage_used_gb: result.storage_used_gb?.toNumber(),
+        status: result.status,
     }
 }
 
@@ -133,10 +150,16 @@ export const createUser = async (userData: TRegisterRequest) => {
                     name: true,
                 }
             },
+            password: true,
             root_folder: true,
+            birth_date: true,
+            avatar_url: true,
+            storage_limit_gb: true,
+            storage_used_gb: true,
+            status: true,
         },
     })
-    
+
     if (!result) {
         return null
     }
@@ -149,7 +172,13 @@ export const createUser = async (userData: TRegisterRequest) => {
             id: result.system_role,
             name: result.system_roles.name,
         },
+        password: result.password,
         root_folder: result.root_folder,
+        birthdate: result.birth_date ? result.birth_date.toISOString().split('T')[0] : undefined,
+        profile_picture_url: result.avatar_url,
+        storage_limit_gb: result.storage_limit_gb,
+        storage_used_gb: result.storage_used_gb?.toNumber(),
+        status: result.status,
     }
 }
 

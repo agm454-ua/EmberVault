@@ -23,6 +23,13 @@ export async function meController(req: Request, res: Response) {
         id: user.id,
         username: user.username,
         email: user.email,
+        birthdate: user.birthdate,
+        root_folder: user.root_folder,
+        system_role: user.system_role,
+        profile_picture_url: user.profile_picture_url,
+        storage_limit_gb: user.storage_limit_gb,
+        storage_used_gb: user.storage_used_gb,
+        status: user.status,
     }
 
     return sendSuccessResponse(res, responseData)

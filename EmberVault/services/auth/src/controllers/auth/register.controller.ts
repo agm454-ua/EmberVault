@@ -64,7 +64,7 @@ function validateBirthDate(birthDate?: string): string | null {
         now.getFullYear() -
         date.getFullYear() -
         (now.getMonth() < date.getMonth() ||
-        (now.getMonth() === date.getMonth() && now.getDate() < date.getDate())
+            (now.getMonth() === date.getMonth() && now.getDate() < date.getDate())
             ? 1
             : 0)
 
@@ -155,7 +155,7 @@ export async function registerController(req: Request, res: Response) {
 
     const payload: TokenPayload = {
         userId: newUser.id,
-        systemRole: newUser.system_role,
+        systemRole: newUser.system_role.id!,
     }
 
     // Generate access and refresh tokens
@@ -164,7 +164,7 @@ export async function registerController(req: Request, res: Response) {
         ENV.REFRESH_SECRET,
         ENV.REFRESH_TOKEN_EXPIRATION_MINUTES,
     )
-    sendRefreshTokenCookie(res, refreshToken)
+    sendRefreshTokenCookie(req, res, refreshToken)
 
     const jwt = generateToken(
         payload,
@@ -177,6 +177,13 @@ export async function registerController(req: Request, res: Response) {
             id: newUser.id,
             username: newUser.username,
             email: newUser.email,
+            birthdate: newUser.birthdate,
+            root_folder: newUser.root_folder,
+            system_role: newUser.system_role,
+            profile_picture_url: newUser.profile_picture_url,
+            storage_limit_gb: newUser.storage_limit_gb,
+            storage_used_gb: newUser.storage_used_gb,
+            status: newUser.status,
         },
         token: jwt,
     }

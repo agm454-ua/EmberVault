@@ -7,19 +7,16 @@ export type TRole = {
 
 export type TUser = {
 	id: string
-	email: string
 	username: string
-	system_role: TRole | undefined
-	status?: 'active' | 'suspended' | 'deleted' | string
-	birthDate?: string
+	email: string
 	birthdate?: string
-	createdAt?: string
-	updatedAt?: string
-	avatarURL?: string | null
-	profilePictureUrl?: string | null
 	root_folder: string | undefined
+	system_role: TRole | undefined
+	profile_picture_url?: string | null
+	status?: 'active' | 'suspended' | 'deleted' | string
+	storage_limit_gb?: number | null
+	storage_used_gb?: number | null
 }
-
 
 export type TCreateUserDTO = {
 	username: string
@@ -32,7 +29,6 @@ export type TUpdateUserDTO = {
 	email?: string
 	username?: string
 	birthDate?: string
-	avatarURL?: string | null
 	status?: 'active' | 'suspended' | 'deleted'
 }
 
