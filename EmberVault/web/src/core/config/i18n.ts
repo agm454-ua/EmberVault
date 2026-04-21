@@ -9,6 +9,7 @@ i18n.use(LanguageDetector)
 		resources: {
 			en: { translation: (await import('@locales/en.json')).default },
 			es: { translation: (await import('@locales/es.json')).default },
+			cat: { translation: (await import('@locales/cat.json')).default },
 		},
 		interpolation: { escapeValue: false },
 	})

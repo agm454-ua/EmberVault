@@ -15,6 +15,7 @@ export const routes = {
 export const languageLabels: Record<string, string> = {
 	en: 'English',
 	es: 'Español',
+	cat: 'Català',
 }
 
 export const avgStaleTime = 5 * 60 * 1000 // 5 minutes
