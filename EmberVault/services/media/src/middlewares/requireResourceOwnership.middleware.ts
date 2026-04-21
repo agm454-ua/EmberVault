@@ -32,7 +32,7 @@ const requireResourceOwnership = async (
         return sendErrorResponse(res)
     }
 
-    if (adminRole === userRole) {
+    if (adminRole.id === userRole) {
         return next()
     }
 

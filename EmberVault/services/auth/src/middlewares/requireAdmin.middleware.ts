@@ -22,7 +22,7 @@ const requireAdmin = async (
         return sendErrorResponse(res)
     }
 
-    if (payload.systemRole !== adminRole) {
+    if (payload.systemRole !== adminRole.id) {
         return sendUnauthorizedResponse(res)
     }
 

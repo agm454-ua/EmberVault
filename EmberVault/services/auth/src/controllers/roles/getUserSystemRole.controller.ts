@@ -30,7 +30,7 @@ export async function getUserSystemRoleController(req: Request, res: Response) {
 
     if (
         requesterUser.userId !== solicitedUserId && // same user
-        requesterUser.systemRole !== adminRole
+        requesterUser.systemRole !== adminRole.id // is admin
     ) {
         // is admin
         return sendUnauthorizedResponse(res)

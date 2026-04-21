@@ -33,7 +33,7 @@ async function isUserOwnerAdminOrSelf(
         return false
     }
 
-    if (adminRole === userRole) {
+    if (adminRole.id === userRole) {
         return true
     }
 
