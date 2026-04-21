@@ -11,6 +11,7 @@ import RenameFileModal from './RenameFileModal'
 import useDeleteResource from '../hooks/useDeleteResource'
 import useRestoreFromTrash from '../hooks/useRestoreFromTrash'
 import useDeleteFromTrash from '../hooks/useDeleteFromTrash'
+import useMe from '@/features/auth/hooks/useMe'
 
 type FileRowProps = {
 	resource: TResourceResponse
@@ -49,6 +50,9 @@ export default function FileRow({
 	const moveToTrash = useDeleteResource('', resource.id)
 	const restoreFromTrash = useRestoreFromTrash(resource.id)
 	const deleteFromTrash = useDeleteFromTrash(resource.id)
+
+	const {data: userData} = useMe()
+	const ownerDisplay = resource.owner === userData?.username ? t('user.me') : resource.owner
 
 	const handleDownload = async () => {
 		const downloadResult = await download.mutateAsync()
@@ -200,7 +204,7 @@ export default function FileRow({
 					</div>
 				</td>
 				<td className="text-center" title={resource.owner}>
-					{resource.owner ?? '-'}
+					{ownerDisplay ?? '-'}
 				</td>
 				<td className="text-center">{formatDate(modificationDate) ?? '-'}</td>
 				<td className="text-center">{resource.size ?? '-'}</td>

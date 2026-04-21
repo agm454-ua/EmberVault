@@ -3,29 +3,34 @@ import type {
     TFile,
     TResourceID,
     TResourceResponse,
-    TResourceState,
 } from '@customTypes/resource.js'
 import formatBytes from '@utils/formatBytes.js'
 import { prisma } from '@utils/prisma.js'
-import type { Prisma } from 'src/generated/prisma/client.js'
-import { metaSelect, extractMetadata } from '@mappers/meta/index.js'
+import type { Prisma } from '../generated/prisma/client.js'
+import { metaSelect } from '@mappers/meta/index.js'
 import type { TUserID } from '@customTypes/user.js'
-import { fileSelect } from '@mappers/file.mapper.js'
-import { mapResource, resourceSelect } from '@mappers/resource.mapper.js'
+import { fileSelect, mapFile } from '@mappers/file.mapper.js'
+import {
+    mapResource,
+    resourceSelect,
+    type ResourceRow,
+} from '@mappers/resource.mapper.js'
 import { getRoleId } from './resource_roles.service.js'
 import { randomUUID } from 'crypto'
 import {
     buildStoragePath,
     copyObject,
     deleteObject,
+    getFileStream,
     getHash,
     getSizeInBytes,
     getFileSignedUrl,
     getUploadUrl,
     getDownloadUrl,
 } from '@utils/storage.js'
-import { state } from 'src/generated/prisma/client.js'
+import { state } from '../generated/prisma/client.js'
 import { OWNER_ROLE } from '@constants/roles.js'
+import type { Response } from 'express'
 
 const baseSelect = {
     id: true,
@@ -36,36 +41,11 @@ const baseSelect = {
     thumbnail_path: true,
     resources: {
         select: {
-            name: true,
-            is_private: true,
-            state: true,
-            created_at: true,
-            updated_at: true,
-            deleted_at: true,
-            parent_folder: true,
+            ...resourceSelect,
         },
     },
     ...metaSelect,
 } satisfies Prisma.filesSelect
-type FileWithResource = Prisma.filesGetPayload<{ select: typeof baseSelect }>
-
-const mapFile = (file: FileWithResource): TFile => ({
-    id: file.id,
-    name: file.resources.name,
-    isPrivate: file.resources.is_private ?? false,
-    state: (file.resources.state ?? 'pending') as TResourceState,
-    createdAt: file.resources.created_at,
-    updatedAt: file.resources.updated_at,
-    deletedAt: file.resources.deleted_at,
-    parentFolder: file.resources.parent_folder,
-    type: 'FILE',
-    mimeType: file.mime_type ?? '',
-    size: formatBytes(file.size_bytes ?? 0),
-    storagePath: file.storage_path,
-    checksum: file.checksum,
-    thumbnailPath: file.thumbnail_path,
-    metadata: extractMetadata(file), // ✅ registry handles it
-})
 
 export const getStorageUsed = async (): Promise<string> => {
     const result = await prisma.files.aggregate({
@@ -86,7 +66,8 @@ export const listAllFiles = async (
     lastCursor: TResourceID | null = null,
     take?: string,
 ): Promise<TFile[] | null> => {
-    const myTake = take ? parseInt(take) : 10
+    const parsedTake = take ? parseInt(take, 10) : 10
+    const myTake = Number.isNaN(parsedTake) || parsedTake <= 0 ? 10 : parsedTake
 
     const results = await prisma.files.findMany({
         take: myTake,
@@ -96,9 +77,8 @@ export const listAllFiles = async (
                 id: lastCursor,
             },
         }),
-        orderBy: {
-            resources: { created_at: 'desc' },
-        },
+        // Keep cursor pagination deterministic when multiple rows share created_at.
+        orderBy: [{ resources: { created_at: 'desc' } }, { id: 'desc' }],
         where: {
             resources: {
                 ...(includeDeleted ? {} : { deleted_at: null }),
@@ -114,7 +94,8 @@ export const listAllFiles = async (
     }
 
     return results.map((file) => ({
-        ...mapResource(file.resources),
+        ...mapResource(file.resources as ResourceRow),
+        type: 'FILE' as const,
         ...mapFile(file),
     }))
 }
@@ -167,6 +148,7 @@ export const createFile = async (
     return [
         {
             ...mapResource(newFile),
+            type: 'FILE' as const,
             ...mapFile(newFile.files),
         },
         uploadUrl,
@@ -210,6 +192,7 @@ export const completeUpload = async (
 
     return {
         ...mapResource(updated),
+        type: 'FILE' as const,
         ...mapFile(updated.files),
     }
 }
@@ -283,6 +266,7 @@ export const copyFile = async (
 
     return {
         ...mapResource(newFile),
+        type: 'FILE' as const,
         ...mapFile(newFile.files),
     }
 }
@@ -316,4 +300,41 @@ export const getFileDownloadUrl = async (
     if (file.state !== state.ready) return null // don't allow downloading incomplete uploads
 
     return getDownloadUrl(file.files.storage_path, file.name)
+}
+
+export const streamFileDownload = async (
+    resourceId: TResourceID,
+    res: Response,
+): Promise<boolean> => {
+    const file = await prisma.resources.findUnique({
+        where: { id: resourceId },
+        select: {
+            name: true,
+            state: true,
+            files: { select: { storage_path: true, mime_type: true } },
+        },
+    })
+
+    if (!file?.files) return false
+    if (file.state !== state.ready) return false
+
+    const stream = await getFileStream(file.files.storage_path)
+    if (!stream) return false
+
+    res.setHeader('Content-Type', file.files.mime_type ?? 'application/octet-stream')
+    res.setHeader(
+        'Content-Disposition',
+        `attachment; filename*=UTF-8''${encodeURIComponent(file.name)}`,
+    )
+
+    stream.on('error', (err) => {
+        console.error(`Stream error for ${file.files?.storage_path}:`, err)
+        if (!res.writableEnded) {
+            res.destroy()
+        }
+    })
+
+    stream.pipe(res)
+
+    return true
 }

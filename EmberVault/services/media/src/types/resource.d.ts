@@ -16,6 +16,7 @@ export interface TResource {
     updatedAt: Date | null
     deletedAt: Date | null
     parentFolder: TResourceID | null
+    owner: TUserID | null
 }
 
 export interface TFile extends TResource {
@@ -41,7 +42,7 @@ export interface TUpdateResourceRequest {
     name?: string
     isPrivate?: boolean
     parentFolder?: TResourceID | null
-    type: 'FILE' | 'FOLDER'
+    type?: 'FILE' | 'FOLDER'
 }
 
 export interface TCreateResourceRequest {

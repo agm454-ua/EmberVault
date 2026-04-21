@@ -1,5 +1,5 @@
 import type { TResource, TResourceState } from '@customTypes/resource.js'
-import type { Prisma } from 'src/generated/prisma/client.js'
+import type { Prisma } from '../generated/prisma/client.js'
 
 export const resourceSelect = {
     id: true,
@@ -10,6 +10,22 @@ export const resourceSelect = {
     updated_at: true,
     deleted_at: true,
     parent_folder: true,
+    user_is_resource_role_for_resource: {
+        where: {
+            resource_roles: {
+                name: 'owner'
+            }
+        },
+        select: {
+            users: {
+                select: {
+                    id: true,
+                    username: true,
+                }
+            }
+        }
+    }
+
 } satisfies Prisma.resourcesSelect
 
 export type ResourceRow = Prisma.resourcesGetPayload<{
@@ -25,4 +41,5 @@ export const mapResource = (row: ResourceRow): TResource => ({
     updatedAt: row.updated_at,
     deletedAt: row.deleted_at,
     parentFolder: row.parent_folder,
+    owner: row.user_is_resource_role_for_resource[0]?.users.username ?? null,
 })

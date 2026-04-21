@@ -6,7 +6,7 @@ import type {
 import type { TResourceID } from '@customTypes/resource.js'
 import { mapResource, resourceSelect } from '@mappers/resource.mapper.js'
 import { fileSelect, mapFile } from '@mappers/file.mapper.js'
-import { state } from 'src/generated/prisma/client.js'
+import { state } from '../generated/prisma/client.js'
 import type { TUserID } from '@customTypes/user.js'
 import { OWNER_ROLE } from '@constants/roles.js'
 
@@ -263,6 +263,46 @@ export const restoreAll = async (userId: TUserID): Promise<boolean> => {
         },
         data: {
             deleted_at: null,
+        },
+    })
+
+    return result.count > 0
+}
+
+export const deleteAllFromTrash = async (userId: TUserID): Promise<boolean> => {
+    const result = await prisma.resources.deleteMany({
+        where: {
+            deleted_at: { not: null },
+            user_is_resource_role_for_resource: {
+                some: {
+                    user_id: userId,
+                    resource_roles: {
+                        name: OWNER_ROLE,
+                    },
+                },
+            },
+        },
+    })
+
+    return result.count > 0
+}
+
+export const deleteResourceFromTrash = async (
+    resourceId: TResourceID,
+    userId: TUserID,
+): Promise<boolean> => {
+    const result = await prisma.resources.deleteMany({
+        where: {
+            id: resourceId,
+            deleted_at: { not: null },
+            user_is_resource_role_for_resource: {
+                some: {
+                    user_id: userId,
+                    resource_roles: {
+                        name: OWNER_ROLE,
+                    },
+                },
+            },
         },
     })
 

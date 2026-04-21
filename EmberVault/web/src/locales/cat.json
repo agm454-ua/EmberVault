@@ -73,7 +73,8 @@
             "active": "Actiu",
             "suspended": "Suspès",
             "deleted": "Eliminat"
-        }
+        },
+        "me": "Jo"
     },
     "actions": {
         "actions": "Accions",

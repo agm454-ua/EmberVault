@@ -73,7 +73,8 @@
 			"active": "Activo",
 			"suspended": "Suspendido",
 			"deleted": "Eliminado"
-		}
+		},
+        "me": "Yo"
 	},
 	"actions": {
 		"actions": "Acciones",
