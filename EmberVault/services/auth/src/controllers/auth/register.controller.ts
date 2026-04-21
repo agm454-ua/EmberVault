@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 import {
+    hashPassword,
     sendBadRequestResponse,
     sendSuccessResponse,
 } from '@agm454-ua/auth-utils'
@@ -137,10 +138,12 @@ export async function registerController(req: Request, res: Response) {
         confirmPassword,
     }: TRegisterRequest = req.body
 
+    const hashedPassword = await hashPassword(password)
+
     const userData: TRegisterRequest = {
         username: username,
         email: email,
-        password: password,
+        password: hashedPassword,
         birthDate: birthDate,
         confirmPassword: confirmPassword, // useless
     }
