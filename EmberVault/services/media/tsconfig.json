@@ -16,17 +16,16 @@
         "forceConsistentCasingInFileNames": true,
         "skipLibCheck": true,
         "lib": ["ES2022"],
-        "baseUrl": ".",
         "paths": {
-            "@services/*": ["src/services/*"],
-            "@controllers/*": ["src/controllers/*"],
-            "@utils/*": ["src/utils/*"],
-            "@middlewares/*": ["src/middlewares/*"],
-            "@routes/*": ["src/routes/*"],
-            "@config/*": ["src/config/*"],
-            "@customTypes/*": ["src/types/*"],
-            "@mappers/*": ["src/mappers/*"],
-            "@constants/*": ["src/constants/*"]
+            "@services/*": ["./src/services/*"],
+            "@controllers/*": ["./src/controllers/*"],
+            "@utils/*": ["./src/utils/*"],
+            "@middlewares/*": ["./src/middlewares/*"],
+            "@routes/*": ["./src/routes/*"],
+            "@config/*": ["./src/config/*"],
+            "@customTypes/*": ["./src/types/*"],
+            "@mappers/*": ["./src/mappers/*"],
+            "@constants/*": ["./src/constants/*"]
         }
     },
     "include": [
