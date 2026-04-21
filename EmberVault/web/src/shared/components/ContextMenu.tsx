@@ -45,9 +45,11 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
 
 		document.addEventListener('mousedown', handleClick)
 		document.addEventListener('keydown', handleKey)
+		window.addEventListener('scroll', onClose, true)
 		return () => {
 			document.removeEventListener('mousedown', handleClick)
 			document.removeEventListener('keydown', handleKey)
+			window.removeEventListener('scroll', onClose, true)
 		}
 	}, [onClose])
 
