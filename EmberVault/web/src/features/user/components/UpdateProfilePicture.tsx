@@ -22,9 +22,10 @@ export default function UpdateProfilePicture({
 				alt={alt}
 				className={`aspect-square rounded-full border-stroke object-cover h-32 w-32 ${disabled ? '' : 'group-hover:blur-xs'} ${className}`}
 			/>
+			<div className={`absolute inset-0 rounded-full bg-black/20 opacity-0 ${disabled ? '' : 'group-hover:opacity-100'} transition-opacity`} />
 			<div className={`absolute inset-0 flex flex-col items-center justify-center opacity-0 ${disabled ? '' : 'group-hover:opacity-100'} transition-opacity`}>
-				<UploadImageIcon className="text-ink-muted z-10" />
-				<p className="text-xs text-ink-muted text-center">{t('profilePage.uploadProfilePicture')}</p>
+				<UploadImageIcon className="text-ink-inverse z-10" />
+				<p className="text-xs text-ink-inverse text-center">{t('profilePage.uploadProfilePicture')}</p>
 			</div>
 		</div>
 	)
