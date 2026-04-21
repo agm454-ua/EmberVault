@@ -1,5 +1,4 @@
 import {
-    hashPassword,
     sendBadRequestResponse,
     sendSuccessResponse,
 } from '@agm454-ua/auth-utils'
@@ -9,34 +8,39 @@ import logger from '@utils/logger.js'
 import type { Response, Request, NextFunction } from 'express'
 import validateBirthDate from '@validators/birthDate.validator.js'
 import validateMail from '@validators/mail.validator.js'
-import validatePassword from '@validators/password.validator.js'
 import validateUsername from '@validators/username.validator.js'
+import { validateUserStatus } from '@validators/status.validator.js'
 
 export function validateUpdateUserRequest(
     req: Request,
     res: Response,
     next: NextFunction,
 ) {
-    const { username, email, password, birthDate }: TUpdateUserRequest =
+    const { username, email, birthDate, status, storageLimitGB }: TUpdateUserRequest =
         req.body
     const errors: string[] = []
 
     // Run validators
-    if (username) {
+    if (username !== undefined) {
         const usernameError = validateUsername(username)
         if (usernameError) errors.push(usernameError)
     }
-    if (email) {
+    if (email !== undefined) {
         const emailError = validateMail(email)
         if (emailError) errors.push(emailError)
     }
-    if (password) {
-        const passwordError = validatePassword(password)
-        if (passwordError) errors.push(passwordError)
-    }
-    if (birthDate) {
+    if (birthDate !== undefined) {
         const birthDateError = validateBirthDate(birthDate)
         if (birthDateError) errors.push(birthDateError)
+    }
+    if (status !== undefined) {
+        const statusError = validateUserStatus(status)
+        if (statusError) errors.push(statusError)
+    }
+    if (storageLimitGB !== undefined) {
+        if (isNaN(storageLimitGB) || storageLimitGB < 0) {
+            errors.push('Storage limit must be a non-negative number')
+        }
     }
 
     if (errors.length > 0) {
@@ -57,12 +61,6 @@ export async function updateUserController(req: Request, res: Response) {
         return sendBadRequestResponse(res, 'Missing User ID in request params')
     }
 
-    // hash password
-    if (userUpdateRequest.password) {
-        userUpdateRequest.password = await hashPassword(
-            userUpdateRequest.password,
-        )
-    }
 
     // try/catch so the error message is clear
     try {

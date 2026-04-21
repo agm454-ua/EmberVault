@@ -135,15 +135,15 @@ export const updateUser = async (
     userId: TUserID,
     data: TUpdateUserRequest,
 ): Promise<TUser | null> => {
+    const parsedBirthDate =
+        data.birthDate === undefined ? undefined : new Date(data.birthDate)
+
     // only uses values that are defined
     const parsedData = Object.fromEntries(
         Object.entries({
             username: data.username,
             email: data.email,
-            password: data.password,
-            avatar_url: data.avatarURL,
-            birth_date: data.birthDate,
-            system_role: data.systemRole,
+            birth_date: parsedBirthDate,
             status: data.status,
             storage_limit_gb: data.storageLimitGB,
         }).filter(([, value]) => value !== undefined),
@@ -187,10 +187,11 @@ export const deleteUser = async (userId: TUserID): Promise<boolean> => {
 }
 
 export const getUsers = async (
-    lastCursor: TUserID,
+    lastCursor?: TUserID,
     take?: string,
 ): Promise<TUser[] | null> => {
-    const myTake = take ? parseInt(take) : 10
+    const parsedTake = take ? parseInt(take, 10) : 10
+    const myTake = Number.isNaN(parsedTake) || parsedTake <= 0 ? 10 : parsedTake
 
     const results = await prisma.users.findMany({
         take: myTake,
@@ -200,9 +201,8 @@ export const getUsers = async (
                 id: lastCursor,
             },
         }),
-        orderBy: {
-            created_at: 'desc',
-        },
+        // Keep pagination deterministic when many users share the same created_at.
+        orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
         select: {
             id: true,
             email: true,
