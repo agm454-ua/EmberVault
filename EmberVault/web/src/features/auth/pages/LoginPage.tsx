@@ -34,8 +34,7 @@ export function LoginPage() {
 			login.mutate(
 				{ email: identifier.trim(), password: password.trim() },
 				{
-					onError: (err) => {
-						console.log(err)
+					onError: () => {
 						setError(t('errors.loginFailed'))
 					},
 					onSuccess: () => {
@@ -48,8 +47,7 @@ export function LoginPage() {
 			login.mutate(
 				{ username: identifier.trim(), password: password.trim() },
 				{
-					onError: (err) => {
-						console.log(err)
+					onError: () => {
 						setError(t('errors.loginFailed'))
 					},
 					onSuccess: () => {
