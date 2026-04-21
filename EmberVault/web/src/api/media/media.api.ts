@@ -57,7 +57,19 @@ export const mediaApi = {
 	searchResources: (userId: string, query: string) => handleResponse(client.get<ApiResponse<TResourceResponse[]>>(`/media/api/users/${userId}/resources?name=${encodeURIComponent(query)}`)),
 	copyResource: (userId: string, resourceId: string, data: TCopyResourceRequest) => handleResponse(client.post(`/media/api/users/${userId}/resources/${resourceId}/copy`, { ...data })),
 	getThumbnail: (userId: string, resourceId: string) => handleResponse(client.get<ApiResponse<string | null>>(`/media/api/users/${userId}/resources/${resourceId}/thumbnail`)),
-	listFolderResources: (userId: string, folderId: string) => handleResponse(client.get<ApiResponse<TResourceResponse[]>>(`/media/api/users/${userId}/resources/${folderId}/resources`)),
+	listFolderResources: (userId: string, folderId: string, includeDeleted?: boolean) => {
+		const params = new URLSearchParams()
+		if (includeDeleted !== undefined) {
+			params.append('includeDeleted', includeDeleted ? 'true' : 'false')
+		}
+
+		const query = params.toString()
+		return handleResponse(
+			client.get<ApiResponse<TResourceResponse[]>>(
+				`/media/api/users/${userId}/resources/${folderId}/resources${query ? `?${query}` : ''}`,
+			),
+		)
+	},
 
 	// Trash
 	getTrash: (userId: string, lastCursor?: string, take?: number) => {

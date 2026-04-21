@@ -2,13 +2,16 @@ import Title from '@/shared/layouts/Title'
 import { useTranslation } from 'react-i18next'
 import FileTable from '../components/FileTable'
 import ErrorMessage from '@/shared/components/ErrorMessage'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import type { TResourceResponse } from '../types/resources'
 import useGetTrash from '../hooks/useGetTrash'
 import Button from '@/shared/components/Button'
 import useDeleteAllFromTrash from '../hooks/useDeleteAllFromTrash'
 import SuccessMessage from '@/shared/components/SuccessMessage'
 import { useRestoreAllFromTrash } from '../hooks/useRestoreAllFromTrash'
+import { useSearchParams } from 'react-router-dom'
+import { useState } from 'react'
+import useListFolderResources from '../hooks/useListFolderResources'
 
 type TPathSegment = {
 	id: string
@@ -19,7 +22,7 @@ const TRASH_ROOT_ID = '__trash_root__'
 
 export function TrashPage() {
 	const { t } = useTranslation()
-	const [nestedPath, setNestedPath] = useState<TPathSegment[]>([])
+	const [searchParams, setSearchParams] = useSearchParams()
 	const [emptyTrashError, setEmptyTrashError] = useState<string | null>(null)
 	const [isTrashEmptied, setIsTrashEmptied] = useState(false)
 	const getTrash = useGetTrash(undefined, 200)
@@ -28,21 +31,40 @@ export function TrashPage() {
 
 	const allTrashResources = useMemo(() => getTrash.data ?? [], [getTrash.data])
 
+	const nestedPath = useMemo<TPathSegment[]>(() => {
+		const raw = searchParams.get('path')
+		if (!raw) return []
+		return raw.split(',').map((segment) => {
+			const [id, ...nameParts] = segment.split(':')
+			return { id, name: decodeURIComponent(nameParts.join(':')) }
+		})
+	}, [searchParams])
+
+	const setNestedPath = (segments: TPathSegment[]) => {
+		setSearchParams(
+			segments.length
+				? { path: segments.map((s) => `${s.id}:${encodeURIComponent(s.name)}`).join(',') }
+				: {},
+			{ replace: false },
+		)
+	}
+
 	const path = useMemo(() => {
 		return [{ id: TRASH_ROOT_ID, name: t('nav.trash') }, ...nestedPath]
 	}, [nestedPath, t])
 
 	const titlePath = useMemo(() => {
-		if (!path.length) {
-			return t('nav.trash')
-		}
-
+		if (!path.length) return t('nav.trash')
 		return path.map((segment) => segment.name).join(' / ')
 	}, [path, t])
 
 	const currentFolderId = useMemo(() => {
 		return path[path.length - 1]?.id ?? TRASH_ROOT_ID
 	}, [path])
+	const currentFolderResources = useListFolderResources(
+		currentFolderId === TRASH_ROOT_ID ? '' : currentFolderId,
+		{ includeDeleted: true },
+	)
 
 	const trashedResourceIds = useMemo(
 		() => new Set(allTrashResources.map((resource) => resource.id)),
@@ -56,58 +78,37 @@ export function TrashPage() {
 			)
 		}
 
-		return allTrashResources.filter((resource) => resource.parentFolder === currentFolderId)
-	}, [allTrashResources, currentFolderId, trashedResourceIds])
+		return currentFolderResources.data ?? []
+	}, [allTrashResources, currentFolderId, currentFolderResources.data, trashedResourceIds])
 
 	const handleOpenFolder = (resource: TResourceResponse) => {
-		if (resource.type !== 'FOLDER') {
-			return
+		if (resource.type !== 'FOLDER') return
+
+		const fullPath = [{ id: TRASH_ROOT_ID, name: t('nav.trash') }, ...nestedPath]
+		const existingIndex = fullPath.findIndex((s) => s.id === resource.id)
+
+		if (existingIndex >= 0) {
+			setNestedPath(existingIndex === 0 ? [] : fullPath.slice(1, existingIndex + 1))
+		} else {
+			setNestedPath([...nestedPath, { id: resource.id, name: resource.name }])
 		}
-
-		setNestedPath((currentNestedPath) => {
-			const fullPath = [{ id: TRASH_ROOT_ID, name: t('nav.trash') }, ...currentNestedPath]
-
-			const existingIndex = fullPath.findIndex((segment) => segment.id === resource.id)
-			if (existingIndex >= 0) {
-				if (existingIndex === 0) {
-					return []
-				}
-
-				return fullPath.slice(1, existingIndex + 1)
-			}
-
-			return [...currentNestedPath, { id: resource.id, name: resource.name }]
-		})
 	}
 
 	const handleNavigateToPath = (index: number) => {
-		setNestedPath((currentNestedPath) => {
-			const fullPath = [{ id: TRASH_ROOT_ID, name: t('nav.trash') }, ...currentNestedPath]
-
-			if (index < 0 || index >= fullPath.length) {
-				return currentNestedPath
-			}
-
-			if (index === 0) {
-				return []
-			}
-
-			return fullPath.slice(1, index + 1)
-		})
+		const fullPath = [{ id: TRASH_ROOT_ID, name: t('nav.trash') }, ...nestedPath]
+		if (index < 0 || index >= fullPath.length) return
+		setNestedPath(index === 0 ? [] : fullPath.slice(1, index + 1))
 	}
 
-	if (getTrash.isLoading) {
-		return <div>{t('nav.loading')}</div>
-	}
-
-	if (getTrash.isError) {
+	if (getTrash.isLoading) return <div>{t('nav.loading')}</div>
+	if (getTrash.isError) return <ErrorMessage text={t('errors.generic')} />
+	if (currentFolderId !== TRASH_ROOT_ID && currentFolderResources.isLoading) return <div>{t('nav.loading')}</div>
+	if (currentFolderId !== TRASH_ROOT_ID && currentFolderResources.isError) {
 		return <ErrorMessage text={t('errors.generic')} />
 	}
 
 	const handleEmptyTrash = async () => {
-		if (!allTrashResources.length || deleteAllFromTrash.isPending) {
-			return
-		}
+		if (!allTrashResources.length || deleteAllFromTrash.isPending) return
 
 		setEmptyTrashError(null)
 		setIsTrashEmptied(false)
@@ -121,9 +122,7 @@ export function TrashPage() {
 	}
 
 	const handleRestoreAll = async () => {
-		if (!allTrashResources.length || restoreAllFromTrash.isPending) {
-			return
-		}
+		if (!allTrashResources.length || restoreAllFromTrash.isPending) return
 
 		setEmptyTrashError(null)
 
