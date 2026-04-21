@@ -5,8 +5,8 @@ DECLARE
     resource_id UUID;
 BEGIN
     -- First create the resource
-    INSERT INTO resources (name)
-    VALUES (NEW.username || '_root')
+    INSERT INTO resources (name, state)
+    VALUES (NEW.username || '_root', 'ready')
     RETURNING id INTO resource_id;
 
     -- Then create the folder

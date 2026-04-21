@@ -6,12 +6,27 @@ import type {
 } from '@customTypes/roles.js'
 import type { TUserID } from '@customTypes/user.js'
 import type { TResourceID } from '@customTypes/resource.js'
+import { PUBLIC_PERMISSIONS } from '@constants/permissions.js'
 
 export const canUserPerformResourceAction = async (
     userId: TUserID,
     resourceId: TResourceID,
     permissionName: string,
 ): Promise<boolean> => {
+    // If the resource is public, some permissions may be granted without explicit roles
+    if (PUBLIC_PERMISSIONS.has(permissionName)) {
+        const resource = await prisma.resources.findFirst({
+            where: {
+                id: resourceId,
+                is_private: false,
+                deleted_at: null,
+            },
+            select: { id: true },
+        });
+
+        if (resource !== null) return true;
+    }
+    
     const permission =
         await prisma.user_is_resource_role_for_resource.findFirst({
             where: {
