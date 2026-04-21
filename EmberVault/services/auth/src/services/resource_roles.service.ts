@@ -1,8 +1,10 @@
 import { prisma } from '@utils/prisma.js'
 import type {
+    TResourceRole,
     TUserIsResourceRoleForResource,
     TUserResourcePermissions,
 } from '@customTypes/roles.js'
+
 
 export const canUserPerformResourceAction = async (
     userId: string,
@@ -28,6 +30,17 @@ export const canUserPerformResourceAction = async (
 
     return permission !== null
 }
+
+
+export const listResourceRoles = async (): Promise<TResourceRole[]> => {
+    return await prisma.resource_roles.findMany({
+        select: {
+            name: true,
+            description: true,
+        },
+    })
+}
+
 
 export const listResourcePermissions = async (
     resourceId: string,

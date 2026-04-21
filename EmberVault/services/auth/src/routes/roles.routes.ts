@@ -10,6 +10,7 @@ import { Router } from 'express'
 import { setResourceRoleController } from '@controllers/roles/setResourceRole.controller.js'
 import { removeUserRoleFromResource } from '@controllers/roles/removeUserResourceRole.controller.js'
 import { asyncHandler } from '@utils/asyncHandler.js'
+import { listAvailableResourceRolesController } from '@controllers/roles/listAvailableResourceRoles.controller.js'
 
 const router = Router()
 
@@ -42,6 +43,11 @@ router.post(
     asyncHandler(setUserSystemRoleController),
 )
 
+router.get(
+    '/resource/roles',
+    authenticate,
+    asyncHandler(listAvailableResourceRolesController),
+)
 router.get(
     '/resource/:resourceId/roles',
     authenticate,
