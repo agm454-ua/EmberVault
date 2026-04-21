@@ -20,6 +20,11 @@ export default function UpdateProfilePicture({
 			<img
 				src={finalPictureUrl}
 				alt={alt}
+				onError={(e) => {
+					if (e.currentTarget.src !== ENV.VITE_DEFAULT_PROFILE_PICTURE_URL) {
+						e.currentTarget.src = ENV.VITE_DEFAULT_PROFILE_PICTURE_URL
+					}
+				}}
 				className={`aspect-square rounded-full border-stroke object-cover h-32 w-32 ${disabled ? '' : 'group-hover:blur-xs'} ${className}`}
 			/>
 			<div className={`absolute inset-0 rounded-full bg-black/20 opacity-0 ${disabled ? '' : 'group-hover:opacity-100'} transition-opacity`} />

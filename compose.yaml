@@ -173,6 +173,7 @@ services:
             - seaweedfs_access_key
             - seaweedfs_secret_key
             - seaweedfs_bucket
+            - seaweedfs_profile_pictures_bucket
         depends_on:
             seaweedfs-s3:
                 condition: service_healthy
@@ -188,13 +189,18 @@ services:
             - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
             - ./infrastructure/certs:/etc/nginx/certs:ro
         depends_on:
-            - auth
-            - user
-            - media
+            auth:
+                condition: service_healthy
+            user:
+                condition: service_healthy
+            media:
+                condition: service_healthy
+            seaweedfs-s3:
+                condition: service_healthy
         networks:
             - backend
         healthcheck:
-            test: ["CMD", "wget", "--spider", "-q", "http://localhost/health"]
+            test: ["CMD", "nginx", "-t"]
             interval: 15s
             timeout: 5s
             retries: 3
@@ -223,3 +229,5 @@ secrets:
         environment: SEAWEEDFS_SECRET_KEY
     seaweedfs_bucket:
         environment: SEAWEEDFS_BUCKET
+    seaweedfs_profile_pictures_bucket:
+        environment: SEAWEEDFS_PROFILE_PICTURES_BUCKET

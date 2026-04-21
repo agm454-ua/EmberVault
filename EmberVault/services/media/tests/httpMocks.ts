@@ -78,6 +78,9 @@ const httpMocks = vi.hoisted(() => ({
         deleteResourceFromTrash: vi.fn(),
         sendResourceToTrash: vi.fn(),
     },
+    avatars: {
+        uploadUserAvatar: vi.fn(),
+    },
 }))
 
 vi.mock('@middlewares/authenticate.middleware.js', () => ({
@@ -103,6 +106,8 @@ vi.mock('@services/files.service.js', () => httpMocks.files)
 vi.mock('@services/folders.service.js', () => httpMocks.folders)
 
 vi.mock('@services/resources.service.js', () => httpMocks.resources)
+
+vi.mock('@services/avatars.service.js', () => httpMocks.avatars)
 
 vi.mock('@utils/logger.js', () => ({
     default: {
@@ -174,6 +179,10 @@ export function resetHttpServiceMocks(): void {
     m.resources.restoreResource.mockResolvedValue(true)
     m.resources.deleteResourceFromTrash.mockResolvedValue(true)
     m.resources.sendResourceToTrash.mockResolvedValue({ id: 't1' })
+
+    m.avatars.uploadUserAvatar.mockResolvedValue(
+        'https://files.example/avatar.png',
+    )
 }
 
 resetHttpServiceMocks()

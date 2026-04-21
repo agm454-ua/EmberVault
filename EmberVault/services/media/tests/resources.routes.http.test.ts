@@ -425,4 +425,37 @@ describe('HTTP resources routes', () => {
             getHttpMocks().resources.listResourcesInFolder,
         ).toHaveBeenCalledWith('r1', true)
     })
+
+    it('POST avatar upload → 400 when file is missing', async () => {
+        const res = await request(createHttpTestApp())
+            .post(`${U1}/avatar/upload`)
+            .set('Authorization', 'Bearer user-1')
+            .expect(400)
+
+        expect(res.body.success).toBe(false)
+        expect(getHttpMocks().avatars.uploadUserAvatar).not.toHaveBeenCalled()
+    })
+
+    it('POST avatar upload → 200 and returns avatarURL', async () => {
+        const res = await request(createHttpTestApp())
+            .post(`${U1}/avatar/upload`)
+            .set('Authorization', 'Bearer user-1')
+            .attach('avatar', Buffer.from('fake-image-data'), {
+                filename: 'avatar.png',
+                contentType: 'image/png',
+            })
+            .expect(200)
+
+        expect(res.body.success).toBe(true)
+        expect(res.body.data).toMatchObject({
+            avatarURL: 'https://files.example/avatar.png',
+        })
+        expect(getHttpMocks().avatars.uploadUserAvatar).toHaveBeenCalledWith(
+            'user-1',
+            expect.objectContaining({
+                fieldname: 'avatar',
+                mimetype: 'image/png',
+            }),
+        )
+    })
 })

@@ -14,6 +14,11 @@ export default function ProfilePicture({
 		<img
 			src={finalPictureUrl}
 			alt={alt}
+			onError={(e) => {
+				if (e.currentTarget.src !== ENV.VITE_DEFAULT_PROFILE_PICTURE_URL) {
+					e.currentTarget.src = ENV.VITE_DEFAULT_PROFILE_PICTURE_URL
+				}
+			}}
 			className={`aspect-square rounded-full border-stroke object-cover h-8 ${className}`}
 		/>
 	)

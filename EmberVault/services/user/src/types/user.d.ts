@@ -7,7 +7,7 @@ export interface TUser {
     id: TUserID
     username: string
     email: string
-    avatarURL?: string | null
+    profile_picture_url?: string | null
     systemRole: TSystemRoleID
     status?: string | null
     storageLimitGB?: number | null
@@ -17,7 +17,7 @@ export interface TUser {
 export interface TCreateUserRequest {
     username: string
     email: string
-    avatarURL?: string
+    profile_picture_url?: string
     password: string
     birthDate: string
 }

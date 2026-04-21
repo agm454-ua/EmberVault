@@ -11,6 +11,7 @@ import useUploadAvatar from '@/features/media/hooks/useUploadAvatar'
 import ErrorMessage from '@/shared/components/ErrorMessage'
 import { useQueryClient } from '@tanstack/react-query'
 import ChangePasswordModal from '../components/ChangePasswordModal'
+import useDeleteAvatar from '@/features/media/hooks/useDeleteAvatar'
 
 type TEditableProfile = {
 	username: string
@@ -26,6 +27,30 @@ const toDateInputValue = (date?: string) => {
 const normalizeAvatar = (avatar?: string | null) => {
 	if (!avatar?.trim()) return null
 	return avatar
+}
+
+const extractBirthDate = (user?: unknown): string | undefined => {
+	if (!user || typeof user !== 'object') return undefined
+
+	const data = user as Record<string, unknown>
+	const birthDate = data.birthdate ?? data.birthDate
+
+	return typeof birthDate === 'string' ? birthDate : undefined
+}
+
+const extractAvatarFromUser = (user?: unknown): string | null => {
+	if (!user || typeof user !== 'object') return null
+
+	const data = user as Record<string, unknown>
+	const candidates = ['profile_picture_url', 'avatarURL', 'avatarUrl', 'profilePictureUrl']
+
+	for (const key of candidates) {
+		if (typeof data[key] === 'string') {
+			return normalizeAvatar(data[key])
+		}
+	}
+
+	return null
 }
 
 const extractUploadedAvatarUrl = (payload: unknown): string | null => {
@@ -64,6 +89,7 @@ export default function ProfilePage() {
 	const { data: fullUserData } = useGetUser(userId)
 	const updateUser = useUpdateUser(userId)
 	const uploadAvatar = useUploadAvatar()
+	const deleteAvatar = useDeleteAvatar()
 
 	const [isEditing, setIsEditing] = useState(false)
 	const [username, setUsername] = useState('')
@@ -95,8 +121,8 @@ export default function ProfilePage() {
 		if (!meData && !fullUserData) return
 
 		const nextUsername = fullUserData?.username ?? meData?.username ?? ''
-		const nextBirthDate = toDateInputValue(fullUserData?.birthdate ?? fullUserData?.birthdate ?? meData?.birthdate)
-		const nextAvatarURL = normalizeAvatar(fullUserData?.profile_picture_url ?? fullUserData?.profile_picture_url)
+		const nextBirthDate = toDateInputValue(extractBirthDate(fullUserData) ?? extractBirthDate(meData))
+		const nextAvatarURL = extractAvatarFromUser(fullUserData) ?? extractAvatarFromUser(meData)
 
 		if (!isEditing) {
 			setUsername(nextUsername)
@@ -138,6 +164,7 @@ export default function ProfilePage() {
 		if (!isEditing) return
 		setSelectedAvatarFile(null)
 		setAvatarURL(null)
+		deleteAvatar.mutate({ userId })
 		setError('')
 	}
 
@@ -160,7 +187,10 @@ export default function ProfilePage() {
 		let nextAvatarURL = normalizeAvatar(avatarURL)
 		if (selectedAvatarFile) {
 			try {
-				const uploadResult = await uploadAvatar.mutateAsync(selectedAvatarFile)
+				const uploadResult = await uploadAvatar.mutateAsync({
+					file: selectedAvatarFile,
+					userId,
+				})
 				nextAvatarURL = extractUploadedAvatarUrl(uploadResult)
 				if (!nextAvatarURL) {
 					throw new Error('Avatar URL missing in upload response')

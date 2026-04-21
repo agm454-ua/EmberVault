@@ -32,6 +32,20 @@ const s3Presign = new S3Client({
 })
 
 const BUCKET = ENV.S3_BUCKET
+const PROFILE_PICTURES_BUCKET = ENV.S3_PROFILE_PICTURES_BUCKET
+
+const joinUrl = (base: string, path: string): string => {
+    const normalizedBase = base.replace(/\/+$/, '')
+    const normalizedPath = path.replace(/^\/+/, '')
+    return `${normalizedBase}/${normalizedPath}`
+}
+
+const encodeStoragePath = (storagePath: string): string => {
+    return storagePath
+        .split('/')
+        .map((segment) => encodeURIComponent(segment))
+        .join('/')
+}
 
 export const buildStoragePath = (
     resourceId: string,
@@ -132,6 +146,58 @@ export const getDownloadUrl = async (
         ResponseContentDisposition: `attachment; filename="${encodeURIComponent(fileName)}"`,
     })
     return getSignedUrl(s3Presign, command, { expiresIn })
+}
+
+export const uploadProfilePictureObject = async (
+    storagePath: string,
+    body: Buffer,
+    mimeType: string,
+): Promise<void> => {
+    await s3.send(
+        new PutObjectCommand({
+            Bucket: PROFILE_PICTURES_BUCKET,
+            Key: storagePath,
+            Body: body,
+            ContentType: mimeType,
+        }),
+    )
+}
+
+export const deleteProfilePictureObject = async (
+    storagePath: string,
+): Promise<void> => {
+    await s3.send(
+        new DeleteObjectCommand({
+            Bucket: PROFILE_PICTURES_BUCKET,
+            Key: storagePath,
+        }),
+    )
+}
+
+export const getProfilePictureUrl = (storagePath: string): string => {
+    const endpoint = ENV.S3_PUBLIC_ENDPOINT ?? ENV.S3_ENDPOINT
+    const encodedPath = encodeStoragePath(storagePath)
+    return joinUrl(endpoint, `${PROFILE_PICTURES_BUCKET}/${encodedPath}`)
+}
+
+export const getProfilePictureStoragePathFromUrl = (
+    avatarUrl: string,
+): string | null => {
+    const endpoints = [ENV.S3_PUBLIC_ENDPOINT, ENV.S3_ENDPOINT].filter(
+        (value): value is string => !!value,
+    )
+
+    for (const endpoint of endpoints) {
+        const normalizedEndpoint = endpoint.replace(/\/+$/, '')
+        const prefix = `${normalizedEndpoint}/${PROFILE_PICTURES_BUCKET}/`
+
+        if (avatarUrl.startsWith(prefix)) {
+            const encodedStoragePath = avatarUrl.slice(prefix.length)
+            return decodeURIComponent(encodedStoragePath)
+        }
+    }
+
+    return null
 }
 
 // For zipping

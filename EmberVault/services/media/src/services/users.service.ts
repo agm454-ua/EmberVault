@@ -1,5 +1,12 @@
 import type { TUserID, TUser } from '@customTypes/user.js'
 import { prisma } from '@utils/prisma.js'
+import { randomUUID } from 'crypto'
+import {
+    deleteProfilePictureObject,
+    getProfilePictureStoragePathFromUrl,
+    getProfilePictureUrl,
+    uploadProfilePictureObject,
+} from '@utils/storage.js'
 
 export const getUser = async (identifier: string): Promise<TUser | null> => {
     const result = await prisma.users.findFirst({
@@ -50,4 +57,105 @@ export const getUserRole = async (id: string): Promise<string | null> => {
     })
 
     return result?.system_role ?? null
+}
+
+export const getUserAvatarUrlById = async (
+    id: TUserID,
+): Promise<string | null> => {
+    const result = await prisma.users.findFirst({
+        where: { id },
+        select: { avatar_url: true },
+    })
+
+    return result?.avatar_url ?? null
+}
+
+export const updateUserAvatarUrl = async (
+    id: TUserID,
+    avatarUrl: string | null,
+): Promise<string | null | undefined> => {
+    try {
+        const result = await prisma.users.update({
+            where: { id },
+            data: { avatar_url: avatarUrl },
+            select: { avatar_url: true },
+        })
+
+        return result.avatar_url
+    } catch {
+        return undefined
+    }
+}
+
+const fallbackMimeType = 'application/octet-stream'
+
+const getAvatarExtension = (fileName: string): string => {
+    const trimmedName = fileName.trim()
+    const extension = trimmedName.includes('.')
+        ? `.${trimmedName.split('.').pop()}`
+        : ''
+
+    return extension.toLowerCase()
+}
+
+const buildAvatarStoragePath = (userId: string, originalName: string): string => {
+    return `users/${userId}/${randomUUID()}${getAvatarExtension(originalName)}`
+}
+
+export const uploadUserAvatar = async (
+    userId: string,
+    file: Express.Multer.File,
+): Promise<string | null> => {
+    const storagePath = buildAvatarStoragePath(userId, file.originalname)
+    const oldAvatarUrl = await getUserAvatarUrlById(userId)
+
+    await uploadProfilePictureObject(
+        storagePath,
+        file.buffer,
+        file.mimetype || fallbackMimeType,
+    )
+
+    const avatarUrl = getProfilePictureUrl(storagePath)
+    const updatedAvatarUrl = await updateUserAvatarUrl(userId, avatarUrl)
+
+    if (!updatedAvatarUrl) {
+        await deleteProfilePictureObject(storagePath)
+        return null
+    }
+
+    if (oldAvatarUrl) {
+        const oldStoragePath = getProfilePictureStoragePathFromUrl(oldAvatarUrl)
+        if (oldStoragePath) {
+            await deleteProfilePictureObject(oldStoragePath).catch(() => undefined)
+        }
+    }
+
+    return updatedAvatarUrl
+}
+
+export const deleteUserAvatar = async (userId: string): Promise<boolean> => {
+    const oldAvatarUrl = await getUserAvatarUrlById(userId)
+
+    // No avatar to delete, consider it a success
+    if (!oldAvatarUrl) {
+        return true 
+    }
+
+    const oldStoragePath = getProfilePictureStoragePathFromUrl(oldAvatarUrl)
+
+    // Can't determine storage path, consider it a failure
+    if (!oldStoragePath) {
+        return false 
+    }
+
+    const updateResult = await updateUserAvatarUrl(userId, null)
+
+    // Failed to update database, consider it a failure
+    if (updateResult === undefined) {
+        return false 
+    }
+
+    await deleteProfilePictureObject(oldStoragePath).catch(() => undefined)
+
+    return true
 }

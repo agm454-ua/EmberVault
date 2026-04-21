@@ -3,15 +3,21 @@ import { handleResponse, type ApiResponse } from '@/api/responses'
 import type { TResourceResponse, TUpdateResourceRequest, TCreateResourceRequest, TCopyResourceRequest, TCreateResourceResponse } from './media.types'
 
 export const mediaApi = {
-	uploadAvatar: (file: File) => {
+	uploadAvatar: (file: File, userId: string) => {
 		const formData = new FormData()
 		formData.append('avatar', file)
 		return client
-			.post('/media/api/upload/avatar', formData, {
+			.post(`/media/api/users/${userId}/avatar/upload`, formData, {
 				headers: {
 					'Content-Type': 'multipart/form-data',
 				},
 			})
+			.then((res) => res.data)
+	},
+
+	deleteAvatar: (userId: string) => {
+		return client
+			.delete(`/media/api/users/${userId}/avatar`)
 			.then((res) => res.data)
 	},
 

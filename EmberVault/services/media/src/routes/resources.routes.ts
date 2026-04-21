@@ -10,6 +10,7 @@ import {
     validateCreateResourceRequest,
 } from '@controllers/resources/createResource.controller.js'
 import { deleteResourceController } from '@controllers/resources/deleteResource.controller.js'
+import { deleteUserAvatarController } from '@controllers/resources/deleteUserAvatar.controller.js'
 import { downloadResourceController } from '@controllers/resources/downloadResource.controller.js'
 import { getResourceController } from '@controllers/resources/getResource.controller.js'
 import { getThumbnailController } from '@controllers/resources/getThumbnail.controller.js'
@@ -19,14 +20,20 @@ import {
     updateResourceController,
     validateUpdateResourceRequest,
 } from '@controllers/resources/updateResource.controller.js'
+import { uploadUserAvatarController } from '@controllers/resources/uploadUserAvatar.controller.js'
 import authenticate from '@middlewares/authenticate.middleware.js'
+import requireAdminOrSelf from '@middlewares/requireAdminOrSelf.middleware.js'
 import requireResourceOwnership from '@middlewares/requireResourceOwnership.middleware.js'
 import { requireResourcePermission } from '@middlewares/requireResourcePermission.middleware.js'
 import { asyncHandler } from '@utils/asyncHandler.js'
 import { Router } from 'express'
+import multer from 'multer'
 
 // for code readability
 const a = asyncHandler
+const avatarUpload = multer({
+    storage: multer.memoryStorage(),
+})
 
 const router = Router()
 
@@ -95,6 +102,21 @@ router.get(
     authenticate,
     requireResourcePermission(READ_PERMISSION),
     a(listFolderResourcesController),
+)
+
+router.post(
+    '/users/:userId/avatar/upload',
+    authenticate,
+    requireAdminOrSelf,
+    avatarUpload.single('avatar'),
+    a(uploadUserAvatarController),
+)
+
+router.delete(
+    '/users/:userId/avatar',
+    authenticate,
+    requireAdminOrSelf,
+    a(deleteUserAvatarController),
 )
 
 export default router

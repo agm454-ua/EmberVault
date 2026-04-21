@@ -8,6 +8,8 @@ import ImageDragInput from '@/features/media/components/ImageDragInput'
 import { useState, type SubmitEvent } from 'react'
 import ErrorMessage from '@/shared/components/ErrorMessage'
 import useRegister from '../hooks/useRegister'
+import useUploadAvatar from '@/features/media/hooks/useUploadAvatar'
+import { queryClient } from '@/api/queryClient'
 
 export function RegisterPage() {
 	const { t } = useTranslation()
@@ -18,12 +20,14 @@ export function RegisterPage() {
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [confirmPassword, setConfirmPassword] = useState('')
+	const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
 	const [error, setError] = useState('')
 
 	const register = useRegister()
+	const uploadProfilePicture = useUploadAvatar()
 
-	const handleSubmit = (e: SubmitEvent<HTMLElement>) => {
+	const handleSubmit = async (e: SubmitEvent<HTMLElement>) => {
 		e.preventDefault()
 		if (!username.trim() || !email.trim() || !password.trim() || !confirmPassword.trim() || !birthdate) {
 			setError(t('errors.allFieldsRequired'))
@@ -36,24 +40,39 @@ export function RegisterPage() {
 		}
 
 		setError('')
-		register.mutate(
-			{
+
+		try {
+			const data = await register.mutateAsync({
 				username: username.trim(),
 				email: email.trim(),
 				password: password.trim(),
 				confirmPassword: confirmPassword.trim(),
 				birthDate: birthdate,
-			},
-			{
-				onError: (err) => {
+			})
+
+			if (selectedFile) {
+				try {
+					await uploadProfilePicture.mutateAsync({
+						file: selectedFile,
+						userId: data.user.id,
+					})
+
+					await Promise.all([
+						queryClient.invalidateQueries({ queryKey: ['me'] }),
+						queryClient.invalidateQueries({ queryKey: ['getUser', data.user.id] }),
+					])
+				} catch (err) {
 					console.log(err)
-					setError(t('errors.registrationFailed'))
-				},
-				onSuccess: () => {
-					navigate(routes.profile)
-				},
-			},
-		)
+					setError(t('errors.uploadFailed'))
+					return
+				}
+			}
+
+			navigate(routes.profile)
+		} catch (err) {
+			console.log(err)
+			setError(t('errors.registrationFailed'))
+		}
 	}
 
 	return (
@@ -104,7 +123,10 @@ export function RegisterPage() {
 						onChange={(e) => setConfirmPassword(e.target.value)}
 					/>
 				</div>
-				<ImageDragInput label={t('userData.profilePicture') + ':'} />
+				<ImageDragInput
+					label={t('userData.profilePicture') + ':'}
+					onImageSelect={(file) => setSelectedFile(file)}
+				/>
 
 				<Button variant="primary" type="submit" className="px-14">
 					{t('auth.createAccount')}

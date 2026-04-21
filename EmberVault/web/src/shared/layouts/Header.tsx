@@ -1,5 +1,4 @@
 import Logo from '@shared/components/Logo'
-import UserIcon from '../icons/UserIcon'
 import LanguageButton from '../components/LanguageButton'
 import { useContextMenu } from '../hooks/useContextMenu'
 import { ContextMenu } from '../components/ContextMenu'
@@ -8,6 +7,8 @@ import { routes } from '@/core/config/constants'
 import { useNavigate } from 'react-router-dom'
 import useLogout from '@/features/auth/hooks/useLogout'
 import Button from '../components/Button'
+import ENV from '@/core/config/env'
+import { useMe } from '@/features/auth/hooks/useMe'
 
 function Header() {
 	const { t } = useTranslation()
@@ -21,6 +22,9 @@ function Header() {
 		{ label: t('auth.logout'), onClick: () => logout.mutate() },
 	]
 
+	const { data: dataUser } = useMe()
+	const profile_picture_url = dataUser?.profile_picture_url ?? ENV.VITE_DEFAULT_PROFILE_PICTURE_URL
+
 	return (
 		<>
 			<header className="fixed top-0 left-0 right-0 h-16 flex items-center px-6 border-b border-stroke justify-between bg-surface-canvas z-40">
@@ -32,7 +36,7 @@ function Header() {
 					)}
 
 					<Button
-						variant="primary"
+						variant="image"
 						round
 						{...menu.staticBind()}
 						onClick={(e) => {
@@ -40,9 +44,10 @@ function Header() {
 
 							menu.open(rect.left, rect.bottom)
 						}}
-					>
-						<UserIcon />
-					</Button>
+						image = { profile_picture_url }
+
+						className={`w-8 h-8 p-0`}
+					/>
 				</div>
 			</header>
 			{/* separator */}

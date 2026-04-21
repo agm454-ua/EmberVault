@@ -21,7 +21,7 @@ const mapUser = (user: {
     id: user.id,
     username: user.username,
     email: user.email,
-    avatarURL: user.avatar_url,
+    profile_picture_url: user.avatar_url,
     systemRole: user.system_role,
     ...(user.status !== undefined && { status: user.status }),
     ...(user.storage_limit_gb !== undefined && {
@@ -89,7 +89,7 @@ export const createUser = async (
             username: userData.username,
             birth_date: new Date(userData.birthDate),
             password: userData.password,
-            avatar_url: userData.avatarURL ?? null, // in case the profile picture wasn't set
+            avatar_url: userData.profile_picture_url ?? null, // in case the profile picture wasn't set
             system_roles: {
                 connect: {
                     name: 'user',

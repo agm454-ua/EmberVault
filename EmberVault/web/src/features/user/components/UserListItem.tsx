@@ -72,7 +72,7 @@ export default function UserListItem({ user }: { user: TUser }) {
 				className="flex w-full items-center text-sm gap-4 px-4 py-2 border-b border-stroke-muted hover:bg-surface-muted last:border-0 text-ink-muted"
 				{...menu.bind()}
 			>
-				<ProfilePicture pictureUrl={user.profile_picture_url ?? user.profile_picture_url} alt={`${user.username}'s profile picture`} />
+				<ProfilePicture pictureUrl={user.profile_picture_url} alt={`${user.username}'s profile picture`} />
 				<p className="w-xs ml-4">{user.username}</p>
 				<p className="w-xs">{user.email}</p>
 				<p className="w-28 capitalize">{roleName}</p>

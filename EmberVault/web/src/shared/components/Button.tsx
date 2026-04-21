@@ -4,10 +4,11 @@ type ButtonProps = {
 	children?: ReactNode
 	onClick?: MouseEventHandler<HTMLButtonElement>
 	type?: 'button' | 'submit'
-	variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
+	variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'image'
 	className?: string
 	round?: boolean
 	disabled?: boolean
+	image?: string
 	props?: ButtonHTMLAttributes<HTMLButtonElement>
 }
 
@@ -19,6 +20,7 @@ export default function Button({
 	className = '',
 	round = false,
 	disabled = false,
+	image = '',
 	...props
 }: ButtonProps) {
 	const baseClasses =
@@ -33,6 +35,7 @@ export default function Button({
 		secondary: 'bg-surface-tint text-ink-primary hover:bg-surface-raised font-semibold ',
 		danger: 'border border-danger-500 text-danger-500 bg-danger-50 hover:bg-danger-500 hover:text-ink-inverse font-semibold',
 		ghost: 'bg-transparent text-ink font-normal hover:bg-surface-gray',
+		image: 'bg-cover bg-center'
 	}
 	return (
 		<button
@@ -41,6 +44,7 @@ export default function Button({
 			onClick={onClick}
 			disabled={disabled}
 			{...props}
+			style={variant === 'image' ? { backgroundImage: `url(${image})` } : undefined}
 		>
 			{children}
 		</button>

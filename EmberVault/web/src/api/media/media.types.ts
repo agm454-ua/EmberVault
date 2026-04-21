@@ -59,3 +59,8 @@ export interface TCopyResourceRequest {
 	targetFolderId: TResourceID | null
 	prefix?: string
 }
+
+export type TUploadAvatarPayload = {
+	file: File
+	userId: string
+}
