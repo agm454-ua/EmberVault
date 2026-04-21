@@ -5,7 +5,7 @@ import {
 } from '@agm454-ua/auth-utils'
 import type { TokenPayload } from '@agm454-ua/auth-utils'
 import type { Request, Response, NextFunction } from 'express'
-import { getUser, getUserRole } from '@services/users.service.js'
+import { getUser, login } from '@services/users.service.js'
 import { ENV } from '@config/env.js'
 import {
     sendUnauthorizedResponse,
@@ -65,12 +65,13 @@ export async function loginController(req: Request, res: Response) {
         return sendUnauthorizedResponse(res, 'Wrong password.')
     }
 
-    // Get role for the token payload
-    const userRole = await getUserRole(user.id)
+    // Update last login time and ip
+    const ip = req.ip || ''
+    await login(identifier!, ip)
 
     const payload: TokenPayload = {
         userId: user.id,
-        systemRole: userRole!,
+        systemRole: user.system_role.id!,
     }
 
     // Generate access and refresh tokens
@@ -79,7 +80,7 @@ export async function loginController(req: Request, res: Response) {
         ENV.REFRESH_SECRET,
         ENV.REFRESH_TOKEN_EXPIRATION_MINUTES,
     )
-    sendRefreshTokenCookie(res, refreshToken)
+    sendRefreshTokenCookie(req, res, refreshToken)
 
     const jwt = generateToken(
         payload,
@@ -92,6 +93,8 @@ export async function loginController(req: Request, res: Response) {
             id: user.id,
             username: user.username,
             email: user.email,
+            root_folder: user.root_folder,
+            system_role: user.system_role,
         },
         token: jwt,
     }

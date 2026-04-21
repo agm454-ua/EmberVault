@@ -5,7 +5,7 @@ import type { TUserData } from '@customTypes/user.js'
 export const getUser = async (
     identifier: string,
 ): Promise<TUserData | null> => {
-    return await prisma.users.findFirst({
+    const result = await prisma.users.findFirst({
         where: {
             OR: [{ email: identifier }, { username: identifier }],
         },
@@ -14,13 +14,50 @@ export const getUser = async (
             email: true,
             username: true,
             system_role: true,
+            system_roles: {
+                select: {
+                    name: true,
+                },
+            },
             password: true,
+            root_folder: true,
         },
     })
+
+    if (!result) {
+        return null
+    }
+
+    return {
+        id: result.id,
+        email: result.email,
+        username: result.username,
+        system_role: {
+            id: result.system_role,
+            name: result.system_roles.name,
+        },
+        password: result.password,
+        root_folder: result.root_folder,
+    }
+}
+
+export const login = async (identifier: string, ip: string): Promise<boolean | null> => {
+    const response = await prisma.users.updateMany({
+        where: {
+            OR: [{ email: identifier }, { username: identifier }],
+        },
+        data: {
+            last_login_at: new Date(),
+            last_login_ip: ip,
+        }
+    })
+
+    return !!response
+
 }
 
 export const getUserById = async (id: string): Promise<TUserData | null> => {
-    return await prisma.users.findFirst({
+    const result = await prisma.users.findFirst({
         where: {
             id: id,
         },
@@ -29,22 +66,51 @@ export const getUserById = async (id: string): Promise<TUserData | null> => {
             email: true,
             username: true,
             system_role: true,
+            system_roles: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
             password: true,
+            root_folder: true,
+            birth_date: true,
+            avatar_url: true,
         },
     })
+
+    if (!result) {
+        return null
+    }
+
+    return {
+        id: result.id,
+        email: result.email,
+        username: result.username,
+        system_role: {
+            id: result.system_role,
+            name: result.system_roles.name,
+        },
+        password: result.password,
+        root_folder: result.root_folder,
+        birthdate: result.birth_date ? result.birth_date.toISOString().split('T')[0] : undefined,
+        profile_picture_url: result.avatar_url,
+    }
 }
 
 export const getUserRole = async (id: string): Promise<string | null> => {
     const result = await prisma.users.findFirst({
         where: { id },
-        select: { system_role: true },
+        select: {
+            system_role: true,
+        },
     })
 
     return result?.system_role ?? null
 }
 
 export const createUser = async (userData: TRegisterRequest) => {
-    return await prisma.users.create({
+    const result = await prisma.users.create({
         data: {
             email: userData.email,
             username: userData.username,
@@ -61,8 +127,30 @@ export const createUser = async (userData: TRegisterRequest) => {
             email: true,
             username: true,
             system_role: true,
+            system_roles: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
+            root_folder: true,
         },
     })
+    
+    if (!result) {
+        return null
+    }
+
+    return {
+        id: result.id,
+        email: result.email,
+        username: result.username,
+        system_role: {
+            id: result.system_role,
+            name: result.system_roles.name,
+        },
+        root_folder: result.root_folder,
+    }
 }
 
 export const updatePassword = async (
@@ -103,9 +191,20 @@ export const updateUserSystemRole = async (
             id: id,
         },
         data: {
-            system_role: roleId.id,
+            system_roles: {
+                connect: {
+                    id: roleId.id,
+                },
+            },
         },
+        select: {
+            system_roles: {
+                select: {
+                    name: true,
+                },
+            },
+        }
     })
 
-    return result?.system_role ?? null
+    return result.system_roles.name ?? null
 }
