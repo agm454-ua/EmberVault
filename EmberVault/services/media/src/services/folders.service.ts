@@ -191,60 +191,81 @@ export const streamFolderDownload = async (
     resourceId: TResourceID,
     res: Response,
 ): Promise<void> => {
-    const folder = await prisma.resources.findUnique({
-        where: { id: resourceId },
-        select: {
-            name: true,
-            folders_folders_idToresources: { select: { id: true } },
-        },
-    })
+    try {
+        const folder = await prisma.resources.findUnique({
+            where: { id: resourceId },
+            select: {
+                name: true,
+                folders_folders_idToresources: { select: { id: true } },
+            },
+        })
 
-    if (!folder) {
-        sendBadRequestResponse(res, 'Folder not found')
-        return
-    }
-
-    const files = await collectFiles(resourceId)
-
-    res.setHeader('Content-Type', 'application/zip')
-    res.setHeader(
-        'Content-Disposition',
-        `attachment; filename*=UTF-8''${encodeURIComponent(folder.name)}.zip`,
-    )
-
-    const archive = archiver('zip', { zlib: { level: 6 } })
-
-    archive.on('error', (err) => {
-        console.error('Archive error:', err)
-        res.destroy()
-    })
-
-    res.on('close', () => {
-        // Client disconnected early — abort the archive to stop S3 streams
-        if (!res.writableEnded) {
-            archive.abort()
+        if (!folder) {
+            sendBadRequestResponse(res, 'Folder not found')
+            return
         }
-    })
 
-    archive.pipe(res)
+        const files = await collectFiles(resourceId)
 
-    for (const file of files) {
-        const stream = await getFileStream(file.storagePath)
-        if (!stream) {
-            console.warn(`Skipping missing file: ${file.storagePath}`)
-            continue
-        }
-        stream.on('error', (err) => {
-            console.error(`Stream error for ${file.storagePath}:`, err)
-            archive.abort()
+        res.setHeader('Content-Type', 'application/zip')
+        res.setHeader(
+            'Content-Disposition',
+            `attachment; filename*=UTF-8''${encodeURIComponent(folder.name)}.zip`,
+        )
+
+        const archive = archiver('zip', { zlib: { level: 6 } })
+
+        archive.on('error', (err) => {
+            console.error('Archive error:', err)
             res.destroy()
         })
-        archive.append(stream, { name: file.filePath })
-    }
 
-    await new Promise<void>((resolve, reject) => {
-        archive.on('finish', resolve)
-        archive.on('error', reject)
-        archive.finalize()
-    })
+        res.on('close', () => {
+            // Client disconnected early — abort the archive to stop S3 streams
+            if (!res.writableEnded) {
+                archive.abort()
+            }
+        })
+
+        archive.pipe(res)
+
+        for (const file of files) {
+            let stream = null
+
+            try {
+                stream = await getFileStream(file.storagePath)
+            } catch (err) {
+                console.warn(`Skipping unreadable file: ${file.storagePath}`, err)
+                continue
+            }
+
+            if (!stream) {
+                console.warn(`Skipping missing file: ${file.storagePath}`)
+                continue
+            }
+
+            stream.on('error', (err) => {
+                console.error(`Stream error for ${file.storagePath}:`, err)
+                archive.abort()
+                res.destroy()
+            })
+
+            archive.append(stream, { name: file.filePath })
+        }
+
+        await new Promise<void>((resolve, reject) => {
+            archive.on('finish', resolve)
+            archive.on('error', reject)
+            archive.finalize()
+        })
+    } catch (err) {
+        console.error('Failed to stream folder download:', err)
+
+        if (!res.headersSent) {
+            sendBadRequestResponse(res, 'Failed to stream folder download')
+            return
+        }
+
+        res.destroy()
+    }
 }
