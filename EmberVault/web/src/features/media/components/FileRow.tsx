@@ -13,6 +13,9 @@ import useRestoreFromTrash from '../hooks/useRestoreFromTrash'
 import useDeleteFromTrash from '../hooks/useDeleteFromTrash'
 import useMe from '@/features/auth/hooks/useMe'
 import ShareResourceModal from '@/features/auth/components/ShareResourceModal'
+import ImagePreviewModal from '@/shared/components/ImagePreviewModal'
+import { useCopyResource } from '../hooks/useCopyResource'
+import type { TCopyResourceRequest } from '@/api/media/media.types'
 
 type FileRowProps = {
 	resource: TResourceResponse
@@ -48,13 +51,48 @@ export default function FileRow({
 
 	const [renameModalOpen, setRenameModalOpen] = useState(false)
 	const [shareModalOpen, setShareModalOpen] = useState(false)
+	const [previewOpen, setPreviewOpen] = useState(false)
+	const [previewSrc, setPreviewSrc] = useState<string | null>(null)
+	const [createdObjectUrl, setCreatedObjectUrl] = useState<string | null>(null)
 	const download = useDownloadResource(resource.id)
 	const moveToTrash = useDeleteResource('', resource.id)
 	const restoreFromTrash = useRestoreFromTrash(resource.id)
 	const deleteFromTrash = useDeleteFromTrash(resource.id)
+	const copyResource = useCopyResource(resource.id)
 
 	const { data: userData } = useMe()
 	const ownerDisplay = resource.owner === userData?.username ? t('user.me') : resource.owner
+
+	const isImage = isFile && (resource as { mimeType?: string }).mimeType?.startsWith('image/')
+
+	const handlePreview = async (event?: React.MouseEvent) => {
+		event?.stopPropagation?.()
+		if (download.isPending) return
+
+		try {
+			const result = await download.mutateAsync()
+			if (typeof result === 'string') {
+				setPreviewSrc(result)
+			} else {
+				const blob = result instanceof Blob ? result : new Blob([result as BlobPart])
+				const url = URL.createObjectURL(blob)
+				setCreatedObjectUrl(url)
+				setPreviewSrc(url)
+			}
+			setPreviewOpen(true)
+		} catch {
+			// ignore preview errors
+		}
+	}
+
+	const closePreview = () => {
+		setPreviewOpen(false)
+		if (createdObjectUrl) {
+			URL.revokeObjectURL(createdObjectUrl)
+			setCreatedObjectUrl(null)
+		}
+		setPreviewSrc(null)
+	}
 
 	const handleDownload = async () => {
 		const downloadResult = await download.mutateAsync()
@@ -100,6 +138,13 @@ export default function FileRow({
 		onOpenFolder(resource)
 	}
 
+	const handleCopy = () => {
+		const request = {
+			targetFolderId: resource.parentFolder,
+		} as TCopyResourceRequest
+		copyResource.mutate(request)
+	}
+
 	const trashItems = isFolder
 		? [
 				{ label: t('media.open'), onClick: handleOpenFolder },
@@ -132,6 +177,11 @@ export default function FileRow({
 				},
 				{ label: t('actions.share'), onClick: () => setShareModalOpen(true), disabled: moveToTrash.isPending },
 				{
+					label: t('actions.copy'),
+					onClick: handleCopy,
+					disabled: moveToTrash.isPending,
+				},
+				{
 					label: t('media.moveToTrash'),
 					onClick: handleMoveToTrash,
 					danger: true,
@@ -139,9 +189,17 @@ export default function FileRow({
 				},
 			]
 		: [
+				...(isImage
+					? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
+					: []),
 				{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
 				{ label: t('media.rename'), onClick: () => setRenameModalOpen(true), disabled: moveToTrash.isPending },
 				{ label: t('actions.share'), onClick: () => setShareModalOpen(true), disabled: moveToTrash.isPending },
+				{
+					label: t('actions.copy'),
+					onClick: handleCopy,
+					disabled: moveToTrash.isPending,
+				},
 				{
 					label: t('media.moveToTrash'),
 					onClick: handleMoveToTrash,
@@ -155,7 +213,12 @@ export default function FileRow({
 				{ label: t('media.open'), onClick: handleOpenFolder },
 				{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
 			]
-		: [{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending }]
+		: [
+				...(isImage
+					? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
+					: []),
+				{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
+			]
 
 	const items = mode === 'trash' ? trashItems : mode === 'shared' ? sharedItems : libraryItems
 
@@ -169,6 +232,7 @@ export default function FileRow({
 			{mode === 'library' && shareModalOpen && (
 				<ShareResourceModal resource={resource} onClose={() => setShareModalOpen(false)} />
 			)}
+			{previewOpen && previewSrc && <ImagePreviewModal src={previewSrc} onClose={closePreview} />}
 			{menu.isOpen && <ContextMenu x={menu.position.x} y={menu.position.y} items={items} onClose={menu.close} />}
 			<tr
 				className={`border-b border-stroke-muted h-12 text-sm text-ink-muted hover:bg-surface-muted cursor-pointer ${

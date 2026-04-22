@@ -1,18 +1,28 @@
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
-type BlurPageProps = {
-	children: ReactNode
+interface BlurPageProps {
+    children: ReactNode
+    onClose?: () => void
 }
 
-export default function BlurPage({ children }: BlurPageProps) {
-	// Prevent issues in non-browser environments
-	if (typeof document === 'undefined') return null
+export default function BlurPage({ children, onClose }: BlurPageProps): ReactNode {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+        return null
+    }
 
-	return createPortal(
-		<div className="fixed inset-0 backdrop-blur-sm bg-black/30 z-50 flex items-center justify-center">
-			{children}
-		</div>,
-		document.body,
-	)
+    return createPortal(
+        <div 
+            className="fixed inset-0 backdrop-blur-sm bg-black/30 z-50 flex items-center justify-center"
+            onClick={onClose}
+            role="dialog"
+            aria-modal="true"
+        >
+            {/* Prevent clicks inside the content from closing the portal */}
+            <div onClick={(e) => e.stopPropagation()}>
+                {children}
+            </div>
+        </div>,
+        document.body,
+    )
 }

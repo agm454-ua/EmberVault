@@ -93,7 +93,9 @@
 		"remove": "Esborrar",
 		"new": "Nou",
 		"nextPage": "Pàgina següent",
-		"previousPage": "Pàgina anterior"
+		"previousPage": "Pàgina anterior",
+		"preview": "Vista prèvia",
+		"copy": "Copiar"
 	},
 	"admin": {
 		"storageUsed": "Emmagatzematge utilitzat",

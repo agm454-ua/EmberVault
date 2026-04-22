@@ -61,7 +61,7 @@ export default function RenameFileModal({ resource, onClose }: { resource: TReso
 	}
 
 	return (
-		<BlurPage>
+		<BlurPage onClose={onClose}>
 			<form className="bg-surface-canvas rounded-lg p-6 w-96" onSubmit={handleSubmit}>
 				<h2 className="text-lg font-semibold mb-4">{t('media.rename')}</h2>
 				<Input

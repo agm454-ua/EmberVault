@@ -93,7 +93,9 @@
 		"remove": "Borrar",
 		"new": "Nuevo",
 		"nextPage": "Siguiente página",
-		"previousPage": "Página anterior"
+		"previousPage": "Página anterior",
+		"preview": "Vista previa",
+		"copy": "Copiar"
 	},
 	"admin": {
 		"storageUsed": "Almacenamiento utilizado",

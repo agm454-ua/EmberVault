@@ -78,7 +78,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
 	}
 
 	return (
-		<BlurPage>
+		<BlurPage onClose={onClose}>
 			<div className="relative z-10 w-full max-w-lg rounded-xl border border-stroke bg-surface-canvas p-5 shadow-xl flex flex-col gap-4">
 				<div className="flex items-center justify-between gap-3">
 					<h2 className="text-lg text-ink">{t('profilePage.changePassword')}</h2>

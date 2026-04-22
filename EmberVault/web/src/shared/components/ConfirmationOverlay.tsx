@@ -25,7 +25,7 @@ export default function ConfirmationOverlay({
 	}
 
 	return (
-		<BlurPage>
+		<BlurPage onClose={onCancel}>
 			<div className="bg-surface-canvas w-fit h-fit rounded-xl border-2 border-danger-50 flex flex-col items-center justify-center gap-4 p-6">
 				<p className="text-sm text-ink text-center">{message}</p>
 				<div className="flex gap-2">

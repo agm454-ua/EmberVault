@@ -45,7 +45,7 @@ export default function CreateUserModal({ onClose }: { onClose: () => void }) {
 	}
 
 	return (
-		<BlurPage>
+		<BlurPage onClose={onClose}>
 			<form
 				className="w-1/2 min-w-96 flex flex-col items-center gap-6 bg-surface-canvas border-stroke rounded-xl py-6 px-8"
 				onSubmit={(e) => handleSubmit(e)}

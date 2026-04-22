@@ -25,8 +25,7 @@ export const authApi = {
 	getAvailableResourceRoles: () => handleResponse(client.get<ApiResponse<TRole[]>>('/auth/api/resource/roles')),
 	listUsersWithResourceRole: (resourceId: string) => handleResponse(client.get<ApiResponse<{ userId: string; role: TRole }[]>>(`/auth/api/resource/${resourceId}/roles`)),
 	getUserResourceRole: (resourceId: string, userId: string) => handleResponse(client.get<ApiResponse<TRole>>(`/auth/api/resource/${resourceId}/roles/${userId}`)),
-	setUserResourceRole: (resourceId: string, userId: string, role: string) =>
-		handleResponse(client.post(`/auth/api/resource/${resourceId}/roles/${userId}`, { role })),
+	setUserResourceRole: (resourceId: string, userId: string, role: string) => handleResponse(client.post(`/auth/api/resource/${resourceId}/roles/${userId}`, { role })),
 	removeUserResourceRole: (resourceId: string, userId: string) => handleResponse(client.delete(`/auth/api/resource/${resourceId}/roles/${userId}`)),
 }
 

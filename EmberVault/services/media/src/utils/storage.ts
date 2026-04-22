@@ -19,16 +19,22 @@ const s3 = new S3Client({
         secretAccessKey: ENV.S3_SECRET_KEY,
     },
     forcePathStyle: true,
+    requestChecksumCalculation: 'WHEN_REQUIRED',
+    responseChecksumValidation: 'WHEN_REQUIRED',
 })
 
+// Signs against the internal endpoint so SeaweedFS can verify the signature,
+// then rewrites the URL to the public-facing nginx proxy before returning it.
 const s3Presign = new S3Client({
-    endpoint: ENV.S3_PUBLIC_ENDPOINT ?? ENV.S3_ENDPOINT,
+    endpoint: ENV.S3_ENDPOINT,
     region: 'us-east-1',
     credentials: {
         accessKeyId: ENV.S3_ACCESS_KEY,
         secretAccessKey: ENV.S3_SECRET_KEY,
     },
     forcePathStyle: true,
+    requestChecksumCalculation: 'WHEN_REQUIRED',
+    responseChecksumValidation: 'WHEN_REQUIRED',
 })
 
 const BUCKET = ENV.S3_BUCKET
@@ -47,6 +53,32 @@ const encodeStoragePath = (storagePath: string): string => {
         .join('/')
 }
 
+// Rewrites the internal S3 endpoint in a presigned URL to the public-facing
+// nginx proxy, preserving the path and query string.
+const rewriteToPublicEndpoint = (internalUrl: string): string => {
+    if (!ENV.S3_PUBLIC_ENDPOINT) return internalUrl
+
+    const parsed = new URL(internalUrl)
+    const publicEndpoint = new URL(ENV.S3_PUBLIC_ENDPOINT)
+
+    parsed.protocol = publicEndpoint.protocol
+    parsed.hostname = publicEndpoint.hostname
+    // Explicitly reset the port; assigning `host` alone can keep the old one.
+    parsed.port = publicEndpoint.port
+
+    // Prepend the public path prefix (e.g. /s3) if present
+    if (publicEndpoint.pathname !== '/') {
+        parsed.pathname =
+            publicEndpoint.pathname.replace(/\/+$/, '') + parsed.pathname
+    }
+
+    // Strip checksum params that SeaweedFS can't verify on presigned URLs
+    parsed.searchParams.delete('x-amz-checksum-crc32')
+    parsed.searchParams.delete('x-amz-sdk-checksum-algorithm')
+
+    return parsed.toString()
+}
+
 export const buildStoragePath = (
     resourceId: string,
     fileName: string,
@@ -58,14 +90,15 @@ export const buildStoragePath = (
 export const getUploadUrl = async (
     storagePath: string,
     mimeType: string,
-    expiresIn = 300, // 5 minutes
+    expiresIn = 300,
 ): Promise<string> => {
     const command = new PutObjectCommand({
         Bucket: BUCKET,
         Key: storagePath,
         ContentType: mimeType,
     })
-    return getSignedUrl(s3Presign, command, { expiresIn })
+    const url = await getSignedUrl(s3Presign, command, { expiresIn })
+    return rewriteToPublicEndpoint(url)
 }
 
 export const deleteObject = async (storagePath: string): Promise<void> => {
@@ -132,7 +165,8 @@ export const getFileSignedUrl = async (
         Bucket: BUCKET,
         Key: path,
     })
-    return getSignedUrl(s3Presign, command, { expiresIn })
+    const url = await getSignedUrl(s3Presign, command, { expiresIn })
+    return rewriteToPublicEndpoint(url)
 }
 
 export const getDownloadUrl = async (
@@ -145,7 +179,8 @@ export const getDownloadUrl = async (
         Key: storagePath,
         ResponseContentDisposition: `attachment; filename="${encodeURIComponent(fileName)}"`,
     })
-    return getSignedUrl(s3Presign, command, { expiresIn })
+    const url = await getSignedUrl(s3Presign, command, { expiresIn })
+    return rewriteToPublicEndpoint(url)
 }
 
 export const uploadProfilePictureObject = async (
@@ -200,7 +235,6 @@ export const getProfilePictureStoragePathFromUrl = (
     return null
 }
 
-// For zipping
 export const getFileStream = async (
     storagePath: string,
 ): Promise<Readable | null> => {
@@ -209,7 +243,5 @@ export const getFileStream = async (
         Key: storagePath,
     })
     const response = await s3.send(command)
-    const stream = response.Body as Readable
-
-    return stream
+    return response.Body as Readable
 }

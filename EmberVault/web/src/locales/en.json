@@ -93,7 +93,9 @@
 		"remove": "Remove",
 		"new": "New",
 		"nextPage": "Next page",
-		"previousPage": "Previous page"
+		"previousPage": "Previous page",
+		"preview": "Preview",
+		"copy": "Copy"
 	},
 	"admin": {
 		"storageUsed": "Storage used",
