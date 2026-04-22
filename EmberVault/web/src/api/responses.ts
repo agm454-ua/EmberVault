@@ -1,14 +1,12 @@
-export const handleResponse = async <T>(
-  promise: Promise<{ data: ApiResponse<T> }>
-): Promise<T> => {
-  const res = await promise
-  const body = res.data
+export const handleResponse = async <T>(promise: Promise<{ data: ApiResponse<T> }>): Promise<T> => {
+	const res = await promise
+	const body = res.data
 
-  if (!body.success) {
-    throw new Error(body.message || 'Request failed')
-  }
+	if (!body.success) {
+		throw new Error(body.message || 'Request failed')
+	}
 
-  return body.data
+	return body.data
 }
 export type ApiResponse<T> = {
 	success: boolean

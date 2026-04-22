@@ -265,7 +265,12 @@ export default function ProfilePage() {
 					<div className="flex flex-col items-center gap-8 pr-8 ">
 						<p className="text-sm text-ink text-center">{t('userData.profilePicture')}</p>
 
-						<UpdateProfilePicture pictureUrl={avatarURL} className="h-32! w-32!" disabled={!isEditing} onClick={() => fileInputRef.current?.click()}/>
+						<UpdateProfilePicture
+							pictureUrl={avatarURL}
+							className="h-32! w-32!"
+							disabled={!isEditing}
+							onClick={() => fileInputRef.current?.click()}
+						/>
 
 						<div className="flex gap-2 ">
 							<Button
@@ -277,7 +282,12 @@ export default function ProfilePage() {
 							</Button>
 							<Button
 								variant="danger"
-								disabled={!isEditing || (!avatarURL && !selectedAvatarFile) || uploadAvatar.isPending || updateUser.isPending}
+								disabled={
+									!isEditing ||
+									(!avatarURL && !selectedAvatarFile) ||
+									uploadAvatar.isPending ||
+									updateUser.isPending
+								}
 								onClick={handleAvatarRemove}
 							>
 								{t('actions.remove')}
@@ -323,7 +333,11 @@ export default function ProfilePage() {
 						}}
 						type={isEditing ? 'submit' : 'button'}
 					>
-						{updateUser.isPending || uploadAvatar.isPending ? t('nav.loading') : isEditing ? t('actions.save') : t('actions.edit')}
+						{updateUser.isPending || uploadAvatar.isPending
+							? t('nav.loading')
+							: isEditing
+								? t('actions.save')
+								: t('actions.edit')}
 					</Button>
 				</div>
 			</form>
@@ -334,7 +348,10 @@ export default function ProfilePage() {
 				</Button>
 			</div>
 
-			<ChangePasswordModal isOpen={isChangePasswordModalOpen} onClose={() => setIsChangePasswordModalOpen(false)} />
+			<ChangePasswordModal
+				isOpen={isChangePasswordModalOpen}
+				onClose={() => setIsChangePasswordModalOpen(false)}
+			/>
 		</>
 	)
 }

@@ -128,12 +128,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
 					/>
 
 					<div className="flex items-center justify-end gap-2 pt-2">
-						<Button
-							variant="ghost"
-							type="button"
-							disabled={changePassword.isPending}
-							onClick={handleClose}
-						>
+						<Button variant="ghost" type="button" disabled={changePassword.isPending} onClick={handleClose}>
 							{t('actions.cancel')}
 						</Button>
 						<Button variant="danger" type="submit" disabled={changePassword.isPending}>

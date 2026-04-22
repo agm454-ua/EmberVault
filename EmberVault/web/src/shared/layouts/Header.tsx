@@ -44,8 +44,7 @@ function Header() {
 
 							menu.open(rect.left, rect.bottom)
 						}}
-						image = { profile_picture_url }
-
+						image={profile_picture_url}
 						className={`w-8 h-8 p-0`}
 					/>
 				</div>

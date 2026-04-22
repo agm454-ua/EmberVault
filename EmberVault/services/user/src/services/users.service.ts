@@ -11,7 +11,7 @@ const mapUser = (user: {
     id: TUserID
     email: string
     username: string
-    system_roles: { id: string; name: string } | null 
+    system_roles: { id: string; name: string } | null
     avatar_url: string | null
     status?: string | null
     storage_limit_gb?: number | null
@@ -244,4 +244,39 @@ export const getUsers = async (
     }
 
     return results.map(mapUser)
+}
+
+export const searchUsers = async (query: string): Promise<TUser[] | null> => {
+    const result = await prisma.users.findMany({
+        where: {
+            OR: [{ email: {
+                contains: query,
+                mode: 'insensitive',
+            } }, { username: {
+                contains: query,
+                mode: 'insensitive',
+            } }],
+        },
+        select: {
+            id: true,
+            email: true,
+            username: true,
+            system_roles: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
+            avatar_url: true,
+            status: true,
+            storage_limit_gb: true,
+            storage_used_gb: true,
+        },
+    })
+
+    if (!result) {
+        return null
+    }
+
+    return result.map(mapUser)
 }

@@ -384,3 +384,51 @@ export const sendResourceToTrash = async (
 
     return null
 }
+
+export const listSharedResources = async (userId: TUserID): Promise<TResourceResponse[]> => {
+    const rows = await prisma.resources.findMany({
+        where: {
+            user_is_resource_role_for_resource: {
+                some: {
+                    user_id: userId, // user has any role on this resource
+                },
+            },
+            AND: {
+                NOT: {
+                    user_is_resource_role_for_resource: {
+                        some: {
+                            user_id: userId,
+                            resource_roles: { name: OWNER_ROLE }, // but is NOT the owner
+                        },
+                    },
+                },
+            },
+        },
+        select: {
+            ...resourceSelect,
+            files: { select: fileSelect },
+            folders_folders_idToresources: { select: { id: true } },
+        },
+    })
+
+    return rows.flatMap((row): TResourceResponse[] => {
+        if (row.files) {
+            return [
+                {
+                    ...mapResource(row),
+                    type: 'FILE' as const,
+                    ...mapFile(row.files),
+                },
+            ]
+        }
+        if (row.folders_folders_idToresources) {
+            return [
+                {
+                    ...mapResource(row),
+                    type: 'FOLDER' as const,
+                },
+            ]
+        }
+        return []
+    })
+}

@@ -1,4 +1,4 @@
-import type { TUser } from "../user/user.types"
+import type { TUser } from '../user/user.types'
 
 export type LoginDTO = {
 	email?: string

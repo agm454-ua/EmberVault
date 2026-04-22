@@ -12,10 +12,11 @@ import useDeleteResource from '../hooks/useDeleteResource'
 import useRestoreFromTrash from '../hooks/useRestoreFromTrash'
 import useDeleteFromTrash from '../hooks/useDeleteFromTrash'
 import useMe from '@/features/auth/hooks/useMe'
+import ShareResourceModal from '@/features/auth/components/ShareResourceModal'
 
 type FileRowProps = {
 	resource: TResourceResponse
-	mode?: 'library' | 'trash' | 'admin'
+	mode?: 'library' | 'trash' | 'admin' | 'shared'
 	onOpenFolder?: (resource: TResourceResponse) => void
 	onFileDragStart?: (resource: TResourceResponse) => void
 	onFileDragEnd?: () => void
@@ -46,12 +47,13 @@ export default function FileRow({
 	const icon = getResourceIcon({ resource })
 
 	const [renameModalOpen, setRenameModalOpen] = useState(false)
+	const [shareModalOpen, setShareModalOpen] = useState(false)
 	const download = useDownloadResource(resource.id)
 	const moveToTrash = useDeleteResource('', resource.id)
 	const restoreFromTrash = useRestoreFromTrash(resource.id)
 	const deleteFromTrash = useDeleteFromTrash(resource.id)
 
-	const {data: userData} = useMe()
+	const { data: userData } = useMe()
 	const ownerDisplay = resource.owner === userData?.username ? t('user.me') : resource.owner
 
 	const handleDownload = async () => {
@@ -124,6 +126,12 @@ export default function FileRow({
 				{ label: t('media.open'), onClick: handleOpenFolder, disabled: moveToTrash.isPending },
 				{ label: t('media.rename'), onClick: () => setRenameModalOpen(true), disabled: moveToTrash.isPending },
 				{
+					label: t('media.download'),
+					onClick: handleDownload,
+					disabled: moveToTrash.isPending || download.isPending,
+				},
+				{ label: t('actions.share'), onClick: () => setShareModalOpen(true), disabled: moveToTrash.isPending },
+				{
 					label: t('media.moveToTrash'),
 					onClick: handleMoveToTrash,
 					danger: true,
@@ -133,6 +141,7 @@ export default function FileRow({
 		: [
 				{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
 				{ label: t('media.rename'), onClick: () => setRenameModalOpen(true), disabled: moveToTrash.isPending },
+				{ label: t('actions.share'), onClick: () => setShareModalOpen(true), disabled: moveToTrash.isPending },
 				{
 					label: t('media.moveToTrash'),
 					onClick: handleMoveToTrash,
@@ -141,14 +150,24 @@ export default function FileRow({
 				},
 			]
 
-	const items = mode === 'trash' ? trashItems : libraryItems
+	const sharedItems = isFolder
+		? [
+				{ label: t('media.open'), onClick: handleOpenFolder },
+				{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
+			]
+		: [{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending }]
+
+	const items = mode === 'trash' ? trashItems : mode === 'shared' ? sharedItems : libraryItems
 
 	const menu = useContextMenu()
 
 	return (
 		<>
-			{mode !== 'trash' && renameModalOpen && (
+			{mode === 'library' && renameModalOpen && (
 				<RenameFileModal resource={resource} onClose={() => setRenameModalOpen(false)} />
+			)}
+			{mode === 'library' && shareModalOpen && (
+				<ShareResourceModal resource={resource} onClose={() => setShareModalOpen(false)} />
 			)}
 			{menu.isOpen && <ContextMenu x={menu.position.x} y={menu.position.y} items={items} onClose={menu.close} />}
 			<tr

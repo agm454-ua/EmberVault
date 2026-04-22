@@ -16,9 +16,7 @@ export const mediaApi = {
 	},
 
 	deleteAvatar: (userId: string) => {
-		return client
-			.delete(`/media/api/users/${userId}/avatar`)
-			.then((res) => res.data)
+		return client.delete(`/media/api/users/${userId}/avatar`).then((res) => res.data)
 	},
 
 	// Stats
@@ -70,11 +68,7 @@ export const mediaApi = {
 		}
 
 		const query = params.toString()
-		return handleResponse(
-			client.get<ApiResponse<TResourceResponse[]>>(
-				`/media/api/users/${userId}/resources/${folderId}/resources${query ? `?${query}` : ''}`,
-			),
-		)
+		return handleResponse(client.get<ApiResponse<TResourceResponse[]>>(`/media/api/users/${userId}/resources/${folderId}/resources${query ? `?${query}` : ''}`))
 	},
 
 	// Trash
@@ -89,6 +83,8 @@ export const mediaApi = {
 	deleteFromTrash: (userId: string, resourceId: string) => handleResponse(client.delete(`/media/api/users/${userId}/trash/${resourceId}`)),
 	restoreAllFromTrash: (userId: string) => handleResponse(client.post(`/media/api/users/${userId}/trash/restore-all`)),
 	deleteAllFromTrash: (userId: string) => handleResponse(client.delete(`/media/api/users/${userId}/trash`)),
+
+	listSharedResources: (userId: string) => handleResponse(client.get<ApiResponse<TResourceResponse[]>>(`/media/api/users/${userId}/shared-resources`)),
 }
 
 export default mediaApi

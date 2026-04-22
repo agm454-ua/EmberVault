@@ -8,7 +8,7 @@ export const useCreateUser = () => {
 		mutationFn: userApi.createUser,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['listUsers'] })
-		}
+		},
 	})
 }
 

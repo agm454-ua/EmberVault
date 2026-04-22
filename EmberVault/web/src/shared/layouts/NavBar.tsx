@@ -83,7 +83,7 @@ export function NavBar() {
 						{t('nav.adminPanel')}
 					</LinkButton>
 				)}
-				<div className="border border-t border-stroke-muted w-full my-4"/>
+				<div className="border border-t border-stroke-muted w-full my-4" />
 				<UsedSpaceBar usedGB={userData?.storage_used_gb ?? 0} limitGB={userData?.storage_limit_gb ?? 0} />
 			</nav>
 

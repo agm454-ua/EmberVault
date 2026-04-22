@@ -15,6 +15,7 @@ import { downloadResourceController } from '@controllers/resources/downloadResou
 import { getResourceController } from '@controllers/resources/getResource.controller.js'
 import { getThumbnailController } from '@controllers/resources/getThumbnail.controller.js'
 import { listFolderResourcesController } from '@controllers/resources/listFolderResources.controller.js'
+import { listSharedResourcesController } from '@controllers/resources/listSharedResources.controller.js'
 import { searchResourceController } from '@controllers/resources/searchResource.controller.js'
 import {
     updateResourceController,
@@ -117,6 +118,12 @@ router.delete(
     authenticate,
     requireAdminOrSelf,
     a(deleteUserAvatarController),
+)
+
+router.get(
+    '/users/:userId/shared-resources',
+    authenticate,
+    a(listSharedResourcesController),
 )
 
 export default router

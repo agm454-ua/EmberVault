@@ -35,7 +35,7 @@ export default function Button({
 		secondary: 'bg-surface-tint text-ink-primary hover:bg-surface-raised font-semibold ',
 		danger: 'border border-danger-500 text-danger-500 bg-danger-50 hover:bg-danger-500 hover:text-ink-inverse font-semibold',
 		ghost: 'bg-transparent text-ink font-normal hover:bg-surface-gray',
-		image: 'bg-cover bg-center'
+		image: 'bg-cover bg-center',
 	}
 	return (
 		<button

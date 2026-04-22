@@ -34,15 +34,18 @@ export default function AdminPanelUsersPage() {
 			</div>
 
 			<div className="my-4 flex items-center justify-end w-full">
-				<Button onClick={handleOpenCreateUserModal}>
-					{t('admin.createUser')}
-				</Button>
+				<Button onClick={handleOpenCreateUserModal}>{t('admin.createUser')}</Button>
 				{createUserModalOpen && <CreateUserModal onClose={handleCloseCreateUserModal} />}
 			</div>
 
 			<UserList users={users} />
 
-			<PaginationButtons page={page + 1} handleNext={() => handleNext(users[users.length - 1]?.id)} handlePrevious={handlePrevious} hasMore={hasMore} />
+			<PaginationButtons
+				page={page + 1}
+				handleNext={() => handleNext(users[users.length - 1]?.id)}
+				handlePrevious={handlePrevious}
+				hasMore={hasMore}
+			/>
 		</section>
 	)
 }

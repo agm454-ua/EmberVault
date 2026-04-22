@@ -7,7 +7,6 @@ import useListFiles from '../hooks/useListFiles'
 import PaginationButtons from '@/shared/components/PaginationButtons'
 
 export default function AdminPanelResourcesPage() {
-
 	const take = 10
 	const { page, currentCursor, handleNext, handlePrevious } = usePagination()
 	const { data } = useListFiles(false, currentCursor, take)
@@ -37,7 +36,12 @@ export default function AdminPanelResourcesPage() {
 					fullPage={false}
 					mode="admin"
 				/>
-				<PaginationButtons page={page + 1} handleNext={() => handleNext(lastResourceId)} handlePrevious={handlePrevious} hasMore={hasMore} />
+				<PaginationButtons
+					page={page + 1}
+					handleNext={() => handleNext(lastResourceId)}
+					handlePrevious={handlePrevious}
+					hasMore={hasMore}
+				/>
 			</section>
 		</>
 	)

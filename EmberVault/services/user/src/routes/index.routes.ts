@@ -17,6 +17,7 @@ import requireAdminOrSelf from '@middlewares/requireAdminOrSelf.middleware.js'
 import { Router } from 'express'
 import { asyncHandler } from '@utils/asyncHandler.js'
 import authenticate from '@middlewares/authenticate.middleware.js'
+import { searchUsersController } from '@controllers/searchUsers.controller.js'
 
 // for code readability
 const a = asyncHandler
@@ -65,6 +66,11 @@ router.post(
     a(requireAdmin),
     validateCreateUserRequest,
     a(createUserController),
+)
+router.get(
+    '/users/search',
+    a(authenticate),
+    a(searchUsersController)
 )
 router.get('/users/:userId', a(authenticate), getUserController)
 router.put(

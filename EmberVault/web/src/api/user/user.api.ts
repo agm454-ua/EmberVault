@@ -18,6 +18,7 @@ export const userApi = {
 	getUser: (userId: string) => handleResponse(client.get<ApiResponse<TUser>>(`/user/api/users/${userId}`)),
 	updateUser: (userId: string, data: TUpdateUserDTO) => handleResponse(client.put<ApiResponse<TUser>>(`/user/api/users/${userId}`, { ...data })),
 	deleteUser: (userId: string) => handleResponse(client.delete(`/user/api/users/${userId}`)),
+	searchUsers: (query: string) => handleResponse(client.get<ApiResponse<TUser[]>>(`/user/api/users/search?query=${encodeURIComponent(query)}`)),
 }
 
 export default userApi

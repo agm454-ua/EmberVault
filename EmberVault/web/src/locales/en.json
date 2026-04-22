@@ -30,7 +30,9 @@
 		"modifyPassword": "Modify password",
 		"resendRecoveryCode": "Resend recovery code",
 		"recoveryCodeSent": "The recovery code has been sent. Please, check your inbox and spam folder. You can now close this window.",
-		"resetPasswordFailed": "Failed to reset password. Please, try again. Make sure your new password meets the security requirements."
+		"resetPasswordFailed": "Failed to reset password. Please, try again. Make sure your new password meets the security requirements.",
+		"usersWithAccess": "Users with access",
+		"noUsersWithAccess": "There are no users with access to this resource."
 	},
 	"userData": {
 		"email": "Email address",
@@ -75,7 +77,7 @@
 			"suspended": "Suspended",
 			"deleted": "Deleted"
 		},
-        "me": "Me"
+		"me": "Me"
 	},
 	"actions": {
 		"actions": "Actions",
@@ -146,5 +148,10 @@
 	"storage": {
 		"storage": "Storage",
 		"storageUsed": "{{used}} GB from {{limit}} GB used"
+	},
+	"search": {
+		"search": "Search",
+		"placeholder": "Search...",
+		"noResults": "No results found for '{{query}}'."
 	}
 }

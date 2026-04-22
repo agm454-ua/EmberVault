@@ -29,7 +29,9 @@
 		"insertNewPassword": "Por favor, introduzca su nueva contraseña",
 		"modifyPassword": "Modificar contraseña",
 		"resendRecoveryCode": "Reenviar código de recuperación",
-		"recoveryCodeSent": "Se ha enviado un código de recuperación. Por favor, revise su bandeja de entrada y carpeta de spam. Ahora puede cerrar esta ventana."
+		"recoveryCodeSent": "Se ha enviado un código de recuperación. Por favor, revise su bandeja de entrada y carpeta de spam. Ahora puede cerrar esta ventana.",
+		"usersWithAccess": "Usuarios con acceso",
+		"noUsersWithAccess": "No hay usuarios con acceso a este recurso."
 	},
 	"userData": {
 		"email": "Correo electrónico",
@@ -74,7 +76,7 @@
 			"suspended": "Suspendido",
 			"deleted": "Eliminado"
 		},
-        "me": "Yo"
+		"me": "Yo"
 	},
 	"actions": {
 		"actions": "Acciones",
@@ -146,5 +148,11 @@
 	"storage": {
 		"storage": "Almacenamiento",
 		"storageUsed": "{{used}} GB de {{limit}} GB usados"
+	},
+	"search": {
+		"search": "Buscar",
+		"placeholder": "Buscar...",
+		"noResults": "No se encontraron resultados para '{{query}}'.",
+		"users": "Buscar usuarios"
 	}
 }

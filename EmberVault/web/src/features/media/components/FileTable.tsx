@@ -26,7 +26,7 @@ export default function FileTable({
 }: {
 	resources?: TResourceResponse[]
 	className?: string
-	mode?: 'library' | 'trash' | 'admin'
+	mode?: 'library' | 'trash' | 'admin' | 'shared'
 	enableFolderControls?: boolean
 	currentFolderId?: string | null
 	path?: Array<{ id: string; name: string }>
@@ -106,8 +106,9 @@ export default function FileTable({
 	const isDraggingFile = Boolean(draggingFile)
 	const isTrashMode = mode === 'trash'
 	const isAdminMode = mode === 'admin'
-	const canCreateFolders = !isTrashMode && !isAdminMode
-	const canUploadFiles = !isTrashMode && !isAdminMode
+	const isSharedMode = mode === 'shared'
+	const canCreateFolders = !isTrashMode && !isAdminMode && !isSharedMode
+	const canUploadFiles = !isTrashMode && !isAdminMode && !isSharedMode
 
 	const hasExternalFiles = (event: DragEvent<HTMLElement>) => Array.from(event.dataTransfer.types).includes('Files')
 

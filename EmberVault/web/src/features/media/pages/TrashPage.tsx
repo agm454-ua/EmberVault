@@ -42,9 +42,7 @@ export function TrashPage() {
 
 	const setNestedPath = (segments: TPathSegment[]) => {
 		setSearchParams(
-			segments.length
-				? { path: segments.map((s) => `${s.id}:${encodeURIComponent(s.name)}`).join(',') }
-				: {},
+			segments.length ? { path: segments.map((s) => `${s.id}:${encodeURIComponent(s.name)}`).join(',') } : {},
 			{ replace: false },
 		)
 	}
@@ -61,10 +59,9 @@ export function TrashPage() {
 	const currentFolderId = useMemo(() => {
 		return path[path.length - 1]?.id ?? TRASH_ROOT_ID
 	}, [path])
-	const currentFolderResources = useListFolderResources(
-		currentFolderId === TRASH_ROOT_ID ? '' : currentFolderId,
-		{ includeDeleted: true },
-	)
+	const currentFolderResources = useListFolderResources(currentFolderId === TRASH_ROOT_ID ? '' : currentFolderId, {
+		includeDeleted: true,
+	})
 
 	const trashedResourceIds = useMemo(
 		() => new Set(allTrashResources.map((resource) => resource.id)),
