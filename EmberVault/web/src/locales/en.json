@@ -142,5 +142,9 @@
 		"currentPassword": "Current password",
 		"newPassword": "New password",
 		"confirmNewPassword": "Confirm new password"
+	},
+	"storage": {
+		"storage": "Storage",
+		"storageUsed": "{{used}} GB from {{limit}} GB used"
 	}
 }

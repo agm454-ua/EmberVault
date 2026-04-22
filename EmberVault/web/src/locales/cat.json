@@ -142,5 +142,9 @@
         "currentPassword": "Contrasenya actual",
         "newPassword": "Nova contrasenya",
         "confirmNewPassword": "Confirma la nova contrasenya"
-    }
+    },
+	"storage": {
+		"storage": "Emmagatzematge",
+		"storageUsed": "{{used}} GB de {{limit}} GB usats"
+	}
 }

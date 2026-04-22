@@ -12,6 +12,7 @@ import useMe from '@/features/auth/hooks/useMe'
 import { useEffect, useState } from 'react'
 import BlurPage from '../components/BlurPage'
 import CrossIcon from '../icons/CrossIcon'
+import UsedSpaceBar from '@/features/user/components/UsedSpaceBar'
 
 export function NavBar() {
 	const { t } = useTranslation()
@@ -82,6 +83,8 @@ export function NavBar() {
 						{t('nav.adminPanel')}
 					</LinkButton>
 				)}
+				<div className="border border-t border-stroke-muted w-full my-4"/>
+				<UsedSpaceBar usedGB={userData?.storage_used_gb ?? 0} limitGB={userData?.storage_limit_gb ?? 0} />
 			</nav>
 
 			{isUploadModalOpen && (

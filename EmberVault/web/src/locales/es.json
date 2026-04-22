@@ -142,5 +142,9 @@
 		"currentPassword": "Contraseña actual",
 		"newPassword": "Nueva contraseña",
 		"confirmNewPassword": "Confirmar nueva contraseña"
+	},
+	"storage": {
+		"storage": "Almacenamiento",
+		"storageUsed": "{{used}} GB de {{limit}} GB usados"
 	}
 }
