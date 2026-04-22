@@ -26,7 +26,7 @@ describe('HTTP trash routes', () => {
     })
 
     it('GET trash → 500 when admin role missing (admin acting for another user)', async () => {
-        getHttpMocks().getAdminRole.mockResolvedValue(null)
+        getHttpMocks().getAdminRole.mockResolvedValue(null as any)
         const res = await request(createHttpTestApp())
             .get(trashFor('user-1'))
             .set('Authorization', 'Bearer admin')

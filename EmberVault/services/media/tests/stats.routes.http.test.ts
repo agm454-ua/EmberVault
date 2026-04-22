@@ -29,7 +29,7 @@ describe('HTTP stats routes', () => {
     })
 
     it('GET /api/stats/storage-used → 500 when admin role is not configured', async () => {
-        getHttpMocks().getAdminRole.mockResolvedValue(null)
+        getHttpMocks().getAdminRole.mockResolvedValue(null as any)
         const res = await request(createHttpTestApp())
             .get('/api/stats/storage-used')
             .set('Authorization', 'Bearer admin')

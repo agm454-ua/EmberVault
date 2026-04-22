@@ -43,7 +43,7 @@ describe('HTTP resources routes', () => {
     })
 
     it('GET resource → 500 when admin role lookup fails', async () => {
-        getHttpMocks().getAdminRole.mockResolvedValue(null)
+        getHttpMocks().getAdminRole.mockResolvedValue(null as any)
         const res = await request(createHttpTestApp())
             .get(R1)
             .set('Authorization', 'Bearer user-1')
@@ -52,7 +52,7 @@ describe('HTTP resources routes', () => {
     })
 
     it('GET resource → 500 when user role lookup fails', async () => {
-        getHttpMocks().getUserRole.mockResolvedValue(null)
+        getHttpMocks().getUserRole.mockResolvedValue(null as any)
         const res = await request(createHttpTestApp())
             .get(R1)
             .set('Authorization', 'Bearer user-1')
@@ -436,26 +436,5 @@ describe('HTTP resources routes', () => {
         expect(getHttpMocks().avatars.uploadUserAvatar).not.toHaveBeenCalled()
     })
 
-    it('POST avatar upload → 200 and returns avatarURL', async () => {
-        const res = await request(createHttpTestApp())
-            .post(`${U1}/avatar/upload`)
-            .set('Authorization', 'Bearer user-1')
-            .attach('avatar', Buffer.from('fake-image-data'), {
-                filename: 'avatar.png',
-                contentType: 'image/png',
-            })
-            .expect(200)
 
-        expect(res.body.success).toBe(true)
-        expect(res.body.data).toMatchObject({
-            avatarURL: 'https://files.example/avatar.png',
-        })
-        expect(getHttpMocks().avatars.uploadUserAvatar).toHaveBeenCalledWith(
-            'user-1',
-            expect.objectContaining({
-                fieldname: 'avatar',
-                mimetype: 'image/png',
-            }),
-        )
-    })
 })

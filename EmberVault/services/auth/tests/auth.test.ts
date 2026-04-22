@@ -5,6 +5,7 @@ import * as usersService from '../src/services/users.service.js'
 import * as authUtils from '@agm454-ua/auth-utils'
 import { sendRefreshTokenCookie } from '../src/utils/cookieHandler.js'
 import type { Response } from 'express'
+import { status } from '../src/generated/prisma/enums.js'
 
 // Mock the services
 vi.mock('../src/services/users.service.js')
@@ -155,6 +156,12 @@ describe('Auth Endpoints', () => {
                     name: 'user',
                 },
                 root_folder: null,
+                birthdate: '2000-01-01',
+                profile_picture_url: null,
+                storage_limit_gb: 15,
+                storage_used_gb: 0,
+                status: status.active,
+                password: 'hashed-password',
             }
 
             vi.mocked(authUtils.hashPassword).mockResolvedValue('hashed-password')

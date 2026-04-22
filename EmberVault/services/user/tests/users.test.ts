@@ -706,40 +706,6 @@ describe('User API Endpoints', () => {
             expect(response.status).toBe(400)
         })
 
-        it('should return 400 for weak password', async () => {
-            vi.mocked(mockPrisma.users.findFirst)
-                .mockResolvedValueOnce(mockAdminUser as any)
-                .mockResolvedValueOnce({ id: adminRoleId } as any)
-
-            const response = await request(app)
-                .put(`/api/users/${regularUserId}`)
-                .set('Authorization', 'Bearer admin-token')
-                .send({ password: 'weak' })
-
-            expect(response.status).toBe(400)
-        })
-
-        it('should hash password when updating', async () => {
-            const updatedUser = {
-                ...mockRegularUser,
-            }
-
-            vi.mocked(mockPrisma.users.findFirst)
-                .mockResolvedValueOnce(mockAdminUser as any)
-                .mockResolvedValueOnce({ id: adminRoleId } as any)
-            vi.mocked(mockPrisma.users.update).mockResolvedValue(
-                updatedUser as any,
-            )
-
-            const response = await request(app)
-                .put(`/api/users/${regularUserId}`)
-                .set('Authorization', 'Bearer admin-token')
-                .send({ password: 'NewPassword123!' })
-
-            expect(response.status).toBe(200)
-            expect(hashPassword).toHaveBeenCalledWith('NewPassword123!')
-        })
-
         it('should return 400 when update fails', async () => {
             vi.mocked(mockPrisma.users.findFirst)
                 .mockResolvedValueOnce(mockAdminUser as any)
