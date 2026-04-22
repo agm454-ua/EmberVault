@@ -6,7 +6,8 @@ info:
     summary: User service for the EmberVault project
 
 servers:
-    - url: http://localhost:3200/api
+    - url: https://embervault.local/user/api
+      description: Local development server
 
 security:
     - bearerAuth: []
@@ -138,6 +139,32 @@ paths:
                                         type: boolean
                                     userId:
                                         type: string
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                
+    /users/search:
+        get:
+            summary: Search users by username or email.
+            operationId: searchUsers
+            parameters:
+                - in: query
+                  name: query
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Users matching the search query
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
 
 components:
     schemas:

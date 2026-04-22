@@ -6,15 +6,25 @@ info:
     summary: Media service for the EmberVault project
 
 servers:
-    - url: http://localhost:3300/api
+    - url: https://embervault.local/media/api
+      description: Local development server
 
 security:
     - bearerAuth: []
+
+tags:
+    - name: Resources
+      description: Endpoints related to file and folder resources management
+    - name: Stats
+      description: Endpoints related to statistics about storage and files
+    - name: Trash
+      description: Endpoints related to the trash bin management
 
 paths:
     /stats/storage-used:
         get:
             summary: Get how much storage does the MinIO bucket take
+            tags: [Stats]
             operationId: getStorageUsed
             responses:
                 '200':
@@ -34,6 +44,7 @@ paths:
     /stats/files/count:
         get:
             summary: Get how many files are stored
+            tags: [Stats]
             operationId: getFileCount
             responses:
                 '200':
@@ -53,6 +64,7 @@ paths:
     /stats/files:
         get:
             summary: List all files using cursor-based pagination
+            tags: [Stats]
             operationId: listFiles
             parameters:
                 - in: query
@@ -87,6 +99,7 @@ paths:
     /users/{userId}/resources/{resourceId}:
         get:
             summary: Get resource
+            tags: [Resources]
             operationId: getResource
             responses:
                 '200':
@@ -107,6 +120,7 @@ paths:
                     description: Server Error. Could not retrieve resource
         put:
             summary: Update resource
+            tags: [Resources]
             operationId: updateResource
             requestBody:
                 required: true
@@ -135,6 +149,7 @@ paths:
                     description: Server Error
         delete:
             summary: Delete resource. This operation completely deletes a file.
+            tags: [Resources]
             operationId: deleteResource
             responses:
                 '200':
@@ -151,6 +166,7 @@ paths:
     /users/{userId}/resources:
         get:
             summary: Search a file or folder by name
+            tags: [Resources]
             operationId: searchFileByName
             parameters:
                 - in: query
@@ -179,6 +195,7 @@ paths:
 
         post:
             summary: Create a resource metadata and store it in the database and returns a presigned URL to upload the file directly to the bucket
+            tags: [Resources]
             operationId: createResource
             requestBody:
                 required: true
@@ -203,6 +220,7 @@ paths:
     /users/{userId}/resources/{resourceId}/upload-complete:
         post:
             summary: After uploading the file directly to the bucket, this endpoint updates the metadata in the database (file size, storage path, hash, etc.)
+            tags: [Resources]
             operationId: completeUpload
             responses:
                 '200':
@@ -217,6 +235,7 @@ paths:
     /users/{userId}/resources/{resourceId}/copy:
         post:
             summary: Copy a resources. This will generate another resource with the same content as the requested.
+            tags: [Resources]
             operationId: copyResource
             requestBody:
                 content:
@@ -247,6 +266,7 @@ paths:
     /users/{userId}/resources/{resourceId}/thumbnail:
         get:
             summary: Get the thumbnail to preview a file.
+            tags: [Resources]
             operationId: getThumbnail
             responses:
                 '200':
@@ -268,6 +288,7 @@ paths:
     /users/{userId}/resources/{resourceId}/download:
         get:
             summary: Download resource. In case the resource is a folder, a compressed file will be sent
+            tags: [Resources]
             operationId: downloadResource
             responses:
                 '200':
@@ -288,6 +309,7 @@ paths:
     /users/{userId}/resources/{resourceId}/resources:
         get:
             summary: List all the items inside a folder
+            tags: [Resources]
             operationId: listFoldersResources
             parameters:
                 - in: query
@@ -318,6 +340,7 @@ paths:
         get:
             summary: Get all elements in trash bin. Also using cursor-based pagination.
             operationId: getTrashItems
+            tags: [Trash]
             responses:
                 '200':
                     description: Folder's resources
@@ -338,6 +361,7 @@ paths:
         delete:
             summary: Empty trash. Give null value to every deleted_at column.
             operationId: restoreAll
+            tags: [Trash]
             responses:
                 '200':
                     description: Trash empty
@@ -352,6 +376,7 @@ paths:
         post:
             summary: Send a resource into the trash. This gives a value to the deleted_at column.
             operationId: sendResourceToTrash
+            tags: [Trash]
             responses:
                 '200':
                     description: Resource sent to trash.
@@ -366,6 +391,7 @@ paths:
         post:
             summary: Restore a resource from the trash. This gives a null value to the deleted_at column.
             operationId: restoreResource
+            tags: [Trash]
             responses:
                 '200':
                     description: Resource restored.
@@ -375,6 +401,81 @@ paths:
                     description: Unauthorized
                 '500':
                     description: Server Error.
+
+    /users/{userId}/avatar/upload:
+        post:
+            summary: Upload an avatar for the user. This works similarly to the create resource endpoint, but it is specifically for user avatars and it replaces the previous avatar if it exists.
+            operationId: uploadAvatar
+            tags: [Resources]
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                mimeType:
+                                    type: string
+            responses:
+                '200':
+                    description: Avatar uploaded successfully
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    presignedURL:
+                                        type: string
+                                    objectName:
+                                        type: string
+                '400':
+                    description: Bad Request. Missing or invalid parameters.
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not upload avatar.
+    
+    /users/{userId}/avatar:
+        delete:
+            summary: Delete user's avatar. This deletes the avatar file from the bucket and the avatarURL from the user's database entry.
+            operationId: deleteAvatar
+            tags: [Resources]
+            responses:
+                '200':
+                    description: Avatar deleted successfully
+                '400':
+                    description: Bad Request.
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not delete avatar.
+
+    /users/{userId}/shared-resources:
+        get:
+            summary: List all resources shared with the user
+            operationId: listSharedResources
+            tags: [Resources]
+            parameters:
+                - in: query
+                  name: includeDeleted
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Shared resources
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    oneOf:
+                                        - $ref: '#/components/schemas/File'
+                                        - $ref: '#/components/schemas/Folder'
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Server Error. Could not list shared resources
 
 components:
     securitySchemes:
