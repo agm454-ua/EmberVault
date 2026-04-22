@@ -7,16 +7,18 @@ export default function UpdateProfilePicture({
 	alt = 'Profile Picture',
 	className = '',
 	disabled = false,
+	onClick = () => {},
 }: {
 	pictureUrl?: string | null
 	alt?: string
 	className?: string
 	disabled?: boolean
+	onClick?: () => void
 }) {
 	const { t } = useTranslation()
 	const finalPictureUrl = pictureUrl ?? ENV.VITE_DEFAULT_PROFILE_PICTURE_URL
 	return (
-		<div className="relative flex items-center justify-center h-32 w-32 cursor-pointer group">
+		<div className="relative flex items-center justify-center h-32 w-32 cursor-pointer group" onClick={onClick}>
 			<img
 				src={finalPictureUrl}
 				alt={alt}

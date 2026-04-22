@@ -265,7 +265,7 @@ export default function ProfilePage() {
 					<div className="flex flex-col items-center gap-8 pr-8 ">
 						<p className="text-sm text-ink text-center">{t('userData.profilePicture')}</p>
 
-						<UpdateProfilePicture pictureUrl={avatarURL} className="h-32! w-32!" disabled={!isEditing} />
+						<UpdateProfilePicture pictureUrl={avatarURL} className="h-32! w-32!" disabled={!isEditing} onClick={() => fileInputRef.current?.click()}/>
 
 						<div className="flex gap-2 ">
 							<Button
