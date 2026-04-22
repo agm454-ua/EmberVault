@@ -15,14 +15,16 @@ export default function UserListItem({ user }: { user: TUser }) {
 
 	const deleteUser = useDeleteUser(user.id)
 	const promoteToAdmin = useSetUserSystemRole(user.id, 'admin')
+	const demoteToUser = useSetUserSystemRole(user.id, 'user')
 	const updateUser = useUpdateUser(user.id)
 
 	const isSuspended = user.status === 'suspended'
 	const isDeleted = user.status === 'deleted'
 	const shouldReactivate = isSuspended || isDeleted
 	const roleName = user.system_role?.name ?? '-'
+	const isAdmin = user.system_role?.name === 'admin'
 
-	const isPending = deleteUser.isPending || promoteToAdmin.isPending || updateUser.isPending
+	const isPending = deleteUser.isPending || promoteToAdmin.isPending || demoteToUser.isPending || updateUser.isPending
 
 	const refreshUserList = async () => {
 		await queryClient.invalidateQueries({ queryKey: ['listUsers'] })
@@ -41,6 +43,11 @@ export default function UserListItem({ user }: { user: TUser }) {
 		await refreshUserList()
 	}
 
+	const handleDemoteToUser = async () => {
+		await demoteToUser.mutateAsync()
+		await refreshUserList()
+	}
+
 	const handleToggleUserStatus = async () => {
 		await updateUser.mutateAsync({ status: shouldReactivate ? 'active' : 'suspended' })
 		await refreshUserList()
@@ -48,8 +55,8 @@ export default function UserListItem({ user }: { user: TUser }) {
 
 	const items = [
 		{
-			label: t('admin.promoteToAdmin'),
-			onClick: handlePromoteToAdmin,
+			label: isAdmin ? t('admin.demoteToUser') : t('admin.promoteToAdmin'),
+			onClick: isAdmin ? handleDemoteToUser : handlePromoteToAdmin,
 			disabled: isPending,
 		},
 		{

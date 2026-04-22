@@ -1,4 +1,4 @@
-import type { TSystemRoleID } from './roles.js'
+import type { TSystemRole } from './roles.js'
 import type { Decimal } from '@prisma/client/runtime/client'
 
 export type TUserID = string
@@ -8,7 +8,7 @@ export interface TUser {
     username: string
     email: string
     profile_picture_url?: string | null
-    systemRole: TSystemRoleID
+    system_role: TSystemRole
     status?: string | null
     storageLimitGB?: number | null
     storageUsedGB?: Decimal | null

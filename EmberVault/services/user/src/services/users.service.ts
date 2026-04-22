@@ -5,14 +5,13 @@ import type {
     TUserID,
 } from '@customTypes/user.js'
 import { prisma } from '@utils/prisma.js'
-import type { TSystemRoleID } from '@customTypes/roles.js'
 import type { Decimal } from '@prisma/client/runtime/client'
 
 const mapUser = (user: {
     id: TUserID
     email: string
     username: string
-    system_role: TSystemRoleID
+    system_roles: { id: string; name: string } | null 
     avatar_url: string | null
     status?: string | null
     storage_limit_gb?: number | null
@@ -22,7 +21,7 @@ const mapUser = (user: {
     username: user.username,
     email: user.email,
     profile_picture_url: user.avatar_url,
-    systemRole: user.system_role,
+    system_role: user.system_roles!,
     ...(user.status !== undefined && { status: user.status }),
     ...(user.storage_limit_gb !== undefined && {
         storageLimitGB: user.storage_limit_gb,
@@ -41,7 +40,12 @@ export const getUser = async (identifier: string): Promise<TUser | null> => {
             id: true,
             email: true,
             username: true,
-            system_role: true,
+            system_roles: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
             avatar_url: true,
             status: true,
             storage_limit_gb: true,
@@ -65,7 +69,12 @@ export const getUserById = async (id: string): Promise<TUser | null> => {
             id: true,
             email: true,
             username: true,
-            system_role: true,
+            system_roles: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
             avatar_url: true,
             status: true,
             storage_limit_gb: true,
@@ -100,7 +109,12 @@ export const createUser = async (
             id: true,
             email: true,
             username: true,
-            system_role: true,
+            system_roles: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
             avatar_url: true,
             status: true,
             storage_limit_gb: true,
@@ -158,7 +172,12 @@ export const updateUser = async (
             id: true,
             email: true,
             username: true,
-            system_role: true,
+            system_roles: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
             avatar_url: true,
             status: true,
             storage_limit_gb: true,
@@ -207,7 +226,12 @@ export const getUsers = async (
             id: true,
             email: true,
             username: true,
-            system_role: true,
+            system_roles: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
             avatar_url: true,
             status: true,
             storage_limit_gb: true,

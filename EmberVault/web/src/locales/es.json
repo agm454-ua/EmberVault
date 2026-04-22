@@ -101,6 +101,7 @@
 		"usersAddedLastWeek": "Usuarios creados en la última semana",
 		"createUser": "Crear usuario",
 		"promoteToAdmin": "Promover a administrador",
+		"demoteToUser": "Degradar a usuario",
 		"suspendUser": "Suspender usuario",
 		"reactivateUser": "Reactivar usuario",
 		"confirmDeleteUser": "¿Eliminar al usuario {{username}}?"
