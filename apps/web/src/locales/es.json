@@ -156,5 +156,15 @@
 		"placeholder": "Buscar...",
 		"noResults": "No se encontraron resultados para '{{query}}'.",
 		"users": "Buscar usuarios"
+	},
+	"pdfPreview": {
+		"page": "página",
+		"pages": "páginas",
+		"zoomIn": "Acercar",
+		"zoomOut": "Alejar",
+		"resetZoom": "Restablecer zoom",
+		"close": "Cerrar (Esc)",
+		"loadError": "No se pudo cargar el PDF.",
+		"footerHint": "Desplázate para navegar  |  ⌘ + / − para hacer zoom  |  Esc para cerrar"
 	}
 }

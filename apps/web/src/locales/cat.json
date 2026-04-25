@@ -155,5 +155,15 @@
 		"search": "Buscar",
 		"placeholder": "Buscar...",
 		"noResults": "No s'han trobat resultats per a '{{query}}'."
+	},
+	"pdfPreview": {
+		"page": "pàgina",
+		"pages": "pàgines",
+		"zoomIn": "Apropa",
+		"zoomOut": "Allunya",
+		"resetZoom": "Restableix el zoom",
+		"close": "Tanca (Esc)",
+		"loadError": "No s'ha pogut carregar el PDF.",
+		"footerHint": "Desplaza't per navegar  |  ⌘ + / − per fer zoom  |  Esc per tancar"
 	}
 }

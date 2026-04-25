@@ -155,5 +155,15 @@
 		"search": "Search",
 		"placeholder": "Search...",
 		"noResults": "No results found for '{{query}}'."
+	},
+	"pdfPreview": {
+		"page": "page",
+		"pages": "pages",
+		"zoomIn": "Zoom in",
+		"zoomOut": "Zoom out",
+		"resetZoom": "Reset zoom",
+		"close": "Close (Esc)",
+		"loadError": "Failed to load PDF.",
+		"footerHint": "Scroll to navigate  |  ⌘ + / − to zoom  |  Esc to close"
 	}
 }

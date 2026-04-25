@@ -14,6 +14,7 @@ import useDeleteFromTrash from '../hooks/useDeleteFromTrash'
 import useMe from '@/features/auth/hooks/useMe'
 import ShareResourceModal from '@/features/auth/components/ShareResourceModal'
 import ImagePreviewModal from '@/shared/components/ImagePreviewModal'
+import PdfPreviewModal from '@/shared/components/PdfPreviewModal'
 import { useCopyResource } from '../hooks/useCopyResource'
 import type { TCopyResourceRequest } from '@/api/media/media.types'
 
@@ -64,6 +65,7 @@ export default function FileRow({
 	const ownerDisplay = resource.owner === userData?.username ? t('user.me') : resource.owner
 
 	const isImage = isFile && (resource as { mimeType?: string }).mimeType?.startsWith('image/')
+	const isPdf = isFile && (resource as { mimeType?: string }).mimeType === 'application/pdf'
 
 	const handlePreview = async (event?: React.MouseEvent) => {
 		event?.stopPropagation?.()
@@ -72,7 +74,18 @@ export default function FileRow({
 		try {
 			const result = await download.mutateAsync()
 			if (typeof result === 'string') {
-				setPreviewSrc(result)
+				if (isPdf) {
+					const response = await fetch(result)
+					if (!response.ok) {
+						throw new Error(`Preview fetch failed with status ${response.status}`)
+					}
+					const blob = await response.blob()
+					const url = URL.createObjectURL(blob)
+					setCreatedObjectUrl(url)
+					setPreviewSrc(url)
+				} else {
+					setPreviewSrc(result)
+				}
 			} else {
 				const blob = result instanceof Blob ? result : new Blob([result as BlobPart])
 				const url = URL.createObjectURL(blob)
@@ -80,8 +93,8 @@ export default function FileRow({
 				setPreviewSrc(url)
 			}
 			setPreviewOpen(true)
-		} catch {
-			// ignore preview errors
+		} catch (error) {
+			console.error('Failed to prepare file preview', error)
 		}
 	}
 
@@ -147,78 +160,80 @@ export default function FileRow({
 
 	const trashItems = isFolder
 		? [
-				{ label: t('media.open'), onClick: handleOpenFolder },
-				{ label: t('media.restore'), onClick: handleRestoreFromTrash, disabled: restoreFromTrash.isPending },
-				{
-					label: t('media.permanentlyDelete'),
-					onClick: handleDeleteFromTrash,
-					danger: true,
-					disabled: deleteFromTrash.isPending,
-				},
-			]
+			{ label: t('media.open'), onClick: handleOpenFolder },
+			{ label: t('media.restore'), onClick: handleRestoreFromTrash, disabled: restoreFromTrash.isPending },
+			{
+				label: t('media.permanentlyDelete'),
+				onClick: handleDeleteFromTrash,
+				danger: true,
+				disabled: deleteFromTrash.isPending,
+			},
+		]
 		: [
-				{ label: t('media.restore'), onClick: handleRestoreFromTrash, disabled: restoreFromTrash.isPending },
-				{
-					label: t('media.permanentlyDelete'),
-					onClick: handleDeleteFromTrash,
-					danger: true,
-					disabled: deleteFromTrash.isPending,
-				},
-			]
+			{ label: t('media.restore'), onClick: handleRestoreFromTrash, disabled: restoreFromTrash.isPending },
+			{
+				label: t('media.permanentlyDelete'),
+				onClick: handleDeleteFromTrash,
+				danger: true,
+				disabled: deleteFromTrash.isPending,
+			},
+		]
 
 	const libraryItems = isFolder
 		? [
-				{ label: t('media.open'), onClick: handleOpenFolder, disabled: moveToTrash.isPending },
-				{ label: t('media.rename'), onClick: () => setRenameModalOpen(true), disabled: moveToTrash.isPending },
-				{
-					label: t('media.download'),
-					onClick: handleDownload,
-					disabled: moveToTrash.isPending || download.isPending,
-				},
-				{ label: t('actions.share'), onClick: () => setShareModalOpen(true), disabled: moveToTrash.isPending },
-				{
-					label: t('actions.copy'),
-					onClick: handleCopy,
-					disabled: moveToTrash.isPending,
-				},
-				{
-					label: t('media.moveToTrash'),
-					onClick: handleMoveToTrash,
-					danger: true,
-					disabled: moveToTrash.isPending,
-				},
-			]
+			{ label: t('media.open'), onClick: handleOpenFolder, disabled: moveToTrash.isPending },
+			{ label: t('media.rename'), onClick: () => setRenameModalOpen(true), disabled: moveToTrash.isPending },
+			{
+				label: t('media.download'),
+				onClick: handleDownload,
+				disabled: moveToTrash.isPending || download.isPending,
+			},
+			{ label: t('actions.share'), onClick: () => setShareModalOpen(true), disabled: moveToTrash.isPending },
+			{
+				label: t('actions.copy'),
+				onClick: handleCopy,
+				disabled: moveToTrash.isPending,
+			},
+			{
+				label: t('media.moveToTrash'),
+				onClick: handleMoveToTrash,
+				danger: true,
+				disabled: moveToTrash.isPending,
+			},
+		]
 		: [
-				...(isImage
-					? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
-					: []),
-				{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
-				{ label: t('media.rename'), onClick: () => setRenameModalOpen(true), disabled: moveToTrash.isPending },
-				{ label: t('actions.share'), onClick: () => setShareModalOpen(true), disabled: moveToTrash.isPending },
-				{
-					label: t('actions.copy'),
-					onClick: handleCopy,
-					disabled: moveToTrash.isPending,
-				},
-				{
-					label: t('media.moveToTrash'),
-					onClick: handleMoveToTrash,
-					danger: true,
-					disabled: moveToTrash.isPending,
-				},
-			]
+			...(isImage
+				? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
+				: []),
+			...(isPdf ? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }] : []),
+			{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
+			{ label: t('media.rename'), onClick: () => setRenameModalOpen(true), disabled: moveToTrash.isPending },
+			{ label: t('actions.share'), onClick: () => setShareModalOpen(true), disabled: moveToTrash.isPending },
+			{
+				label: t('actions.copy'),
+				onClick: handleCopy,
+				disabled: moveToTrash.isPending,
+			},
+			{
+				label: t('media.moveToTrash'),
+				onClick: handleMoveToTrash,
+				danger: true,
+				disabled: moveToTrash.isPending,
+			},
+		]
 
 	const sharedItems = isFolder
 		? [
-				{ label: t('media.open'), onClick: handleOpenFolder },
-				{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
-			]
+			{ label: t('media.open'), onClick: handleOpenFolder },
+			{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
+		]
 		: [
-				...(isImage
-					? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
-					: []),
-				{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
-			]
+			...(isImage
+				? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
+				: []),
+			...(isPdf ? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }] : []),
+			{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
+		]
 
 	const items = mode === 'trash' ? trashItems : mode === 'shared' ? sharedItems : libraryItems
 
@@ -232,12 +247,12 @@ export default function FileRow({
 			{mode === 'library' && shareModalOpen && (
 				<ShareResourceModal resource={resource} onClose={() => setShareModalOpen(false)} />
 			)}
-			{previewOpen && previewSrc && <ImagePreviewModal src={previewSrc} onClose={closePreview} />}
+			{previewOpen && previewSrc && isImage && <ImagePreviewModal src={previewSrc} onClose={closePreview} />}
+			{previewOpen && previewSrc && isPdf && <PdfPreviewModal src={previewSrc} name={resource.name} onClose={closePreview} />}
 			{menu.isOpen && <ContextMenu x={menu.position.x} y={menu.position.y} items={items} onClose={menu.close} />}
 			<tr
-				className={`border-b border-stroke-muted h-12 text-sm text-ink-muted hover:bg-surface-muted cursor-pointer ${
-					isDropTarget ? 'bg-surface-tint ring-1 ring-primary-500' : ''
-				}`}
+				className={`border-b border-stroke-muted h-12 text-sm text-ink-muted hover:bg-surface-muted cursor-pointer ${isDropTarget ? 'bg-surface-tint ring-1 ring-primary-500' : ''
+					}`}
 				onClick={handleOpenFolder}
 				draggable={mode === 'library' && isFile}
 				onDragStart={(event) => {
