@@ -25,12 +25,12 @@ services:
 
     auth:
         build:
-            context: ./EmberVault/services/auth
+            context: ./apps/auth-service
             secrets:
                 - auth_lib_token
                 - database_url
         env_file:
-            - ./EmberVault/services/auth/.env
+            - ./apps/auth-service/.env
         ports:
             - 3100:3100
         depends_on:
@@ -48,12 +48,12 @@ services:
 
     user:
         build:
-            context: ./EmberVault/services/user
+            context: ./apps/user-service
             secrets:
                 - auth_lib_token
                 - database_url
         env_file:
-            - ./EmberVault/services/user/.env
+            - ./apps/user-service/.env
         ports:
             - 3200:3200
         depends_on:
@@ -71,12 +71,12 @@ services:
 
     media:
         build:
-            context: ./EmberVault/services/media
+            context: ./apps/media-service
             secrets:
                 - auth_lib_token
                 - database_url
         env_file:
-            - ./EmberVault/services/media/.env
+            - ./apps/media-service/.env
         ports:
             - 3300:3300
         depends_on:
@@ -181,7 +181,7 @@ services:
             - backend
     nginx:
         build:
-            context: ./EmberVault/web
+            context: ./apps/web
         ports:
             - "80:80"
             - "443:443"
