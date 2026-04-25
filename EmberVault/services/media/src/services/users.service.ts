@@ -160,6 +160,8 @@ export const deleteUserAvatar = async (userId: string): Promise<boolean> => {
     return true
 }
 
+// This function checks if the user has used up their allowed storage limit.
+// It returns true if the user is within their storage limit, and false if they have exceeded it.
 export const checkUserStorageLimit = async (userId: string): Promise<boolean> => {
     const user = await prisma.users.findUnique({
         where: { id: userId },

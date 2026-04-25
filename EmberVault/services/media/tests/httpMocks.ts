@@ -45,6 +45,7 @@ const httpMocks = vi.hoisted(() => ({
     getUserRole: vi.fn(async (userId: string) =>
         userId === 'admin-1' ? ADMIN_ROLE_ID : USER_ROLE_ID,
     ),
+    checkUserStorageLimit: vi.fn(async () => true),
     getAdminRole: vi.fn(async () => ({ id: ADMIN_ROLE_ID, name: 'admin' })),
     isOwnerOfResource: vi.fn(async () => true),
     canUserPerformResourceAction: vi.fn(async () => true),
@@ -90,6 +91,7 @@ vi.mock('@middlewares/authenticate.middleware.js', () => ({
 vi.mock('@services/users.service.js', () => ({
     getUserById: vi.fn(),
     getUserRole: httpMocks.getUserRole,
+    checkUserStorageLimit: httpMocks.checkUserStorageLimit,
 }))
 
 vi.mock('@services/system_roles.service.js', () => ({
@@ -127,6 +129,7 @@ export function resetHttpServiceMocks(): void {
     m.getUserRole.mockImplementation(async (userId: string) =>
         userId === 'admin-1' ? ADMIN_ROLE_ID : USER_ROLE_ID,
     )
+    m.checkUserStorageLimit.mockResolvedValue(true)
     m.getAdminRole.mockResolvedValue({ id: ADMIN_ROLE_ID, name: 'admin' })
     m.isOwnerOfResource.mockResolvedValue(true)
     m.canUserPerformResourceAction.mockResolvedValue(true)

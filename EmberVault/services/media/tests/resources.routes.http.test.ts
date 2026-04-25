@@ -263,6 +263,7 @@ describe('HTTP resources routes', () => {
 
     it('POST create FILE → 400 when service fails', async () => {
         getHttpMocks().files.createFile.mockResolvedValue(null)
+        getHttpMocks().checkUserStorageLimit.mockResolvedValue(true)
         const res = await request(createHttpTestApp())
             .post(`${U1}/resources`)
             .set('Authorization', 'Bearer user-1')
@@ -272,6 +273,7 @@ describe('HTTP resources routes', () => {
     })
 
     it('POST create FILE → 200 includes uploadUrl', async () => {
+        getHttpMocks().checkUserStorageLimit.mockResolvedValue(true)
         const res = await request(createHttpTestApp())
             .post(`${U1}/resources`)
             .set('Authorization', 'Bearer user-1')
