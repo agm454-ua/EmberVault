@@ -5,6 +5,7 @@ import {
 import type { TCreateResourceRequest } from '@customTypes/resource.js'
 import { createFile } from '@services/files.service.js'
 import { createFolder } from '@services/folders.service.js'
+import { checkUserStorageLimit } from '@services/users.service.js'
 import type { NextFunction, Request, Response } from 'express'
 
 export async function validateCreateResourceRequest(
@@ -60,6 +61,10 @@ export async function createResourceController(req: Request, res: Response) {
     }
     // Create file
     else if (requestData.type === 'FILE') {
+        const hasUserUsedAllowedStorage = await checkUserStorageLimit(userId)
+        if (!hasUserUsedAllowedStorage) {
+            return sendBadRequestResponse(res, 'User has exceeded storage limit')
+        }
         const result = await createFile(requestData, userId)
         if (!result) {
             return sendBadRequestResponse(res, 'Failed to create file')

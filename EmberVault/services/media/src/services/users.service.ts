@@ -138,24 +138,39 @@ export const deleteUserAvatar = async (userId: string): Promise<boolean> => {
 
     // No avatar to delete, consider it a success
     if (!oldAvatarUrl) {
-        return true 
+        return true
     }
 
     const oldStoragePath = getProfilePictureStoragePathFromUrl(oldAvatarUrl)
 
     // Can't determine storage path, consider it a failure
     if (!oldStoragePath) {
-        return false 
+        return false
     }
 
     const updateResult = await updateUserAvatarUrl(userId, null)
 
     // Failed to update database, consider it a failure
     if (updateResult === undefined) {
-        return false 
+        return false
     }
 
     await deleteProfilePictureObject(oldStoragePath).catch(() => undefined)
 
     return true
+}
+
+export const checkUserStorageLimit = async (userId: string): Promise<boolean> => {
+    const user = await prisma.users.findUnique({
+        where: { id: userId },
+        select: { storage_used_gb: true, storage_limit_gb: true },
+    })
+
+    if (!user) return false;
+
+    const used = user.storage_used_gb?.toNumber() ?? 0;
+    const limit = user.storage_limit_gb ?? 0;
+
+    return used < limit;
+
 }
