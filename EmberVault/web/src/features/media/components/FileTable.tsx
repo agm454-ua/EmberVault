@@ -265,7 +265,7 @@ export default function FileTable({
 	const hasResources = Boolean(sortedResources && sortedResources.length > 0)
 
 	return (
-		<div className={`w-full flex flex-col gap-4 ${fullPage ? 'h-[calc(100vh-8rem)]' : ''}`}>
+		<div className={`relative w-full flex flex-col gap-4 ${fullPage ? 'h-[calc(100vh-8rem)]' : ''}`}>
 			{headerMenu.isOpen && (
 				<ContextMenu
 					x={headerMenu.position.x}
@@ -299,11 +299,6 @@ export default function FileTable({
 				{uploadError && <ErrorMessage text={uploadError} />}
 				{uploadedCount > 0 && <SuccessMessage text={t('media.uploadCompleted', { count: uploadedCount })} />}
 
-				{canUploadFiles && isTableFileDragOver && (
-					<div className="absolute inset-0 z-20 bg-surface-canvas/85 border-2 border-dashed border-stroke-focus rounded-lg flex items-center justify-center pointer-events-none">
-						<div className="text-sm text-ink-muted">{t('media.dragAndDropResource')}</div>
-					</div>
-				)}
 				<table className="min-w-0 w-full table-fixed border-collapse">
 					<thead className="h-12 text-sm text-ink" {...headerMenu.bind()}>
 						<tr>
@@ -409,6 +404,12 @@ export default function FileTable({
 					</tbody>
 				</table>
 			</div>
+
+			{canUploadFiles && isTableFileDragOver && (
+				<div className="absolute inset-0 z-50 bg-surface-canvas/85 border-2 border-dashed border-stroke-focus rounded-lg flex items-center justify-center pointer-events-none">
+					<div className="text-md text-primary-500 font-semibold">{t('media.dragAndDropResource')}</div>
+				</div>
+			)}
 		</div>
 	)
 }

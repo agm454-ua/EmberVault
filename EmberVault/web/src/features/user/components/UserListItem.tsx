@@ -76,14 +76,14 @@ export default function UserListItem({ user }: { user: TUser }) {
 		<>
 			{menu.isOpen && <ContextMenu x={menu.position.x} y={menu.position.y} items={items} onClose={menu.close} />}
 			<div
-				className="flex w-full items-center text-sm gap-4 px-4 py-2 border-b border-stroke-muted hover:bg-surface-muted last:border-0 text-ink-muted"
+				className="flex w-full items-center text-sm py-2 border-b border-stroke-muted hover:bg-surface-muted last:border-0 text-ink-muted pl-4"
 				{...menu.bind()}
 			>
 				<ProfilePicture pictureUrl={user.profile_picture_url} alt={`${user.username}'s profile picture`} />
 				<p className="w-xs ml-4">{user.username}</p>
-				<p className="w-xs">{user.email}</p>
-				<p className="w-28 capitalize">{roleName}</p>
-				<UserStatus status={user.status ?? '-'} />
+				<p className="w-xs text-center">{user.email}</p>
+				<p className="w-28 capitalize text-center">{roleName}</p>
+				<UserStatus status={user.status ?? '-'} className="text-center" />
 			</div>
 		</>
 	)

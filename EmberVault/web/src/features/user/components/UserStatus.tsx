@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 
-export default function UserStatus({ status }: { status: 'active' | 'suspended' | 'deleted' | string }) {
+export default function UserStatus({ status, className }: { status: 'active' | 'suspended' | 'deleted' | string; className?: string }) {
 	const { t } = useTranslation()
 
 	const statusClasses =
@@ -13,7 +13,7 @@ export default function UserStatus({ status }: { status: 'active' | 'suspended' 
 					: 'text-ink-muted bg-surface-gray border-stroke'
 
 	return (
-		<div className="w-28">
+		<div className={`w-28 ${className}`}>
 			<span className={`inline-flex border px-2 py-0.5 rounded-md text-xs capitalize ${statusClasses}`}>
 				{status === '-' ? status : t(`user.statusValues.${status}`, status)}
 			</span>
