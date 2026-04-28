@@ -1,0 +1,48 @@
+name: User Service CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "./apps/user-service/**"
+
+jobs:
+  service-user-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./apps/user-service
+        env:
+          AUTH_LIB_TOKEN: ${{ secrets.AUTH_LIB_TOKEN }}
+
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: ./apps/user-service
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Run ESLint
+        run: npm run lint
+        working-directory: ./apps/user-service
+
+      - name: Run Prettier check
+        run: npm run prettier
+        working-directory: ./apps/user-service
+
+      - name: Run TypeScript type check
+        run: npm run typecheck
+        working-directory: ./apps/user-service
+
+      - name: Run tests
+        run: npm run test
+        working-directory: ./apps/user-service

@@ -1,0 +1,17 @@
+{
+	"trailingComma": "all",
+	"useTabs": true,
+	"tabWidth": 4,
+	"semi": false,
+	"singleQuote": true,
+	"bracketSpacing": true,
+	"printWidth": 120,
+	"overrides": [
+		{
+			"files": "*.api.ts",
+			"options": {
+				"printWidth": 1000
+			}
+		}
+	]
+}

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>EmberVault</title>
+
+		<script>
+			// This script runs before React, to ensure the correct theme is applied on the first paint, preventing a flash of incorrect theme.
+			const prefs = JSON.parse(localStorage.getItem('user-preferences') || '{}')
+			const theme = prefs?.state?.preferences?.theme || 'system'
+			const resolved =
+				theme === 'system'
+					? window.matchMedia('(prefers-color-scheme: dark)').matches
+						? 'dark'
+						: 'light'
+					: theme
+			document.documentElement.setAttribute('data-theme', resolved)
+		</script>
+	</head>
+
+	<body>
+		<div id="root"></div>
+		<script type="module" src="/src/main.tsx"></script>
+	</body>
+</html>

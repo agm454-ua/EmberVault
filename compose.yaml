@@ -1,0 +1,233 @@
+services:
+    postgres:
+        image: postgres:15-alpine
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            DB_BACKEND_USER: ${DB_BACKEND_USER}
+            DB_BACKEND_PASSWORD: ${DB_BACKEND_PASSWORD}
+            DB_ADMIN_USER: ${DB_ADMIN_USER}
+            DB_ADMIN_PASSWORD: ${DB_ADMIN_PASSWORD}
+        ports:
+            - "5432:5432"
+        healthcheck: 
+            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+            - ./infrastructure/db:/docker-entrypoint-initdb.d
+        networks:
+            - backend
+
+    auth:
+        build:
+            context: ./apps/auth-service
+            secrets:
+                - auth_lib_token
+                - database_url
+        env_file:
+            - ./apps/auth-service/.env
+        ports:
+            - 3100:3100
+        depends_on:
+            postgres:
+                condition: service_healthy
+        networks:
+            - backend
+        healthcheck:
+            test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/api/health"]
+            interval: 15s
+            timeout: 5s
+            retries: 3
+            start_period: 20s
+        restart: unless-stopped
+
+    user:
+        build:
+            context: ./apps/user-service
+            secrets:
+                - auth_lib_token
+                - database_url
+        env_file:
+            - ./apps/user-service/.env
+        ports:
+            - 3200:3200
+        depends_on:
+            postgres:
+                condition: service_healthy
+        networks:
+            - backend
+        healthcheck:
+            test: ["CMD", "wget", "--spider", "-q", "http://localhost:3200/api/health"]
+            interval: 15s
+            timeout: 5s
+            retries: 3
+            start_period: 20s
+        restart: unless-stopped
+
+    media:
+        build:
+            context: ./apps/media-service
+            secrets:
+                - auth_lib_token
+                - database_url
+        env_file:
+            - ./apps/media-service/.env
+        ports:
+            - 3300:3300
+        depends_on:
+            postgres:
+                condition: service_healthy
+        networks:
+            - backend
+        healthcheck:
+            test: ["CMD", "wget", "--spider", "-q", "http://localhost:3300/api/health"]
+            interval: 15s
+            timeout: 5s
+            retries: 3
+            start_period: 20s
+        restart: unless-stopped
+
+    seaweedfs-master:
+        image: chrislusf/seaweedfs:4.17
+        command: master -ip=seaweedfs-master -ip=seaweedfs-master -ip.bind=0.0.0.0
+        ports:
+            - "9333:9333"
+            - "19333:19333"
+        volumes:
+            - seaweedfs-master-data:/data
+        networks:
+            - backend
+        healthcheck:
+            test: ["CMD", "wget", "--spider", "-q", "http://localhost:9333/cluster/status"]
+            interval: 10s
+            timeout: 10s
+            retries: 10
+
+    seaweedfs-volume:
+        image: chrislusf/seaweedfs:latest
+        command: volume -mserver=seaweedfs-master:9333 -ip=seaweedfs-volume -ip.bind=0.0.0.0 -port=8080 -dir=/data
+        volumes:
+            - seaweedfs-volume-data:/data
+        depends_on:
+            seaweedfs-master:
+                condition: service_healthy
+        networks:
+            - backend
+
+    seaweedfs-filer:
+        image: chrislusf/seaweedfs:latest
+        command: filer -master=seaweedfs-master:9333 -ip=seaweedfs-filer -ip.bind=0.0.0.0
+        ports:
+            - "8888:8888"
+            - "18888:18888"
+        volumes:
+            - seaweedfs-filer-data:/data
+        depends_on:
+            seaweedfs-master:
+                condition: service_healthy
+        networks:
+            - backend
+        healthcheck:
+            test: ["CMD", "wget", "-qO-", "http://localhost:8888/?limit=0"]
+            interval: 10s
+            timeout: 10s
+            retries: 10
+            start_period: 30s
+
+    seaweedfs-s3:
+        image: chrislusf/seaweedfs:latest
+        entrypoint: ["/bin/sh", "/scripts/start-s3.sh"]
+        ports:
+            - "8333:8333"
+        volumes:
+            - ./infrastructure/seaweedfs/start-s3.sh:/scripts/start-s3.sh:ro
+        secrets:
+            - seaweedfs_access_key
+            - seaweedfs_secret_key
+        depends_on:
+            seaweedfs-filer:
+                condition: service_healthy
+        networks:
+            - backend
+        healthcheck:
+            test: ["CMD-SHELL", "wget -qO- http://localhost:8333/ > /dev/null 2>&1; [ $? -le 1 ]"]
+            interval: 10s
+            timeout: 10s
+            retries: 15
+            start_period: 30s
+        restart: unless-stopped
+
+    seaweedfs-init:
+        image: amazon/aws-cli:latest
+        environment:
+            AWS_DEFAULT_REGION: us-east-1
+        entrypoint: ["/bin/sh", "/scripts/init-bucket.sh"]
+        volumes:
+            - ./infrastructure/seaweedfs/init-bucket.sh:/scripts/init-bucket.sh:ro
+        secrets:
+            - seaweedfs_access_key
+            - seaweedfs_secret_key
+            - seaweedfs_bucket
+            - seaweedfs_profile_pictures_bucket
+        depends_on:
+            seaweedfs-s3:
+                condition: service_healthy
+        networks:
+            - backend
+    nginx:
+        build:
+            context: ./apps/web
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./infrastructure/certs:/etc/nginx/certs:ro
+        depends_on:
+            auth:
+                condition: service_healthy
+            user:
+                condition: service_healthy
+            media:
+                condition: service_healthy
+            seaweedfs-s3:
+                condition: service_healthy
+        networks:
+            - backend
+        healthcheck:
+            test: ["CMD", "nginx", "-t"]
+            interval: 15s
+            timeout: 5s
+            retries: 3
+            start_period: 20s
+        restart: unless-stopped
+
+
+volumes:
+    postgres_data:
+    seaweedfs-master-data:
+    seaweedfs-volume-data:
+    seaweedfs-filer-data:
+
+networks:
+    backend:
+        driver: bridge
+
+secrets:
+    auth_lib_token:
+        environment: AUTH_LIB_TOKEN
+    database_url:
+        environment: DATABASE_URL
+    seaweedfs_access_key:
+        environment: SEAWEEDFS_ACCESS_KEY
+    seaweedfs_secret_key:
+        environment: SEAWEEDFS_SECRET_KEY
+    seaweedfs_bucket:
+        environment: SEAWEEDFS_BUCKET
+    seaweedfs_profile_pictures_bucket:
+        environment: SEAWEEDFS_PROFILE_PICTURES_BUCKET

@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model audio {
+  id               String  @id @db.Uuid
+  duration_seconds Int?    @db.SmallInt
+  audio_codec      String? @db.VarChar(20)
+  bitrate          Int?
+  files            files   @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model files {
+  id             String    @id @db.Uuid
+  mime_type      String?   @db.VarChar(100)
+  size_bytes     BigInt?
+  storage_path   String    @db.VarChar(500)
+  checksum       String?   @db.VarChar(64)
+  thumbnail_path String?   @db.VarChar(500)
+  audio          audio?
+  resources      resources @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  images         images?
+  videos         videos?
+}
+
+model folders {
+  id                                         String      @id @db.Uuid
+  resources_folders_idToresources            resources   @relation("folders_idToresources", fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  resources_resources_parent_folderTofolders resources[] @relation("resources_parent_folderTofolders")
+  users                                      users[]
+}
+
+model images {
+  id        String @id @db.Uuid
+  width_px  Int?   @db.SmallInt
+  height_px Int?   @db.SmallInt
+  files     files  @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model resource_permissions {
+  id                        String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                      String                      @unique @db.VarChar(50)
+  resource_role_permissions resource_role_permissions[]
+}
+
+model resource_role_permissions {
+  role_id              String               @db.Uuid
+  permission_id        String               @db.Uuid
+  resource_permissions resource_permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  resource_roles       resource_roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([role_id, permission_id])
+  @@index([role_id], map: "idx_resource_role_permissions_role")
+}
+
+model resource_roles {
+  id                                 String                               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                               String                               @unique @db.VarChar(50)
+  description                        String?                              @db.VarChar(200)
+  resource_role_permissions          resource_role_permissions[]
+  user_is_resource_role_for_resource user_is_resource_role_for_resource[]
+}
+
+model resources {
+  id                                       String                               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                                     String                               @db.VarChar(255)
+  is_private                               Boolean?                             @default(true)
+  state                                    state?                               @default(pending)
+  created_at                               DateTime?                            @default(now()) @db.Timestamptz(6)
+  updated_at                               DateTime?                            @default(now()) @db.Timestamptz(6)
+  deleted_at                               DateTime?                            @db.Timestamptz(6)
+  parent_folder                            String?                              @db.Uuid
+  files                                    files?
+  folders_folders_idToresources            folders?                             @relation("folders_idToresources")
+  folders_resources_parent_folderTofolders folders?                             @relation("resources_parent_folderTofolders", fields: [parent_folder], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_parent_folder")
+  user_is_resource_role_for_resource       user_is_resource_role_for_resource[]
+
+  @@index([parent_folder], map: "idx_resources_parent_folder")
+  @@index([parent_folder, name], map: "idx_resources_parent_name")
+}
+
+model system_permissions {
+  id                      String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                    String                    @unique @db.VarChar(50)
+  system_role_permissions system_role_permissions[]
+}
+
+model system_role_permissions {
+  role_id            String             @db.Uuid
+  permission_id      String             @db.Uuid
+  system_permissions system_permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  system_roles       system_roles       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([role_id, permission_id])
+  @@index([role_id], map: "idx_system_role_permissions_role")
+}
+
+model system_roles {
+  id                      String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                    String                    @unique @db.VarChar(50)
+  description             String?                   @db.VarChar(200)
+  system_role_permissions system_role_permissions[]
+  users                   users[]
+}
+
+model user_is_resource_role_for_resource {
+  user_id        String         @db.Uuid
+  resource_role  String         @db.Uuid
+  resource_id    String         @db.Uuid
+  resources      resources      @relation(fields: [resource_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  resource_roles resource_roles @relation(fields: [resource_role], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users          users          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_id, resource_role, resource_id])
+  @@index([user_id, resource_id], map: "idx_urr_user_resource")
+}
+
+model users {
+  id                                 String                               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username                           String                               @unique @db.VarChar(40)
+  email                              String                               @unique @db.VarChar(100)
+  password                           String                               @db.VarChar(255)
+  birth_date                         DateTime                             @db.Date
+  status                             status?                              @default(active)
+  storage_limit_gb                   Int?                                 @default(15) @db.SmallInt
+  storage_used_gb                    Decimal?                             @default(0) @db.Decimal(10, 2)
+  avatar_url                         String?                              @db.VarChar(500)
+  last_login_at                      DateTime?                            @db.Timestamptz(6)
+  last_login_ip                      String?                              @db.Inet
+  created_at                         DateTime?                            @default(now()) @db.Timestamptz(6)
+  root_folder                        String?                              @db.Uuid
+  system_role                        String                               @db.Uuid
+  user_is_resource_role_for_resource user_is_resource_role_for_resource[]
+  folders                            folders?                             @relation(fields: [root_folder], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  system_roles                       system_roles                         @relation(fields: [system_role], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([system_role], map: "idx_users_system_role")
+}
+
+model videos {
+  id               String  @id @db.Uuid
+  width_px         Int?    @db.SmallInt
+  height_px        Int?    @db.SmallInt
+  duration_seconds Int?    @db.SmallInt
+  video_codec      String? @db.VarChar(20)
+  frame_rate       Int?    @db.SmallInt
+  bitrate          Int?
+  audio_codec      String? @db.VarChar(20)
+  files            files   @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+enum status {
+  active
+  suspended
+  deleted
+}
+
+enum state {
+  pending
+  uploading
+  ready
+  error
+  processing
+  deleted
+}
