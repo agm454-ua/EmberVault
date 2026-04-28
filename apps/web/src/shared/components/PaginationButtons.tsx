@@ -16,7 +16,7 @@ export default function PaginationButtons({
 
 	return (
 		<div className="flex gap-2 mt-4 w-full items-center justify-end">
-			<Button onClick={handlePrevious} disabled={page === 0}>
+			<Button onClick={handlePrevious} disabled={page === 1}>
 				{t('actions.previousPage')}
 			</Button>
 			<span className="text-sm text-ink">{t('nav.page', { page })}</span>

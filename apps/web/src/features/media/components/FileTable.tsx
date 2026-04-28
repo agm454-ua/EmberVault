@@ -280,7 +280,7 @@ export default function FileTable({
 					<Button
 						type="button"
 						variant="secondary"
-						disabled={!canNavigateBack}
+						className={canNavigateBack ? '' : 'hidden!'}
 						onClick={() => onNavigateToPath?.(path.length - 2)}
 					>
 						{t('nav.back')}

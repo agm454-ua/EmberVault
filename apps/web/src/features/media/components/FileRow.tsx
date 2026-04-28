@@ -98,6 +98,25 @@ export default function FileRow({
 		}
 	}
 
+	const handlePreviewInNewTab = async (event?: React.MouseEvent) => {
+		event?.stopPropagation()
+		if (download.isPending) return
+
+		try {
+			const result = await download.mutateAsync()
+			let url: string
+			if (typeof result === 'string') {
+				url = result
+			} else {
+				const blob = result instanceof Blob ? result : new Blob([result as BlobPart])
+				url = URL.createObjectURL(blob)
+			}
+			window.open(url, '_blank', 'noopener')
+		} catch (error) {
+			console.error('Failed to open file in new tab', error)
+		}
+	}
+
 	const closePreview = () => {
 		setPreviewOpen(false)
 		if (createdObjectUrl) {
@@ -158,6 +177,14 @@ export default function FileRow({
 		copyResource.mutate(request)
 	}
 
+	const handleDefaultAction = () => {
+		const firstAction = items.find((item) => !item.disabled)
+
+		if (!firstAction) return
+
+		firstAction.onClick?.()
+	}
+
 	const trashItems = isFolder
 		? [
 			{ label: t('media.open'), onClick: handleOpenFolder },
@@ -206,6 +233,7 @@ export default function FileRow({
 				? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
 				: []),
 			...(isPdf ? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }] : []),
+			...(isPdf ? [{ label: t('actions.openInNewTab'), onClick: handlePreviewInNewTab, disabled: download.isPending }] : []),
 			{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
 			{ label: t('media.rename'), onClick: () => setRenameModalOpen(true), disabled: moveToTrash.isPending },
 			{ label: t('actions.share'), onClick: () => setShareModalOpen(true), disabled: moveToTrash.isPending },
@@ -232,6 +260,7 @@ export default function FileRow({
 				? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
 				: []),
 			...(isPdf ? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }] : []),
+			...(isPdf ? [{ label: t('actions.openInNewTab'), onClick: handlePreviewInNewTab, disabled: download.isPending }] : []),
 			{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
 		]
 
@@ -254,6 +283,10 @@ export default function FileRow({
 				className={`border-b border-stroke-muted h-12 text-sm text-ink-muted hover:bg-surface-muted cursor-pointer ${isDropTarget ? 'bg-surface-tint ring-1 ring-primary-500' : ''
 					}`}
 				onClick={handleOpenFolder}
+				onDoubleClick={(e) => {
+					e.stopPropagation()
+					handleDefaultAction()
+				}}
 				draggable={mode === 'library' && isFile}
 				onDragStart={(event) => {
 					if (mode !== 'library' || !isFile) {

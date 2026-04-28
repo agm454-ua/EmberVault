@@ -95,7 +95,8 @@
 		"nextPage": "Siguiente página",
 		"previousPage": "Página anterior",
 		"preview": "Vista previa",
-		"copy": "Copiar"
+		"copy": "Copiar",
+		"openInNewTab": "Abrir en nueva pestaña"
 	},
 	"admin": {
 		"storageUsed": "Almacenamiento utilizado",

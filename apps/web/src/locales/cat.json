@@ -95,7 +95,8 @@
 		"nextPage": "Pàgina següent",
 		"previousPage": "Pàgina anterior",
 		"preview": "Vista prèvia",
-		"copy": "Copiar"
+		"copy": "Copiar",
+		"openInNewTab": "Obrir en nova pestanya"
 	},
 	"admin": {
 		"storageUsed": "Emmagatzematge utilitzat",

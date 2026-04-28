@@ -95,7 +95,8 @@
 		"nextPage": "Next page",
 		"previousPage": "Previous page",
 		"preview": "Preview",
-		"copy": "Copy"
+		"copy": "Copy",
+		"openInNewTab": "Open in new tab"
 	},
 	"admin": {
 		"storageUsed": "Storage used",
