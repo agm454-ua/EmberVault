@@ -25,12 +25,12 @@ services:
 
     auth:
         build:
-            context: ./EmberVault/services/auth
+            context: ./apps/auth-service
             secrets:
                 - auth_lib_token
                 - database_url
         env_file:
-            - ./EmberVault/services/auth/.env
+            - ./apps/auth-service/.env
         ports:
             - 3100:3100
         depends_on:
@@ -48,12 +48,12 @@ services:
 
     user:
         build:
-            context: ./EmberVault/services/user
+            context: ./apps/user-service
             secrets:
                 - auth_lib_token
                 - database_url
         env_file:
-            - ./EmberVault/services/user/.env
+            - ./apps/user-service/.env
         ports:
             - 3200:3200
         depends_on:
@@ -71,12 +71,12 @@ services:
 
     media:
         build:
-            context: ./EmberVault/services/media
+            context: ./apps/media-service
             secrets:
                 - auth_lib_token
                 - database_url
         env_file:
-            - ./EmberVault/services/media/.env
+            - ./apps/media-service/.env
         ports:
             - 3300:3300
         depends_on:
@@ -173,6 +173,7 @@ services:
             - seaweedfs_access_key
             - seaweedfs_secret_key
             - seaweedfs_bucket
+            - seaweedfs_profile_pictures_bucket
         depends_on:
             seaweedfs-s3:
                 condition: service_healthy
@@ -180,7 +181,7 @@ services:
             - backend
     nginx:
         build:
-            context: ./EmberVault/web
+            context: ./apps/web
         ports:
             - "80:80"
             - "443:443"
@@ -188,13 +189,18 @@ services:
             - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
             - ./infrastructure/certs:/etc/nginx/certs:ro
         depends_on:
-            - auth
-            - user
-            - media
+            auth:
+                condition: service_healthy
+            user:
+                condition: service_healthy
+            media:
+                condition: service_healthy
+            seaweedfs-s3:
+                condition: service_healthy
         networks:
             - backend
         healthcheck:
-            test: ["CMD", "wget", "--spider", "-q", "http://localhost/health"]
+            test: ["CMD", "nginx", "-t"]
             interval: 15s
             timeout: 5s
             retries: 3
@@ -223,3 +229,5 @@ secrets:
         environment: SEAWEEDFS_SECRET_KEY
     seaweedfs_bucket:
         environment: SEAWEEDFS_BUCKET
+    seaweedfs_profile_pictures_bucket:
+        environment: SEAWEEDFS_PROFILE_PICTURES_BUCKET

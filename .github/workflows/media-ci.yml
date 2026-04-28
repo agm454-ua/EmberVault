@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main, develop]
     paths:
-      - "EmberVault/services/media/**"
+      - "./apps/media-service/**"
 
 jobs:
   service-media-ci:
@@ -20,29 +20,29 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./EmberVault/services/media
+        working-directory: ./apps/media-service
         env:
           AUTH_LIB_TOKEN: ${{ secrets.AUTH_LIB_TOKEN }}
 
 
       - name: Generate Prisma client
         run: npx prisma generate
-        working-directory: ./EmberVault/services/media
+        working-directory: ./apps/media-service
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Run ESLint
         run: npm run lint
-        working-directory: ./EmberVault/services/media
+        working-directory: ./apps/media-service
 
       - name: Run Prettier check
         run: npm run prettier
-        working-directory: ./EmberVault/services/media
+        working-directory: ./apps/media-service
 
       - name: Run TypeScript type check
         run: npm run typecheck
-        working-directory: ./EmberVault/services/media
+        working-directory: ./apps/media-service
 
       - name: Run tests
         run: npm run test
-        working-directory: ./EmberVault/services/media
+        working-directory: ./apps/media-service

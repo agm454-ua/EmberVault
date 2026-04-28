@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main, develop]
     paths:
-      - "EmberVault/services/user/**"
+      - "./apps/user-service/**"
 
 jobs:
   service-user-ci:
@@ -20,29 +20,29 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ./EmberVault/services/user
+        working-directory: ./apps/user-service
         env:
           AUTH_LIB_TOKEN: ${{ secrets.AUTH_LIB_TOKEN }}
 
 
       - name: Generate Prisma client
         run: npx prisma generate
-        working-directory: ./EmberVault/services/user
+        working-directory: ./apps/user-service
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Run ESLint
         run: npm run lint
-        working-directory: ./EmberVault/services/user
+        working-directory: ./apps/user-service
 
       - name: Run Prettier check
         run: npm run prettier
-        working-directory: ./EmberVault/services/user
+        working-directory: ./apps/user-service
 
       - name: Run TypeScript type check
         run: npm run typecheck
-        working-directory: ./EmberVault/services/user
+        working-directory: ./apps/user-service
 
       - name: Run tests
         run: npm run test
-        working-directory: ./EmberVault/services/user
+        working-directory: ./apps/user-service

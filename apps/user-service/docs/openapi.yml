@@ -1,0 +1,225 @@
+openapi: 3.1.0
+
+info:
+    title: User API
+    version: '1.0.0'
+    summary: User service for the EmberVault project
+
+servers:
+    - url: https://embervault.local/user/api
+      description: Local development server
+
+security:
+    - bearerAuth: []
+
+paths:
+    /users/count:
+        get:
+            summary: Get current amount of users
+            operationId: getUserCount
+            responses:
+                '200':
+                    description: Number of users
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    current_users:
+                                        type: integer
+                '401':
+                    description: Unauthorized
+    /users/all:
+        get:
+            summary: List users. Using cursor-based pagination
+            operationId: getAllUsers
+            parameters:
+                - in: query
+                  name: take
+                  required: false
+                  schema:
+                      type: number
+                - in: query
+                  name: lastCursor
+                  required: false
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Users
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                '401':
+                    description: Unauthorized
+
+    /users/added-last-week:
+        get:
+            summary: Get amount of new users in the last week
+            operationId: getUsersAddedLastWeek
+            responses:
+                '200':
+                    description: Number of users added last week
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    added_last_week:
+                                        type: integer
+                '401':
+                    description: Unauthorized
+    /users:
+        post:
+            summary: Create a user
+            operationId: postUser
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateUserRequest'
+            responses:
+                '200':
+                    description: User created
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+    /users/{userId}:
+        get:
+            summary: Get user data
+            operationId: getUser
+            responses:
+                '200':
+                    description: User data
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                '401':
+                    description: Unauthorized
+        put:
+            summary: Update user's data
+            operationId: updateUser
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateUserRequest'
+            responses:
+                '200':
+                    description: Updated user data
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+        delete:
+            summary: Delete user
+            operationId: deleteUser
+            responses:
+                '200':
+                    description: Deleted user ID
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    success:
+                                        type: boolean
+                                    userId:
+                                        type: string
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                
+    /users/search:
+        get:
+            summary: Search users by username or email.
+            operationId: searchUsers
+            parameters:
+                - in: query
+                  name: query
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: Users matching the search query
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+
+components:
+    schemas:
+        User:
+            type: object
+            properties:
+                id:
+                    type: string
+                username:
+                    type: string
+                email:
+                    type: string
+                profilePictureURL:
+                    type: string
+                systemRole:
+                    type: string
+                status:
+                    type: string
+                storageLimitGB:
+                    type: integer
+                storageUsedGB:
+                    type: number
+
+        CreateUserRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                username:
+                    type: string
+                email:
+                    type: string
+                profilePictureURL:
+                    type: string
+                password:
+                    type: string
+                birthDate:
+                    type: string
+                    format: date
+
+        UpdateUserRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                email:
+                    type: string
+                profilePictureURL:
+                    type: string
+                birthDate:
+                    type: string
+                    format: date
+                systemRole:
+                    type: string
+                status:
+                    type: string
+                storageLimitGB:
+                    type: integer
