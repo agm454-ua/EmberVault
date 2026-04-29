@@ -6,6 +6,18 @@ import type {
 } from '@customTypes/user.js'
 import { prisma } from '@utils/prisma.js'
 import type { Decimal } from '@prisma/client/runtime/client'
+import { cached, invalidate, invalidatePattern } from '@utils/cache.js'
+
+// Cache keys
+const CK = {
+    userById: (id: string) => `user:id:${id}`,
+    userByIdentifier: (identifier: string) => `user:ident:${identifier}`,
+    userList: (cursor?: TUserID, take?: string) => `user:list:${cursor ?? 'start'}:${take ?? '10'}`,
+    userSearch: (query: string) => `user:search:${query}`,
+    userCount: () => `user:count`,
+    usersLastWeek: () => `user:last_week`,
+}
+
 
 const mapUser = (user: {
     id: TUserID
@@ -32,61 +44,71 @@ const mapUser = (user: {
 })
 
 export const getUser = async (identifier: string): Promise<TUser | null> => {
-    const result = await prisma.users.findFirst({
-        where: {
-            OR: [{ email: identifier }, { username: identifier }],
-        },
-        select: {
-            id: true,
-            email: true,
-            username: true,
-            system_roles: {
+    return cached(
+        CK.userByIdentifier(identifier),
+        async () => {
+
+            const result = await prisma.users.findFirst({
+                where: {
+                    OR: [{ email: identifier }, { username: identifier }],
+                },
                 select: {
                     id: true,
-                    name: true,
-                }
-            },
-            avatar_url: true,
-            status: true,
-            storage_limit_gb: true,
-            storage_used_gb: true,
-        },
-    })
+                    email: true,
+                    username: true,
+                    system_roles: {
+                        select: {
+                            id: true,
+                            name: true,
+                        }
+                    },
+                    avatar_url: true,
+                    status: true,
+                    storage_limit_gb: true,
+                    storage_used_gb: true,
+                },
+            })
 
-    if (!result) {
-        return null
-    }
+            if (!result) {
+                return null
+            }
 
-    return mapUser(result)
+            return mapUser(result)
+        }
+    )
 }
 
 export const getUserById = async (id: string): Promise<TUser | null> => {
-    const result = await prisma.users.findFirst({
-        where: {
-            id: id,
-        },
-        select: {
-            id: true,
-            email: true,
-            username: true,
-            system_roles: {
+    return cached(
+        CK.userById(id),
+        async () => {
+            const result = await prisma.users.findFirst({
+                where: {
+                    id: id,
+                },
                 select: {
                     id: true,
-                    name: true,
-                }
-            },
-            avatar_url: true,
-            status: true,
-            storage_limit_gb: true,
-            storage_used_gb: true,
-        },
-    })
+                    email: true,
+                    username: true,
+                    system_roles: {
+                        select: {
+                            id: true,
+                            name: true,
+                        }
+                    },
+                    avatar_url: true,
+                    status: true,
+                    storage_limit_gb: true,
+                    storage_used_gb: true,
+                },
+            })
 
-    if (!result) {
-        return null
-    }
+            if (!result) {
+                return null
+            }
 
-    return mapUser(result)
+            return mapUser(result)
+        })
 }
 
 export const createUser = async (
@@ -121,28 +143,38 @@ export const createUser = async (
             storage_used_gb: true,
         },
     })
+    
+    await invalidatePattern('user:list:*')
 
     return mapUser(result)
 }
 
 export const countUsers = async (): Promise<number> => {
-    return await prisma.users.count()
+    return cached(
+        CK.userCount(),
+        async () => await prisma.users.count()
+    )
 }
 
 export const usersAddedLastWeek = async (): Promise<number> => {
-    const now = new Date()
+    return cached(
+        CK.usersLastWeek(),
+        async () => {
+            const now = new Date()
 
-    const lastWeek = new Date()
-    lastWeek.setDate(now.getDate() - now.getDay() - 7)
-    lastWeek.setHours(0, 0, 0, 0)
+            const lastWeek = new Date()
+            lastWeek.setDate(now.getDate() - now.getDay() - 7)
+            lastWeek.setHours(0, 0, 0, 0)
 
-    return await prisma.users.count({
-        where: {
-            created_at: {
-                gte: lastWeek,
-            },
-        },
-    })
+            return await prisma.users.count({
+                where: {
+                    created_at: {
+                        gte: lastWeek,
+                    },
+                },
+            })
+        }
+    )
 }
 
 export const updateUser = async (
@@ -189,6 +221,8 @@ export const updateUser = async (
         return null
     }
 
+    await invalidate(CK.userById(userId), CK.userByIdentifier(result.email))
+
     return mapUser(result)
 }
 
@@ -202,6 +236,8 @@ export const deleteUser = async (userId: TUserID): Promise<boolean> => {
         },
     })
 
+    await invalidate(CK.userById(userId), CK.userByIdentifier(result.email))
+
     return result !== null
 }
 
@@ -209,74 +245,90 @@ export const getUsers = async (
     lastCursor?: TUserID,
     take?: string,
 ): Promise<TUser[] | null> => {
-    const parsedTake = take ? parseInt(take, 10) : 10
-    const myTake = Number.isNaN(parsedTake) || parsedTake <= 0 ? 10 : parsedTake
+    return cached(
+        CK.userList(lastCursor, take),
+        async () => {
 
-    const results = await prisma.users.findMany({
-        take: myTake,
-        ...(lastCursor && {
-            skip: 1,
-            cursor: {
-                id: lastCursor,
-            },
-        }),
-        // Keep pagination deterministic when many users share the same created_at.
-        orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
-        select: {
-            id: true,
-            email: true,
-            username: true,
-            system_roles: {
+            const parsedTake = take ? parseInt(take, 10) : 10
+            const myTake = Number.isNaN(parsedTake) || parsedTake <= 0 ? 10 : parsedTake
+
+            const results = await prisma.users.findMany({
+                take: myTake,
+                ...(lastCursor && {
+                    skip: 1,
+                    cursor: {
+                        id: lastCursor,
+                    },
+                }),
+                // Keep pagination deterministic when many users share the same created_at.
+                orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
                 select: {
                     id: true,
-                    name: true,
-                }
-            },
-            avatar_url: true,
-            status: true,
-            storage_limit_gb: true,
-            storage_used_gb: true,
-        },
-    })
+                    email: true,
+                    username: true,
+                    system_roles: {
+                        select: {
+                            id: true,
+                            name: true,
+                        }
+                    },
+                    avatar_url: true,
+                    status: true,
+                    storage_limit_gb: true,
+                    storage_used_gb: true,
+                },
+            })
 
-    if (!results) {
-        return null
-    }
+            if (!results) {
+                return null
+            }
 
-    return results.map(mapUser)
+            return results.map(mapUser)
+        }
+    )
 }
 
 export const searchUsers = async (query: string): Promise<TUser[] | null> => {
-    const result = await prisma.users.findMany({
-        where: {
-            OR: [{ email: {
-                contains: query,
-                mode: 'insensitive',
-            } }, { username: {
-                contains: query,
-                mode: 'insensitive',
-            } }],
-        },
-        select: {
-            id: true,
-            email: true,
-            username: true,
-            system_roles: {
+    return cached(
+        CK.userSearch(query),
+        async () => {
+
+            const result = await prisma.users.findMany({
+                where: {
+                    OR: [{
+                        email: {
+                            contains: query,
+                            mode: 'insensitive',
+                        }
+                    }, {
+                        username: {
+                            contains: query,
+                            mode: 'insensitive',
+                        }
+                    }],
+                },
                 select: {
                     id: true,
-                    name: true,
-                }
-            },
-            avatar_url: true,
-            status: true,
-            storage_limit_gb: true,
-            storage_used_gb: true,
-        },
-    })
+                    email: true,
+                    username: true,
+                    system_roles: {
+                        select: {
+                            id: true,
+                            name: true,
+                        }
+                    },
+                    avatar_url: true,
+                    status: true,
+                    storage_limit_gb: true,
+                    storage_used_gb: true,
+                },
+            })
 
-    if (!result) {
-        return null
-    }
+            if (!result) {
+                return null
+            }
 
-    return result.map(mapUser)
+            return result.map(mapUser)
+        }
+    )
 }
