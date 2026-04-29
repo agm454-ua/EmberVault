@@ -1,4 +1,3 @@
-# Disable the default user
 user default off
 
-user backend on >${REDIS_BACKEND_PASSWORD} ~* +@all
+user backend on >__REDIS_BACKEND_PASSWORD__ ~* +@all
