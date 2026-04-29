@@ -85,74 +85,65 @@ export const login = async (identifier: string, ip: string): Promise<boolean | n
 }
 
 export const getUserById = async (id: string): Promise<TUserData | null> => {
-    return cached(
-        CK.userById(id),
-        async () => {
-            const result = await prisma.users.findFirst({
-                where: {
-                    id: id,
-                },
+
+    const result = await prisma.users.findFirst({
+        where: {
+            id: id,
+        },
+        select: {
+            id: true,
+            email: true,
+            username: true,
+            system_role: true,
+            system_roles: {
                 select: {
                     id: true,
-                    email: true,
-                    username: true,
-                    system_role: true,
-                    system_roles: {
-                        select: {
-                            id: true,
-                            name: true,
-                        },
-                    },
-                    password: true,
-                    root_folder: true,
-                    birth_date: true,
-                    avatar_url: true,
-                    storage_limit_gb: true,
-                    storage_used_gb: true,
-                    status: true,
+                    name: true,
                 },
-            })
-
-            if (!result) {
-                return null
-            }
-
-            return {
-                id: result.id,
-                email: result.email,
-                username: result.username,
-                system_role: {
-                    id: result.system_roles.id,
-                    name: result.system_roles.name,
-                },
-                password: result.password,
-                root_folder: result.root_folder,
-                birthdate: result.birth_date
-                    ? result.birth_date.toISOString().split('T')[0]
-                    : undefined,
-                profile_picture_url: result.avatar_url,
-                storage_limit_gb: result.storage_limit_gb,
-                storage_used_gb: result.storage_used_gb?.toNumber(),
-                status: result.status,
-            }
+            },
+            password: true,
+            root_folder: true,
+            birth_date: true,
+            avatar_url: true,
+            storage_limit_gb: true,
+            storage_used_gb: true,
+            status: true,
         },
-    )
+    })
+
+    if (!result) {
+        return null
+    }
+
+    return {
+        id: result.id,
+        email: result.email,
+        username: result.username,
+        system_role: {
+            id: result.system_roles.id,
+            name: result.system_roles.name,
+        },
+        password: result.password,
+        root_folder: result.root_folder,
+        birthdate: result.birth_date
+            ? result.birth_date.toISOString().split('T')[0]
+            : undefined,
+        profile_picture_url: result.avatar_url,
+        storage_limit_gb: result.storage_limit_gb,
+        storage_used_gb: result.storage_used_gb?.toNumber(),
+        status: result.status,
+    }
 }
 
 export const getUserRole = async (id: string): Promise<string | null> => {
-    return cached(
-        CK.userRoleById(id),
-        async () => {
-            const result = await prisma.users.findFirst({
-                where: { id },
-                select: {
-                    system_role: true,
-                },
-            })
-
-            return result?.system_role ?? null
+    const result = await prisma.users.findFirst({
+        where: { id },
+        select: {
+            system_role: true,
         },
-    )
+    })
+
+    return result?.system_role ?? null
 }
 
 export const createUser = async (userData: TRegisterRequest) => {
