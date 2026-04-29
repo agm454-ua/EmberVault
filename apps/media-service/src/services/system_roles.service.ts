@@ -1,28 +1,44 @@
 import { prisma } from '@utils/prisma.js'
 import type { TSystemRole, TSystemRoleID } from '@customTypes/roles.js'
+import { cached } from '@utils/cache.js'
+
+const CK = {
+    standardRole: 'system:role:user',
+    adminRole: 'system:role:admin',
+}
 
 export const getStandardRole = async (): Promise<TSystemRoleID | null> => {
-    const result = await prisma.system_roles.findFirst({
-        where: {
-            name: 'user',
+    return cached(
+        CK.standardRole,
+        async () => {
+            const result = await prisma.system_roles.findFirst({
+                where: {
+                    name: 'user',
+                },
+                select: {
+                    id: true,
+                },
+            })
+            return result?.id ?? null
         },
-        select: {
-            id: true,
-        },
-    })
-    return result?.id ?? null
+    )
 }
 
 export const getAdminRole = async (): Promise<TSystemRole | null> => {
-    const result = await prisma.system_roles.findFirst({
-        where: {
-            name: 'admin',
-        },
-        select: {
-            id: true,
-            name: true
-        },
-    })
+    return cached(
+        CK.adminRole,
+        async () => {
+            const result = await prisma.system_roles.findFirst({
+                where: {
+                    name: 'admin',
+                },
+                select: {
+                    id: true,
+                    name: true,
+                },
+            })
 
-    return result ?? null
+            return result ?? null
+        },
+    )
 }

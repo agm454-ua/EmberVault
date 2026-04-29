@@ -31,6 +31,7 @@ import {
 import { state } from '../generated/prisma/client.js'
 import { OWNER_ROLE } from '@constants/roles.js'
 import type { Response } from 'express'
+import { cached, invalidate, invalidatePattern } from '@utils/cache.js'
 
 const baseSelect = {
     id: true,
@@ -47,18 +48,57 @@ const baseSelect = {
     ...metaSelect,
 } satisfies Prisma.filesSelect
 
-export const getStorageUsed = async (): Promise<string> => {
-    const result = await prisma.files.aggregate({
-        _sum: {
-            size_bytes: true,
-        },
-    })
+const CK = {
+    storageUsed: 'files:storage-used',
+    fileCount: 'files:count',
+    listAll: (
+        includeDeleted: boolean,
+        lastCursor: TResourceID | null,
+        take?: string,
+    ) =>
+        `file:list:${includeDeleted ? 'all' : 'active'}:${lastCursor ?? 'start'}:${take ?? '10'}`,
+}
 
-    return formatBytes(result._sum.size_bytes || 0)
+const invalidateFileCaches = async () => {
+    await invalidate(CK.storageUsed, CK.fileCount)
+    await invalidatePattern('file:list:*')
+}
+
+const invalidateResourceLists = async () => {
+    await invalidatePattern('resource:folder:*')
+    await invalidatePattern('resource:search:*')
+    await invalidatePattern('resource:shared:*')
+    await invalidatePattern('resource:trash:*')
+}
+
+const invalidateResourceAccess = async (resourceId: TResourceID) => {
+    await invalidate(
+        `resource:id:${resourceId}`,
+        `resource:is-file:${resourceId}`,
+        `resource:permissions:${resourceId}`,
+    )
+    await invalidatePattern(`resource:can:*:${resourceId}:*`)
+    await invalidatePattern(`resource:user-role:${resourceId}:*`)
+    await invalidatePattern(`resource:owner:*:${resourceId}`)
+}
+
+export const getStorageUsed = async (): Promise<string> => {
+    return cached(
+        CK.storageUsed,
+        async () => {
+            const result = await prisma.files.aggregate({
+                _sum: {
+                    size_bytes: true,
+                },
+            })
+
+            return formatBytes(result._sum.size_bytes || 0)
+        },
+    )
 }
 
 export const getFileCount = async (): Promise<number> => {
-    return await prisma.files.count()
+    return cached(CK.fileCount, async () => await prisma.files.count())
 }
 
 export const listAllFiles = async (
@@ -66,38 +106,44 @@ export const listAllFiles = async (
     lastCursor: TResourceID | null = null,
     take?: string,
 ): Promise<TFile[] | null> => {
-    const parsedTake = take ? parseInt(take, 10) : 10
-    const myTake = Number.isNaN(parsedTake) || parsedTake <= 0 ? 10 : parsedTake
+    return cached(
+        CK.listAll(!!includeDeleted, lastCursor, take),
+        async () => {
+            const parsedTake = take ? parseInt(take, 10) : 10
+            const myTake =
+                Number.isNaN(parsedTake) || parsedTake <= 0 ? 10 : parsedTake
 
-    const results = await prisma.files.findMany({
-        take: myTake,
-        ...(lastCursor && {
-            skip: 1,
-            cursor: {
-                id: lastCursor,
-            },
-        }),
-        // Keep cursor pagination deterministic when multiple rows share created_at.
-        orderBy: [{ resources: { created_at: 'desc' } }, { id: 'desc' }],
-        where: {
-            resources: {
-                ...(includeDeleted ? {} : { deleted_at: null }),
-            },
+            const results = await prisma.files.findMany({
+                take: myTake,
+                ...(lastCursor && {
+                    skip: 1,
+                    cursor: {
+                        id: lastCursor,
+                    },
+                }),
+                // Keep cursor pagination deterministic when multiple rows share created_at.
+                orderBy: [{ resources: { created_at: 'desc' } }, { id: 'desc' }],
+                where: {
+                    resources: {
+                        ...(includeDeleted ? {} : { deleted_at: null }),
+                    },
+                },
+                select: {
+                    ...baseSelect,
+                },
+            })
+
+            if (!results) {
+                return null
+            }
+
+            return results.map((file) => ({
+                ...mapResource(file.resources as ResourceRow),
+                type: 'FILE' as const,
+                ...mapFile(file),
+            }))
         },
-        select: {
-            ...baseSelect,
-        },
-    })
-
-    if (!results) {
-        return null
-    }
-
-    return results.map((file) => ({
-        ...mapResource(file.resources as ResourceRow),
-        type: 'FILE' as const,
-        ...mapFile(file),
-    }))
+    )
 }
 
 export const createFile = async (
@@ -139,6 +185,10 @@ export const createFile = async (
     })
 
     if (!newFile.files) return null
+
+    await invalidateFileCaches()
+    await invalidateResourceLists()
+    await invalidateResourceAccess(newFile.id)
 
     const uploadUrl = await getUploadUrl(
         storagePath,
@@ -189,6 +239,10 @@ export const completeUpload = async (
     })
 
     if (!updated.files) return null
+
+    await invalidateFileCaches()
+    await invalidateResourceLists()
+    await invalidateResourceAccess(resourceId)
 
     return {
         ...mapResource(updated),
@@ -263,6 +317,10 @@ export const copyFile = async (
         })
 
     if (!newFile?.files) return null
+
+    await invalidateFileCaches()
+    await invalidateResourceLists()
+    await invalidateResourceAccess(newResourceId)
 
     return {
         ...mapResource(newFile),
