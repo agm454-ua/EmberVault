@@ -50,7 +50,7 @@ export const getUser = async (
                 email: result.email,
                 username: result.username,
                 system_role: {
-                    id: result.system_role,
+                    id: result.system_roles.id,
                     name: result.system_roles.name,
                 },
                 password: result.password,
@@ -122,7 +122,7 @@ export const getUserById = async (id: string): Promise<TUserData | null> => {
                 email: result.email,
                 username: result.username,
                 system_role: {
-                    id: result.system_role,
+                    id: result.system_roles.id,
                     name: result.system_roles.name,
                 },
                 password: result.password,
