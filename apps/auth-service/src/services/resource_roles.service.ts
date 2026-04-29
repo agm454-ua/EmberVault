@@ -4,153 +4,187 @@ import type {
     TUserIsResourceRoleForResource,
     TUserResourcePermissions,
 } from '@customTypes/roles.js'
+import { cached, invalidate, invalidatePattern } from '@utils/cache.js'
 
+const CK = {
+    resourceRoles: 'resource_roles',
+    resourcePermissions: (resourceId: string) => `resource:permissions:${resourceId}`,
+    userResourceRole: (resourceId: string, userId: string) =>
+        `resource:user-role:${resourceId}:${userId}`,
+    isOwner: (userId: string, resourceId: string) => `resource:owner:${userId}:${resourceId}`,
+    canUserAction: (userId: string, resourceId: string, permission: string) =>
+        `resource:can:${userId}:${resourceId}:${permission}`,
+}
 
 export const canUserPerformResourceAction = async (
     userId: string,
     resourceId: string,
     permissionName: string,
 ): Promise<boolean> => {
-    const permission =
-        await prisma.user_is_resource_role_for_resource.findFirst({
-            where: {
-                user_id: userId,
-                resource_id: resourceId,
-                resource_roles: {
-                    resource_role_permissions: {
-                        some: {
-                            resource_permissions: {
-                                name: permissionName,
+    return cached(
+        CK.canUserAction(userId, resourceId, permissionName),
+        async () => {
+            const permission =
+                await prisma.user_is_resource_role_for_resource.findFirst({
+                    where: {
+                        user_id: userId,
+                        resource_id: resourceId,
+                        resource_roles: {
+                            resource_role_permissions: {
+                                some: {
+                                    resource_permissions: {
+                                        name: permissionName,
+                                    },
+                                },
                             },
                         },
                     },
-                },
-            },
-        })
+                })
 
-    return permission !== null
+            return permission !== null
+        },
+    )
 }
 
 
 export const listResourceRoles = async (): Promise<TResourceRole[]> => {
-    return await prisma.resource_roles.findMany({
-        select: {
-            name: true,
-            description: true,
-        },
-    })
+    return cached(
+        CK.resourceRoles,
+        async () =>
+            await prisma.resource_roles.findMany({
+                select: {
+                    name: true,
+                    description: true,
+                },
+            }),
+    )
 }
 
 
 export const listResourcePermissions = async (
     resourceId: string,
 ): Promise<TUserResourcePermissions[] | null> => {
-    const results = await prisma.user_is_resource_role_for_resource.findMany({
-        where: {
-            resource_id: resourceId,
+    return cached(
+        CK.resourcePermissions(resourceId),
+        async () => {
+            const results = await prisma.user_is_resource_role_for_resource.findMany({
+                where: {
+                    resource_id: resourceId,
+                },
+                select: {
+                    user_id: true,
+                    resource_role: true,
+
+                    users: {
+                        select: {
+                            username: true,
+                            email: true,
+                        },
+                    },
+
+                    resource_roles: {
+                        select: {
+                            name: true,
+                        },
+                    },
+
+                    resources: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                },
+            })
+
+            // Flatten response
+            return results.map((r) => ({
+                userId: r.user_id,
+                resourceRoleId: r.resource_role,
+                roleName: r.resource_roles.name,
+                username: r.users.username,
+                email: r.users.email,
+                resourceName: r.resources.name,
+            }))
         },
-        select: {
-            user_id: true,
-            resource_role: true,
-
-            users: {
-                select: {
-                    username: true,
-                    email: true,
-                },
-            },
-
-            resource_roles: {
-                select: {
-                    name: true,
-                },
-            },
-
-            resources: {
-                select: {
-                    name: true,
-                },
-            },
-        },
-    })
-
-    // Flatten response
-    return results.map((r) => ({
-        userId: r.user_id,
-        resourceRoleId: r.resource_role,
-        roleName: r.resource_roles.name,
-        username: r.users.username,
-        email: r.users.email,
-        resourceName: r.resources.name,
-    }))
+    )
 }
 
 export const getUserResourceRole = async (
     resourceId: string,
     userId: string,
 ): Promise<TUserResourcePermissions | null> => {
-    const result = await prisma.user_is_resource_role_for_resource.findFirst({
-        where: {
-            resource_id: resourceId,
-            user_id: userId,
+    return cached(
+        CK.userResourceRole(resourceId, userId),
+        async () => {
+            const result = await prisma.user_is_resource_role_for_resource.findFirst({
+                where: {
+                    resource_id: resourceId,
+                    user_id: userId,
+                },
+                select: {
+                    user_id: true,
+                    resource_role: true,
+
+                    users: {
+                        select: {
+                            username: true,
+                            email: true,
+                        },
+                    },
+
+                    resource_roles: {
+                        select: {
+                            name: true,
+                        },
+                    },
+
+                    resources: {
+                        select: {
+                            name: true,
+                        },
+                    },
+                },
+            })
+
+            if (!result) {
+                return null
+            }
+
+            // Flatten response
+            return {
+                userId: result.user_id,
+                resourceRoleId: result.resource_role,
+                roleName: result.resource_roles.name,
+                username: result.users.username,
+                email: result.users.email,
+                resourceName: result.resources.name,
+            }
         },
-        select: {
-            user_id: true,
-            resource_role: true,
-
-            users: {
-                select: {
-                    username: true,
-                    email: true,
-                },
-            },
-
-            resource_roles: {
-                select: {
-                    name: true,
-                },
-            },
-
-            resources: {
-                select: {
-                    name: true,
-                },
-            },
-        },
-    })
-
-    if (!result) {
-        return null
-    }
-
-    // Flatten response
-    return {
-        userId: result.user_id,
-        resourceRoleId: result.resource_role,
-        roleName: result.resource_roles.name,
-        username: result.users.username,
-        email: result.users.email,
-        resourceName: result.resources.name,
-    }
+    )
 }
 
 export const isOwnerOfResource = async (
     userId: string,
     resourceId: string,
 ): Promise<boolean> => {
-    const ownership = await prisma.user_is_resource_role_for_resource.findFirst(
-        {
-            where: {
-                user_id: userId,
-                resource_id: resourceId,
-                resource_roles: {
-                    name: 'owner',
+    return cached(
+        CK.isOwner(userId, resourceId),
+        async () => {
+            const ownership = await prisma.user_is_resource_role_for_resource.findFirst(
+                {
+                    where: {
+                        user_id: userId,
+                        resource_id: resourceId,
+                        resource_roles: {
+                            name: 'owner',
+                        },
+                    },
                 },
-            },
+            )
+
+            return ownership !== null
         },
     )
-
-    return ownership !== null
 }
 
 export const assignUserRoleToResource = async (
@@ -196,6 +230,14 @@ export const assignUserRoleToResource = async (
             },
         })
 
+        await invalidate(
+            CK.resourcePermissions(resourceId),
+            CK.userResourceRole(resourceId, userId),
+            CK.isOwner(userId, resourceId),
+        )
+
+        await invalidatePattern(`resource:can:${userId}:${resourceId}:*`)
+
         return {
             userId: result.user_id,
             resourceRoleId: result.resource_role,
@@ -231,6 +273,14 @@ export const deleteUserRoleFromResource = async (
             },
         },
     })
+
+    await invalidate(
+        CK.resourcePermissions(resourceId),
+        CK.userResourceRole(resourceId, userId),
+        CK.isOwner(userId, resourceId),
+    )
+
+    await invalidatePattern(`resource:can:${userId}:${resourceId}:*`)
 
     return {
         userId: result.user_id,
