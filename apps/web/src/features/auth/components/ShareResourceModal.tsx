@@ -12,7 +12,7 @@ import BlurPage from '@/shared/components/BlurPage'
 import Button from '@/shared/components/Button'
 import Input from '@/shared/components/Input'
 import axios from 'axios'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 type ExistingAssignment = {
@@ -38,13 +38,22 @@ export default function ShareResourceModal({
 	const [selectedRole, setSelectedRole] = useState('')
 	const [error, setError] = useState<string | null>(null)
 
+	const [debouncedQuery, setDebouncedQuery] = useState('')
 	const normalizedQuery = query.trim()
-	const searchUsers = useSearchUsers(normalizedQuery)
+	const searchUsers = useSearchUsers(debouncedQuery)
 	const availableRoles = useGetAvailableResourceRoles()
 	const usersWithRole = useListUsersWithResourceRole(resource.id, me?.id ?? '')
 	const selectedRoleName = selectedRole || availableRoles.data?.[1]?.name || ''
 	const setUserResourceRole = useSetUserResourceRole(resource.id, selectedUser?.id ?? '', selectedRoleName)
 	const [revokingUserId, setRevokingUserId] = useState<string | null>(null)
+
+	useEffect(() => {
+		const handler = setTimeout(() => {
+			setDebouncedQuery(query.trim())
+		}, 200)
+
+		return () => clearTimeout(handler)
+	}, [query])
 
 	const existingAssignments = useMemo(() => {
 		const map = new Map<string, string>()
