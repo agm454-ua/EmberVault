@@ -10,6 +10,7 @@ import { sendErrorResponse, sendNotFoundResponse } from '@agm454-ua/auth-utils'
 import logger from '@utils/logger.js'
 import { ENV } from '@config/env.js'
 import helmet from 'helmet'
+import { connectRedis } from '@utils/redisClient.js';
 
 // Initialize Express app
 const app: Application = express()
@@ -36,6 +37,9 @@ const openapiPath = path.resolve('./docs/openapi.yml')
 const file = fs.readFileSync(openapiPath, 'utf8')
 const openapiDocument = yaml.load(file) as object
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapiDocument))
+
+// Cache layer
+await connectRedis();
 
 // Root endpoint
 app.get('/', (req: Request, res: Response) => {

@@ -22,6 +22,7 @@ export const ENV = {
     MAIL_DIR: requireEnv('MAIL_DIR'),
     MAIL_PASSWORD: requireEnv('MAIL_PASSWORD'),
     FRONTEND_URL: requireEnv('FRONTEND_URL'),
+    REDIS_URL: requireEnv('REDIS_URL'),
     PORT: Number(process.env.PORT) || 3100,
     NODE_ENV: process.env.NODE_ENV || 'development',
     COOKIE_SAME_SITE: process.env.COOKIE_SAME_SITE || 'lax',

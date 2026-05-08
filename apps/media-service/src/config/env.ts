@@ -17,5 +17,6 @@ export const ENV = {
     S3_SECRET_KEY: requireEnv('S3_SECRET_KEY'),
     S3_BUCKET: requireEnv('S3_BUCKET'),
     S3_PROFILE_PICTURES_BUCKET: requireEnv('S3_PROFILE_PICTURES_BUCKET'),
+    REDIS_URL: requireEnv('REDIS_URL'),
     PORT: Number(process.env.PORT) || 3300,
 }

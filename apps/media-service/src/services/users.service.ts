@@ -1,6 +1,7 @@
 import type { TUserID, TUser } from '@customTypes/user.js'
 import { prisma } from '@utils/prisma.js'
 import { randomUUID } from 'crypto'
+import { cached, invalidate } from '@utils/cache.js'
 import {
     deleteProfilePictureObject,
     getProfilePictureStoragePathFromUrl,
@@ -8,66 +9,94 @@ import {
     uploadProfilePictureObject,
 } from '@utils/storage.js'
 
+const CK = {
+    userById: (id: TUserID) => `user:id:${id}`,
+    userByIdentifier: (identifier: string) => `user:ident:${identifier}`,
+    userRoleById: (id: TUserID) => `user:role:${id}`,
+    avatarUrlById: (id: TUserID) => `user:avatar:${id}`,
+    storageLimitById: (id: TUserID) => `user:storage:${id}`,
+}
+
 export const getUser = async (identifier: string): Promise<TUser | null> => {
-    const result = await prisma.users.findFirst({
-        where: {
-            OR: [{ email: identifier }, { username: identifier }],
-        },
-        select: {
-            id: true,
-            system_role: true,
-        },
-    })
+    return cached(
+        CK.userByIdentifier(identifier),
+        async () => {
+            const result = await prisma.users.findFirst({
+                where: {
+                    OR: [{ email: identifier }, { username: identifier }],
+                },
+                select: {
+                    id: true,
+                    system_role: true,
+                },
+            })
 
-    if (!result) {
-        return null
-    }
+            if (!result) {
+                return null
+            }
 
-    return {
-        id: result.id,
-        systemRole: result.system_role,
-    }
+            return {
+                id: result.id,
+                systemRole: result.system_role,
+            }
+        },
+    )
 }
 
 export const getUserById = async (id: TUserID): Promise<TUser | null> => {
-    const result = await prisma.users.findFirst({
-        where: {
-            id: id,
-        },
-        select: {
-            id: true,
-            system_role: true,
-        },
-    })
+    return cached(
+        CK.userById(id),
+        async () => {
+            const result = await prisma.users.findFirst({
+                where: {
+                    id: id,
+                },
+                select: {
+                    id: true,
+                    system_role: true,
+                },
+            })
 
-    if (!result) {
-        return null
-    }
+            if (!result) {
+                return null
+            }
 
-    return {
-        id: result.id,
-        systemRole: result.system_role,
-    }
+            return {
+                id: result.id,
+                systemRole: result.system_role,
+            }
+        },
+    )
 }
 
 export const getUserRole = async (id: string): Promise<string | null> => {
-    const result = await prisma.users.findFirst({
-        where: { id },
-        select: { system_role: true },
-    })
+    return cached(
+        CK.userRoleById(id),
+        async () => {
+            const result = await prisma.users.findFirst({
+                where: { id },
+                select: { system_role: true },
+            })
 
-    return result?.system_role ?? null
+            return result?.system_role ?? null
+        },
+    )
 }
 
 export const getUserAvatarUrlById = async (
     id: TUserID,
 ): Promise<string | null> => {
-    const result = await prisma.users.findFirst({
-        where: { id },
-        select: { avatar_url: true },
-    })
+    return cached(
+        CK.avatarUrlById(id),
+        async () => {
+            const result = await prisma.users.findFirst({
+                where: { id },
+                select: { avatar_url: true },
+            })
 
-    return result?.avatar_url ?? null
+            return result?.avatar_url ?? null
+        },
+    )
 }
 
 export const updateUserAvatarUrl = async (
@@ -80,6 +109,13 @@ export const updateUserAvatarUrl = async (
             data: { avatar_url: avatarUrl },
             select: { avatar_url: true },
         })
+
+        await invalidate(
+            CK.avatarUrlById(id),
+            CK.userById(id),
+            CK.userRoleById(id),
+            CK.storageLimitById(id),
+        )
 
         return result.avatar_url
     } catch {
@@ -163,16 +199,21 @@ export const deleteUserAvatar = async (userId: string): Promise<boolean> => {
 // This function checks if the user has used up their allowed storage limit.
 // It returns true if the user is within their storage limit, and false if they have exceeded it.
 export const checkUserStorageLimit = async (userId: string): Promise<boolean> => {
-    const user = await prisma.users.findUnique({
-        where: { id: userId },
-        select: { storage_used_gb: true, storage_limit_gb: true },
-    })
+    return cached(
+        CK.storageLimitById(userId),
+        async () => {
+            const user = await prisma.users.findUnique({
+                where: { id: userId },
+                select: { storage_used_gb: true, storage_limit_gb: true },
+            })
 
-    if (!user) return false;
+            if (!user) return false
 
-    const used = user.storage_used_gb?.toNumber() ?? 0;
-    const limit = user.storage_limit_gb ?? 0;
+            const used = user.storage_used_gb?.toNumber() ?? 0
+            const limit = user.storage_limit_gb ?? 0
 
-    return used < limit;
+            return used < limit
+        },
+    )
 
 }
