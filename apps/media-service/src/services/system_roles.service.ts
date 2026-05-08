@@ -3,8 +3,8 @@ import type { TSystemRole, TSystemRoleID } from '@customTypes/roles.js'
 import { cached } from '@utils/cache.js'
 
 const CK = {
-    standardRole: 'system:role:user',
-    adminRole: 'system:role:admin',
+    standardRole: 'system_role:user',
+    adminRole: 'system_role:admin',
 }
 
 export const getStandardRole = async (): Promise<TSystemRoleID | null> => {
