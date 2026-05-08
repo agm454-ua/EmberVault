@@ -3,9 +3,9 @@
 <img width="2000" alt="EmberVault_2000px" src="https://github.com/user-attachments/assets/48a609cc-1e8f-462f-865a-5444cd19795a" />
 
 
-EmberVault is a full-stack scalable multimedia file management platform designed with a microservices architecture. It provides file storage, user management, and media handling and sharing, similar in spirit to platforms like Google Drive, Dropbox, MEGA, or Proton Drive.
+EmberVault is a full-stack scalable multimedia file management platform designed with a microservices architecture. It provides file storage, user management and media handling and sharing, similar in spirit to platforms like Google Drive, Dropbox, MEGA or Proton Drive.
 
-This project was developed as a **final-year Computer Science thesis**, with a focus on scalable system design, distributed services, and modern DevOps practices.
+This project was developed as a **final-year Computer Science thesis**, with a focus on scalable system design, distributed services and DevOps practices.
 
 ---
 
@@ -26,15 +26,17 @@ The main objectives behind EmberVault were:
 ### Development Tools
 - **GitHub Projects** – project management and planning  
 - **Postman** – API testing and debugging  
-- **DBeaver** – database management and exploration  
+- **DBeaver** – database management
+- **redis-commander** - redis management and monitoring
 
 ### Core Stack
-- **Version Control:** Git & GitHub  
-- **Backend:** Node.js (Express)  
+- **Version Control:** Git + GitHub  
+- **Backend:** Node.js, Express, TypeScript
 - **Database:** PostgreSQL  
-- **ORM:** Prisma  
+- **ORM:** Prisma
+- **Cache:** Redis
 - **Frontend:** React, TypeScript, TailwindCSS  
-- **File Storage:** SeaweedFS (distributed object storage for files)  
+- **File Storage:** SeaweedFS (S3 compatible Object Storage)
 
 ### Infrastructure & DevOps
 - **Containerization:** Docker  
@@ -67,9 +69,14 @@ EmberVault follows a **microservices architecture**, where each domain is isolat
 - **SeaweedFS** → Distributed object storage
 - **PostgreSQL** → Relational data persistence
 - **Nginx** → API Gateway and HTTPS reverse proxy
+- **Redis** → Distributed cache
 
 All services are orchestrated via Docker Compose and exposed under a single domain for local deployment: `https://embervault.local`
 
+### Diagram:
+> (low opacity nodes are not yet implemented)
+
+<img width="5253" height="4923" alt="EN_c4_container_diagram_IMPLEMENTED drawio" src="https://github.com/user-attachments/assets/e23ea7da-bf7a-40ca-9355-a378141b636b" />
 
 ---
 
@@ -90,6 +97,7 @@ All services are orchestrated via Docker Compose and exposed under a single doma
 │   ├── db/                  # DB deployment
 │   ├── nginx/               # Reverse proxy config
 │   ├── certs/               # Local TLS certificates
+│   ├── cache/               # Redis deployment and config
 │   └── seaweedfs/           # Object storage setup
 │
 ├── scripts/                 # Scripts
