@@ -85,7 +85,6 @@ export const login = async (identifier: string, ip: string): Promise<boolean | n
 }
 
 export const getUserById = async (id: string): Promise<TUserData | null> => {
-
     const result = await prisma.users.findFirst({
         where: {
             id: id,
