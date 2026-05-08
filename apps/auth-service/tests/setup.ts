@@ -10,6 +10,7 @@ process.env.RESET_PASSWORD_EXPIRATION_MINUTES = '30'
 process.env.MAIL_DIR = './public'
 process.env.MAIL_PASSWORD = 'test-mail-password'
 process.env.FRONTEND_URL = 'http://localhost:3000'
+process.env.REDIS_URL = 'redis://localhost:6379'
 
 // Mock Prisma
 export const mockPrisma = {
@@ -79,6 +80,18 @@ vi.mock('@utils/logger.js', () => ({
         info: vi.fn(),
         warn: vi.fn(),
     },
+}))
+
+vi.mock('@utils/redisClient.js', () => ({
+    default: {
+        get: vi.fn(),
+        setEx: vi.fn(),
+        del: vi.fn(),
+        keys: vi.fn(),
+        isOpen: true,
+        connect: vi.fn(),
+    },
+    connectRedis: vi.fn().mockResolvedValue(undefined),
 }))
 
 // Helper function to create a mock request with user

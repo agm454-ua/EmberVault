@@ -11,8 +11,8 @@ services:
             DB_ADMIN_PASSWORD: ${DB_ADMIN_PASSWORD}
         ports:
             - "5432:5432"
-        healthcheck: 
-            test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
             interval: 10s
             timeout: 5s
             retries: 5
@@ -20,6 +20,26 @@ services:
         volumes:
             - postgres_data:/var/lib/postgresql/data
             - ./infrastructure/db:/docker-entrypoint-initdb.d
+        networks:
+            - backend
+
+    redis:
+        image: redis:8.6
+        volumes:
+            - ./infrastructure/cache/redis.conf:/usr/local/etc/redis/redis.conf
+            - ./infrastructure/cache/users.acl.template:/usr/local/etc/redis/users.acl.template
+            - ./infrastructure/cache/setup-redis.sh:/setup-redis.sh
+        entrypoint: [ "/setup-redis.sh" ]
+        environment:
+            REDIS_BACKEND_PASSWORD: ${REDIS_BACKEND_PASSWORD}
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 10s
+            timeout: 3s
+            retries: 5
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
         networks:
             - backend
 
@@ -36,10 +56,12 @@ services:
         depends_on:
             postgres:
                 condition: service_healthy
+            redis:
+                condition: service_healthy
         networks:
             - backend
         healthcheck:
-            test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/api/health"]
+            test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3100/api/health" ]
             interval: 15s
             timeout: 5s
             retries: 3
@@ -59,10 +81,12 @@ services:
         depends_on:
             postgres:
                 condition: service_healthy
+            redis:
+                condition: service_healthy
         networks:
             - backend
         healthcheck:
-            test: ["CMD", "wget", "--spider", "-q", "http://localhost:3200/api/health"]
+            test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3200/api/health" ]
             interval: 15s
             timeout: 5s
             retries: 3
@@ -85,7 +109,7 @@ services:
         networks:
             - backend
         healthcheck:
-            test: ["CMD", "wget", "--spider", "-q", "http://localhost:3300/api/health"]
+            test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3300/api/health" ]
             interval: 15s
             timeout: 5s
             retries: 3
@@ -103,14 +127,15 @@ services:
         networks:
             - backend
         healthcheck:
-            test: ["CMD", "wget", "--spider", "-q", "http://localhost:9333/cluster/status"]
+            test: [ "CMD", "wget", "--spider", "-q", "http://localhost:9333/cluster/status" ]
             interval: 10s
             timeout: 10s
             retries: 10
 
     seaweedfs-volume:
         image: chrislusf/seaweedfs:latest
-        command: volume -mserver=seaweedfs-master:9333 -ip=seaweedfs-volume -ip.bind=0.0.0.0 -port=8080 -dir=/data
+        command: volume -mserver=seaweedfs-master:9333 -ip=seaweedfs-volume
+            -ip.bind=0.0.0.0 -port=8080 -dir=/data
         volumes:
             - seaweedfs-volume-data:/data
         depends_on:
@@ -121,7 +146,8 @@ services:
 
     seaweedfs-filer:
         image: chrislusf/seaweedfs:latest
-        command: filer -master=seaweedfs-master:9333 -ip=seaweedfs-filer -ip.bind=0.0.0.0
+        command: filer -master=seaweedfs-master:9333 -ip=seaweedfs-filer
+            -ip.bind=0.0.0.0
         ports:
             - "8888:8888"
             - "18888:18888"
@@ -133,7 +159,7 @@ services:
         networks:
             - backend
         healthcheck:
-            test: ["CMD", "wget", "-qO-", "http://localhost:8888/?limit=0"]
+            test: [ "CMD", "wget", "-qO-", "http://localhost:8888/?limit=0" ]
             interval: 10s
             timeout: 10s
             retries: 10
@@ -141,7 +167,7 @@ services:
 
     seaweedfs-s3:
         image: chrislusf/seaweedfs:latest
-        entrypoint: ["/bin/sh", "/scripts/start-s3.sh"]
+        entrypoint: [ "/bin/sh", "/scripts/start-s3.sh" ]
         ports:
             - "8333:8333"
         volumes:
@@ -155,7 +181,12 @@ services:
         networks:
             - backend
         healthcheck:
-            test: ["CMD-SHELL", "wget -qO- http://localhost:8333/ > /dev/null 2>&1; [ $? -le 1 ]"]
+            test:
+                [
+                    "CMD-SHELL",
+                    "wget -qO- http://localhost:8333/ > /dev/null 2>&1; [ $?
+                      -le 1 ]",
+                ]
             interval: 10s
             timeout: 10s
             retries: 15
@@ -166,7 +197,7 @@ services:
         image: amazon/aws-cli:latest
         environment:
             AWS_DEFAULT_REGION: us-east-1
-        entrypoint: ["/bin/sh", "/scripts/init-bucket.sh"]
+        entrypoint: [ "/bin/sh", "/scripts/init-bucket.sh" ]
         volumes:
             - ./infrastructure/seaweedfs/init-bucket.sh:/scripts/init-bucket.sh:ro
         secrets:
@@ -200,13 +231,12 @@ services:
         networks:
             - backend
         healthcheck:
-            test: ["CMD", "nginx", "-t"]
+            test: [ "CMD", "nginx", "-t" ]
             interval: 15s
             timeout: 5s
             retries: 3
             start_period: 20s
         restart: unless-stopped
-
 
 volumes:
     postgres_data:
@@ -231,3 +261,5 @@ secrets:
         environment: SEAWEEDFS_BUCKET
     seaweedfs_profile_pictures_bucket:
         environment: SEAWEEDFS_PROFILE_PICTURES_BUCKET
+    redis_backend_password:
+        environment: REDIS_BACKEND_PASSWORD

@@ -120,6 +120,19 @@ vi.mock('@utils/logger.js', () => ({
     },
 }))
 
+
+vi.mock('@utils/redisClient.js', () => ({
+    default: {
+        get: vi.fn(),
+        setEx: vi.fn(),
+        del: vi.fn(),
+        keys: vi.fn(),
+        isOpen: true,
+        connect: vi.fn(),
+    },
+    connectRedis: vi.fn().mockResolvedValue(undefined),
+}))
+
 export function getHttpMocks(): typeof httpMocks {
     return httpMocks
 }

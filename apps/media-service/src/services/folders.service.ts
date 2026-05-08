@@ -16,6 +16,7 @@ import type { Response } from 'express'
 import { getFileStream } from '@utils/storage.js'
 import { OWNER_ROLE } from '@constants/roles.js'
 import { sendBadRequestResponse } from '@agm454-ua/auth-utils'
+import { invalidatePattern } from '@utils/cache.js'
 
 export const createFolder = async (
     folderData: TCreateResourceRequest,
@@ -51,6 +52,11 @@ export const createFolder = async (
 
     if (!newFolder.folders_folders_idToresources) return null
 
+    await invalidatePattern('resource:folder:*')
+    await invalidatePattern('resource:search:*')
+    await invalidatePattern('resource:shared:*')
+    await invalidatePattern('resource:trash:*')
+
     return {
         ...mapResource(newFolder),
         type: 'FOLDER' as const,
@@ -73,13 +79,22 @@ export const copyFolder = async (
 
     if (!original?.folders_folders_idToresources) return null
 
-    return copyFolderRecursive(
+    const result = await copyFolderRecursive(
         original,
         userId,
         targetFolderId ?? original.parent_folder,
         true,
         prefix,
     )
+
+    if (result) {
+        await invalidatePattern('resource:folder:*')
+        await invalidatePattern('resource:search:*')
+        await invalidatePattern('resource:shared:*')
+        await invalidatePattern('resource:trash:*')
+    }
+
+    return result
 }
 
 // Recursive function to copy all nested folders and files
