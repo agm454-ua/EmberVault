@@ -102,6 +102,4 @@ for profile in "${selected_profiles[@]}"; do
 	done
 done
 
-sleep 500
-
 success "All load tests passed. Results saved to $RESULTS_DIR/"
