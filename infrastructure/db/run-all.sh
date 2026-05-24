@@ -20,5 +20,11 @@ psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f 03-triggers/033-create-root-folder
 psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f 04-seed/041-rbac-seeder.sql
 psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f 04-seed/042-user-seeder.sql
 
+# Run test seeders if in test environment
+if [ "$APP_ENV" = "test" ]; then
+    echo "Running test environment seeders..."
+    psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f 05-seed-test/051-test-data-seeder.sql
+fi
+
 # Create db roles
 bash 99-post-init/991-create-db-roles.sh

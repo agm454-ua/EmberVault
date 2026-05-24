@@ -65,6 +65,7 @@ coverage/
 .vitest/
 junit.xml
 test-results/
+results/
 
 # cache and temp files
 .cache/
