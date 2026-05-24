@@ -24,9 +24,9 @@ The main objectives behind EmberVault were:
 ## Tech Stack
 
 ### Development Tools
-- **GitHub Projects** – project management and planning  
-- **Postman** – API testing and debugging  
-- **DBeaver** – database management
+- **GitHub Projects** - project management and planning  
+- **Postman** - API testing and debugging  
+- **DBeaver** - database management
 - **redis-commander** - redis management and monitoring
 
 ### Core Stack
@@ -49,14 +49,15 @@ The main objectives behind EmberVault were:
 - **Local HTTPS certificates:** mkcert  
 
 ### Design & Architecture
-- **Figma** – UI/UX design and prototyping  
-- **draw.io** – system architecture diagrams  
-- **Inkscape** – vector graphics and logo design  
+- **Figma** - UI/UX design and prototyping  
+- **draw.io** - system architecture diagrams  
+- **Inkscape** - vector graphics and logo design  
 
 ### Testing & Code Quality
-- **Vitest** – unit testing framework  
-- **ESLint** – linting and code consistency  
-- **Prettier** – code formatting  
+- **Grafana k6** - Load testing
+- **Vitest** - unit testing framework  
+- **ESLint** - linting and code consistency  
+- **Prettier** - code formatting  
 ---
 
 ## Architecture Overview
@@ -91,19 +92,21 @@ All services are orchestrated via Docker Compose and exposed under a single doma
 │   └── media-service/      # Media service
 │
 ├── packages/
-│   └── auth-utils/          # Shared authentication library
+│   └── auth-utils/         # Shared authentication library
 │
 ├── infrastructure/
-│   ├── db/                  # DB deployment
-│   ├── nginx/               # Reverse proxy config
-│   ├── certs/               # Local TLS certificates
-│   ├── cache/               # Redis deployment and config
-│   └── seaweedfs/           # Object storage setup
+│   ├── db/                 # DB deployment
+│   ├── nginx/              # Reverse proxy config
+│   ├── certs/              # Local TLS certificates
+│   ├── cache/              # Redis deployment and config
+│   └── seaweedfs/          # Object storage setup
 │
-├── scripts/                 # Scripts
+├── scripts/                # Scripts
 │
-├── compose.yaml             # Docker Compose orchestration
-└── .env.example             # Environment variables template
+├── tests/                  # Tests
+│
+├── compose.yaml            # Docker Compose orchestration
+└── .env.example            # Environment variables template
 ```
 
 ## Quick Start
