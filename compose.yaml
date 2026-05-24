@@ -9,6 +9,7 @@ services:
             DB_BACKEND_PASSWORD: ${DB_BACKEND_PASSWORD}
             DB_ADMIN_USER: ${DB_ADMIN_USER}
             DB_ADMIN_PASSWORD: ${DB_ADMIN_PASSWORD}
+            APP_ENV: ${APP_ENV}
         ports:
             - "5432:5432"
         healthcheck:
@@ -51,8 +52,8 @@ services:
                 - database_url
         env_file:
             - ./apps/auth-service/.env
-        ports:
-            - 3100:3100
+        expose:
+            - "3100"
         depends_on:
             postgres:
                 condition: service_healthy

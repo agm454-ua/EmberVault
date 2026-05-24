@@ -1,0 +1,54 @@
+services:
+    postgres:
+        environment:
+            POSTGRES_DB: ${POSTGRES_DB_TEST}
+            APP_ENV: ${APP_ENV}
+        ports:
+            - "5433:5432"
+        volumes:
+            - postgres_test_data:/var/lib/postgresql/data
+            - ./infrastructure/db:/docker-entrypoint-initdb.d
+
+    auth:
+        env_file:
+            - ./apps/auth-service/.env.test
+        expose:
+            - "3100"
+
+    user:
+        env_file:
+            - ./apps/user-service/.env.test
+        ports:
+            - "3201:3200"
+
+    media:
+        env_file:
+            - ./apps/media-service/.env.test
+        ports:
+            - "3301:3300"
+
+    nginx:
+        volumes:
+            - ./tests/conf/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./infrastructure/certs:/etc/nginx/certs:ro
+    k6:
+        image: grafana/k6
+        volumes:
+            - ./tests/load:/tests
+        environment:
+            - BASE_URL=${BASE_URL}
+            - TEST_EMAIL=${TEST_EMAIL}
+            - TEST_PASSWORD=${TEST_PASSWORD}
+        networks:
+            - backend
+        depends_on:
+            - auth
+            - user
+            - media
+            - nginx
+        profiles:
+            - testing
+
+volumes:
+    postgres_test_data:
+
