@@ -1,6 +1,6 @@
 # EmberVault
 
-<img width="2000" alt="EmberVault_2000px" src="https://github.com/user-attachments/assets/48a609cc-1e8f-462f-865a-5444cd19795a" />
+<img alt="EmberVault logo" src="docs/imgs/EmberVault_Logo.png" />
 
 
 EmberVault is a full-stack scalable multimedia file management platform designed with a microservices architecture. It provides file storage, user management and media handling and sharing, similar in spirit to platforms like Google Drive, Dropbox, MEGA or Proton Drive.
@@ -57,7 +57,12 @@ The main objectives behind EmberVault were:
 - **Grafana k6** - Load testing
 - **Vitest** - unit testing framework  
 - **ESLint** - linting and code consistency  
-- **Prettier** - code formatting  
+- **Prettier** - code formatting
+
+### Tech Stack Summary
+<img src="docs/imgs/stack.png">
+
+
 ---
 
 ## Architecture Overview
@@ -77,7 +82,7 @@ All services are orchestrated via Docker Compose and exposed under a single doma
 ### Diagram:
 > (low opacity nodes are not yet implemented)
 
-<img width="5253" height="4923" alt="EN_c4_container_diagram_IMPLEMENTED drawio" src="https://github.com/user-attachments/assets/e23ea7da-bf7a-40ca-9355-a378141b636b" />
+<img alt="C4 Container Diagram" src="docs/imgs/C4_container_diagram_implemented.png" />
 
 ---
 
@@ -90,6 +95,8 @@ All services are orchestrated via Docker Compose and exposed under a single doma
 │   ├── auth-service/       # Authentication service
 │   ├── user-service/       # User service
 │   └── media-service/      # Media service
+│
+├── docs/                  # Docs, iamges and diagrams
 │
 ├── packages/
 │   └── auth-utils/         # Shared authentication library
@@ -114,7 +121,7 @@ All services are orchestrated via Docker Compose and exposed under a single doma
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/agm454-ua/TFG-Alex-Garcia-Martinez/
+git clone https://github.com/agm454-ua/EmberVault/
 cd EmberVault
 ```
 
