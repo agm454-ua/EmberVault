@@ -148,7 +148,7 @@ services:
     seaweedfs-filer:
         image: chrislusf/seaweedfs:latest
         command: filer -master=seaweedfs-master:9333 -ip=seaweedfs-filer
-            -ip.bind=0.0.0.0
+            -ip.bind=0.0.0.0 -encryptVolumeData
         ports:
             - "8888:8888"
             - "18888:18888"
