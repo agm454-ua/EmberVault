@@ -280,5 +280,7 @@ export const updateUserSystemRole = async (
         CK.userRoleById(id),
     )
 
+    await invalidatePattern('user:list:*')
+
     return result.system_roles.name ?? null
 }

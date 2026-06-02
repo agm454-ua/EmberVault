@@ -18,6 +18,9 @@ const CK = {
     usersLastWeek: () => `user:last_week`,
 }
 
+const CK_TTL = {
+    userList: 30, // 30 seconds
+}
 
 const mapUser = (user: {
     id: TUserID
@@ -221,7 +224,8 @@ export const updateUser = async (
         return null
     }
 
-    await invalidate(CK.userById(userId), CK.userByIdentifier(result.email))
+    await invalidate(CK.userById(userId), CK.userByIdentifier(result.email), CK.userSearch('*'))
+    await invalidatePattern('user:list:*')
 
     return mapUser(result)
 }
@@ -236,7 +240,7 @@ export const deleteUser = async (userId: TUserID): Promise<boolean> => {
         },
     })
 
-    await invalidate(CK.userById(userId), CK.userByIdentifier(result.email))
+    await invalidate(CK.userById(userId), CK.userByIdentifier(result.email), CK.userList('*'), CK.userSearch('*'))
 
     return result !== null
 }
@@ -284,7 +288,8 @@ export const getUsers = async (
             }
 
             return results.map(mapUser)
-        }
+        },
+        CK_TTL.userList
     )
 }
 

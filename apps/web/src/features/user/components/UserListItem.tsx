@@ -40,17 +40,14 @@ export default function UserListItem({ user }: { user: TUser }) {
 
 	const handlePromoteToAdmin = async () => {
 		await promoteToAdmin.mutateAsync()
-		await refreshUserList()
 	}
 
 	const handleDemoteToUser = async () => {
 		await demoteToUser.mutateAsync()
-		await refreshUserList()
 	}
 
 	const handleToggleUserStatus = async () => {
 		await updateUser.mutateAsync({ status: shouldReactivate ? 'active' : 'suspended' })
-		await refreshUserList()
 	}
 
 	const items = [
