@@ -9,7 +9,7 @@ import PaginationButtons from '@/shared/components/PaginationButtons'
 export default function AdminPanelResourcesPage() {
 	const take = 10
 	const { page, currentCursor, handleNext, handlePrevious } = usePagination()
-	const { data } = useListFiles(false, currentCursor, take)
+	const { data, isFetching } = useListFiles(false, currentCursor, take)
 
 	const files = useMemo(() => {
 		if (!Array.isArray(data)) {
@@ -35,6 +35,7 @@ export default function AdminPanelResourcesPage() {
 					resources={files}
 					fullPage={false}
 					mode="admin"
+					isLoading={isFetching}
 				/>
 				<PaginationButtons
 					page={page + 1}

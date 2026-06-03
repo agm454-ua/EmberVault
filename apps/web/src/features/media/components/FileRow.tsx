@@ -280,7 +280,7 @@ export default function FileRow({
 			{previewOpen && previewSrc && isPdf && <PdfPreviewModal src={previewSrc} name={resource.name} onClose={closePreview} />}
 			{menu.isOpen && <ContextMenu x={menu.position.x} y={menu.position.y} items={items} onClose={menu.close} />}
 			<tr
-				className={`border-b border-stroke-muted h-12 text-sm text-ink-muted hover:bg-surface-muted cursor-pointer ${isDropTarget ? 'bg-surface-tint ring-1 ring-primary-500' : ''
+				className={`animate-fade-in border-b border-stroke-muted h-12 text-sm text-ink-muted hover:bg-surface-muted cursor-pointer ${isDropTarget ? 'bg-surface-tint ring-1 ring-primary-500' : ''
 					}`}
 				onClick={handleOpenFolder}
 				onDoubleClick={(e) => {

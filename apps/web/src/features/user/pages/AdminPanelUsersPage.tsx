@@ -13,7 +13,7 @@ export default function AdminPanelUsersPage() {
 	const { t } = useTranslation()
 	const [take] = useState('10')
 	const { page, currentCursor, handleNext, handlePrevious } = usePagination()
-	const { data: users = [] } = useListUsers(take, currentCursor)
+	const { data: users = [], isFetching } = useListUsers(take, currentCursor)
 	const hasMore = users.length === parseInt(take)
 
 	const [createUserModalOpen, setCreateUserModalOpen] = useState(false)
@@ -38,7 +38,7 @@ export default function AdminPanelUsersPage() {
 				{createUserModalOpen && <CreateUserModal onClose={handleCloseCreateUserModal} />}
 			</div>
 
-			<UserList users={users} />
+			<UserList users={users} isLoading={isFetching} />
 
 			<PaginationButtons
 				page={page + 1}

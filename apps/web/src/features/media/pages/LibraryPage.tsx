@@ -15,7 +15,7 @@ type TPathSegment = {
 
 export function LibraryPage() {
 	const { t } = useTranslation()
-	const { data, isLoading: isMeLoading, isError: isMeError } = useMe()
+	const { data, isError: isMeError, isLoading: isMeLoading } = useMe()
 	const [searchParams, setSearchParams] = useSearchParams()
 
 	const rootFolderId = data?.root_folder ?? ''
@@ -72,9 +72,7 @@ export function LibraryPage() {
 		setNestedPath(index === 0 ? [] : fullPath.slice(1, index + 1))
 	}
 
-	if (isMeLoading) return <div>{t('nav.loading')}</div>
 	if (isMeError || !data || !data.root_folder) return <ErrorMessage text={t('errors.generic')} />
-	if (listFolderResources.isLoading) return <div>{t('nav.loading')}</div>
 	if (listFolderResources.isError) return <ErrorMessage text={t('errors.generic')} />
 
 	return (
@@ -87,6 +85,7 @@ export function LibraryPage() {
 				path={path}
 				onOpenFolder={handleOpenFolder}
 				onNavigateToPath={handleNavigateToPath}
+				isLoading={isMeLoading || listFolderResources.isFetching}
 			/>
 		</>
 	)

@@ -97,9 +97,7 @@ export function TrashPage() {
 		setNestedPath(index === 0 ? [] : fullPath.slice(1, index + 1))
 	}
 
-	if (getTrash.isLoading) return <div>{t('nav.loading')}</div>
 	if (getTrash.isError) return <ErrorMessage text={t('errors.generic')} />
-	if (currentFolderId !== TRASH_ROOT_ID && currentFolderResources.isLoading) return <div>{t('nav.loading')}</div>
 	if (currentFolderId !== TRASH_ROOT_ID && currentFolderResources.isError) {
 		return <ErrorMessage text={t('errors.generic')} />
 	}
@@ -163,6 +161,7 @@ export function TrashPage() {
 				path={path}
 				onOpenFolder={handleOpenFolder}
 				onNavigateToPath={handleNavigateToPath}
+				isLoading={getTrash.isLoading || (currentFolderId !== TRASH_ROOT_ID && currentFolderResources.isLoading) || (currentFolderId !== TRASH_ROOT_ID && currentFolderResources.isFetching)}
 			/>
 		</>
 	)

@@ -73,7 +73,7 @@ export default function UserListItem({ user }: { user: TUser }) {
 		<>
 			{menu.isOpen && <ContextMenu x={menu.position.x} y={menu.position.y} items={items} onClose={menu.close} />}
 			<div
-				className="flex w-full items-center text-sm py-2 border-b border-stroke-muted hover:bg-surface-muted last:border-0 text-ink-muted pl-4"
+				className="animate-fade-in flex w-full items-center text-sm py-2 border-b border-stroke-muted hover:bg-surface-muted last:border-0 text-ink-muted pl-4"
 				{...menu.bind()}
 			>
 				<ProfilePicture pictureUrl={user.profile_picture_url} alt={`${user.username}'s profile picture`} />

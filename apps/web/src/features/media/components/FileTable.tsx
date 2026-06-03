@@ -23,6 +23,7 @@ export default function FileTable({
 	onOpenFolder,
 	onNavigateToPath,
 	fullPage = true,
+	isLoading = false,
 }: {
 	resources?: TResourceResponse[]
 	className?: string
@@ -33,6 +34,7 @@ export default function FileTable({
 	onOpenFolder?: (resource: TResourceResponse) => void
 	onNavigateToPath?: (index: number) => void
 	fullPage?: boolean
+	isLoading?: boolean
 }) {
 	const sortedResources = sortResources(resources)
 
@@ -289,7 +291,7 @@ export default function FileTable({
 			)}
 
 			<div
-				className={`relative min-w-0 w-full max-w-full overflow-y-auto overflow-x-hidden no-scrollbar ${className || ''}`}
+				className={`relative min-w-0 w-full max-w-full overflow-y-auto overflow-x-hidden no-scrollbar ${className || ''} transition-opacity duration-150 ${isLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}
 				onDragEnter={handleTableDragEnter}
 				onDragOver={handleTableDragOver}
 				onDragLeave={handleTableDragLeave}
@@ -316,7 +318,7 @@ export default function FileTable({
 					<tbody>
 						{enableFolderControls && canNavigateBack && (
 							<tr
-								className="border-b border-stroke-muted h-12 text-sm text-ink-muted hover:bg-surface-muted cursor-pointer"
+								className="animate-fade-in border-b border-stroke-muted h-12 text-sm text-ink-muted hover:bg-surface-muted cursor-pointer"
 								onClick={() => onNavigateToPath?.(path.length - 2)}
 							>
 								<td>

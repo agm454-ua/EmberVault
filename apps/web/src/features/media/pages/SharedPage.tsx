@@ -87,9 +87,7 @@ export function SharedPage() {
 		setNestedPath(index === 0 ? [] : fullPath.slice(1, index + 1))
 	}
 
-	if (sharedResources.isLoading) return <div>{t('nav.loading')}</div>
 	if (sharedResources.isError) return <ErrorMessage text={t('errors.generic')} />
-	if (currentFolderId !== SHARED_ROOT_ID && currentFolderResources.isLoading) return <div>{t('nav.loading')}</div>
 	if (currentFolderId !== SHARED_ROOT_ID && currentFolderResources.isError) {
 		return <ErrorMessage text={t('errors.generic')} />
 	}
@@ -105,6 +103,7 @@ export function SharedPage() {
 				path={path}
 				onOpenFolder={handleOpenFolder}
 				onNavigateToPath={handleNavigateToPath}
+				isLoading={sharedResources.isLoading || (currentFolderId !== SHARED_ROOT_ID && currentFolderResources.isLoading) || (currentFolderId !== SHARED_ROOT_ID && currentFolderResources.isFetching)}
 			/>
 		</>
 	)
