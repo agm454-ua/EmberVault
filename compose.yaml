@@ -118,7 +118,7 @@ services:
         restart: unless-stopped
 
     seaweedfs-master:
-        image: chrislusf/seaweedfs:4.17
+        image: chrislusf/seaweedfs:${SEAWEEDFS_VERSION}
         command: master -ip=seaweedfs-master -ip=seaweedfs-master -ip.bind=0.0.0.0
         ports:
             - "9333:9333"
@@ -134,7 +134,7 @@ services:
             retries: 10
 
     seaweedfs-volume:
-        image: chrislusf/seaweedfs:latest
+        image: chrislusf/seaweedfs:${SEAWEEDFS_VERSION}
         command: volume -mserver=seaweedfs-master:9333 -ip=seaweedfs-volume
             -ip.bind=0.0.0.0 -port=8080 -dir=/data
         volumes:
@@ -146,7 +146,7 @@ services:
             - backend
 
     seaweedfs-filer:
-        image: chrislusf/seaweedfs:latest
+        image: chrislusf/seaweedfs:${SEAWEEDFS_VERSION}
         command: filer -master=seaweedfs-master:9333 -ip=seaweedfs-filer
             -ip.bind=0.0.0.0 -encryptVolumeData
         ports:
@@ -167,7 +167,7 @@ services:
             start_period: 30s
 
     seaweedfs-s3:
-        image: chrislusf/seaweedfs:latest
+        image: chrislusf/seaweedfs:${SEAWEEDFS_VERSION}
         entrypoint: [ "/bin/sh", "/scripts/start-s3.sh" ]
         ports:
             - "8333:8333"
