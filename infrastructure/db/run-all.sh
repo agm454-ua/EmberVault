@@ -15,6 +15,7 @@ psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f 02-indexes/021-indexes.sql
 psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f 03-triggers/031-auto-update.sql
 psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f 03-triggers/032-prevent-circular-folder-hierarchy.sql
 psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f 03-triggers/033-create-root-folder.sql
+psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f 03-triggers/034-update-user-storage-used.sql
 
 # Execute seeders
 psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f 04-seed/041-rbac-seeder.sql
