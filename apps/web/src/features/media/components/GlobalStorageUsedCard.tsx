@@ -10,7 +10,7 @@ export default function GlobalStorageUsedCard() {
 	return (
 		<div className="flex items-center gap-4 p-4 border border-stroke w-sm rounded-xl">
 			<div className="bg-[#617bff] rounded-lg p-4">
-				<DatabaseIcon className="w-8 h-8 text-white" />
+				<DatabaseIcon className="size-8 text-white" />
 			</div>
 			<div className="h-full flex flex-col gap-1">
 				<p className=" text-ink">{t('admin.storageUsed')}</p>

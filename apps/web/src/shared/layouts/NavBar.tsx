@@ -42,7 +42,7 @@ export function NavBar() {
 
 	return (
 		<>
-			<nav className="fixed left-0 top-16 bottom-0 w-72 flex flex-col items-center gap-2 py-4 border-r border-stroke px-4 bg-surface-canvas z-30 overflow-y-auto">
+			<nav className="fixed left-0 top-16 bottom-0 w-72 flex flex-col items-center gap-2 p-4 border-r border-stroke bg-surface-canvas z-30 overflow-y-auto">
 				<Button variant="primary" className="w-full py-3 mt-2 mb-4" onClick={() => setIsUploadModalOpen(true)}>
 					{t('actions.new')}
 				</Button>
@@ -51,7 +51,7 @@ export function NavBar() {
 					className="w-full px-6! py-3! justify-start!"
 					to={routes.library}
 				>
-					<LibraryIcon className="w-6 h-6" />
+					<LibraryIcon className="size-6" />
 					{t('nav.library')}
 				</LinkButton>
 
@@ -60,7 +60,7 @@ export function NavBar() {
 					className="w-full px-6! py-3! justify-start!"
 					to={routes.shared}
 				>
-					<SharedIcon className="w-6 h-6" />
+					<SharedIcon className="size-6" />
 					{t('nav.shared')}
 				</LinkButton>
 
@@ -69,7 +69,7 @@ export function NavBar() {
 					className="w-full px-6! py-3! justify-start!"
 					to={routes.trash}
 				>
-					<TrashIcon className="w-6 h-6" />
+					<TrashIcon className="size-6" />
 					{t('nav.trash')}
 				</LinkButton>
 				{/*Only admin users should see the admin panel button*/}
@@ -79,7 +79,7 @@ export function NavBar() {
 						className="w-full px-6! py-3! justify-start!"
 						to={routes.adminResources}
 					>
-						<SettingsIcon className="w-6 h-6" />
+						<SettingsIcon className="size-6" />
 						{t('nav.adminPanel')}
 					</LinkButton>
 				)}
@@ -110,7 +110,7 @@ export function NavBar() {
 				</BlurPage>
 			)}
 
-			<div className="h-[calc(100vh-4rem)] ml-72"></div>
+			<div className="h-[calc(100vh-4rem)] ml-72" />
 		</>
 	)
 }

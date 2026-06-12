@@ -18,7 +18,18 @@ export default function UpdateProfilePicture({
 	const { t } = useTranslation()
 	const finalPictureUrl = pictureUrl ?? ENV.VITE_DEFAULT_PROFILE_PICTURE_URL
 	return (
-		<div className="relative flex items-center justify-center h-32 w-32 cursor-pointer group" onClick={onClick}>
+		<button
+			className="relative flex items-center justify-center size-32 cursor-pointer group"
+			onClick={onClick}
+			tabIndex={0}
+			type="button"
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault()
+					onClick()
+				}
+			}}
+		>
 			<img
 				src={finalPictureUrl}
 				alt={alt}
@@ -27,7 +38,7 @@ export default function UpdateProfilePicture({
 						e.currentTarget.src = ENV.VITE_DEFAULT_PROFILE_PICTURE_URL
 					}
 				}}
-				className={`aspect-square rounded-full border-stroke object-cover h-32 w-32 ${disabled ? '' : 'group-hover:blur-xs'} ${className}`}
+				className={`aspect-square rounded-full border-stroke object-cover size-32 ${disabled ? '' : 'group-hover:blur-xs'} ${className}`}
 			/>
 			<div
 				className={`absolute inset-0 rounded-full bg-black/20 opacity-0 ${disabled ? '' : 'group-hover:opacity-100'} transition-opacity`}
@@ -38,6 +49,6 @@ export default function UpdateProfilePicture({
 				<UploadImageIcon className="text-ink-inverse z-10" />
 				<p className="text-xs text-ink-inverse text-center">{t('profilePage.uploadProfilePicture')}</p>
 			</div>
-		</div>
+		</button>
 	)
 }

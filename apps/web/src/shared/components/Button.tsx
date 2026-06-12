@@ -12,6 +12,14 @@ type ButtonProps = {
 	props?: ButtonHTMLAttributes<HTMLButtonElement>
 }
 
+const variantClasses = {
+	primary: 'bg-primary-500 text-ink-inverse hover:bg-primary-600 font-semibold ',
+	secondary: 'bg-surface-tint text-ink-primary hover:bg-surface-raised font-semibold ',
+	danger: 'border border-danger-500 text-danger-500 bg-danger-50 hover:bg-danger-500 hover:text-ink-inverse font-semibold',
+	ghost: 'bg-transparent text-ink font-normal hover:bg-surface-gray',
+	image: 'bg-cover bg-center',
+}
+
 export default function Button({
 	children,
 	onClick,
@@ -30,13 +38,6 @@ export default function Button({
 
 	const disabledClasses = disabled ? ' opacity-50 cursor-not-allowed bg-surface-gray' : ''
 
-	const variantClasses = {
-		primary: 'bg-primary-500 text-ink-inverse hover:bg-primary-600 font-semibold ',
-		secondary: 'bg-surface-tint text-ink-primary hover:bg-surface-raised font-semibold ',
-		danger: 'border border-danger-500 text-danger-500 bg-danger-50 hover:bg-danger-500 hover:text-ink-inverse font-semibold',
-		ghost: 'bg-transparent text-ink font-normal hover:bg-surface-gray',
-		image: 'bg-cover bg-center',
-	}
 	return (
 		<button
 			type={type}

@@ -1,6 +1,12 @@
 import { useTranslation } from 'react-i18next'
 
-export default function UserStatus({ status, className }: { status: 'active' | 'suspended' | 'deleted' | string; className?: string }) {
+export default function UserStatus({
+	status,
+	className,
+}: {
+	status: 'active' | 'suspended' | 'deleted' | string
+	className?: string
+}) {
 	const { t } = useTranslation()
 
 	const statusClasses =

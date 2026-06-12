@@ -10,6 +10,13 @@ type LinkButtonProps = {
 	round?: boolean
 }
 
+const variantClasses = {
+	primary: 'bg-primary-500 text-ink-inverse hover:bg-primary-600 font-semibold ',
+	secondary: 'bg-surface-tint text-ink-primary hover:bg-surface-raised font-semibold ',
+	danger: 'border border-danger-500 text-danger-500 bg-danger-50 hover:bg-danger-500 hover:text-ink-inverse font-semibold',
+	ghost: 'bg-transparent text-ink font-normal hover:bg-surface-gray',
+}
+
 export default function LinkButton({
 	children,
 	onClick,
@@ -23,12 +30,6 @@ export default function LinkButton({
 		(className ? ` ${className}` : '') +
 		(round ? ' rounded-full p-2' : ' rounded-md px-8 py-2 gap-2')
 
-	const variantClasses = {
-		primary: 'bg-primary-500 text-ink-inverse hover:bg-primary-600 font-semibold ',
-		secondary: 'bg-surface-tint text-ink-primary hover:bg-surface-raised font-semibold ',
-		danger: 'border border-danger-500 text-danger-500 bg-danger-50 hover:bg-danger-500 hover:text-ink-inverse font-semibold',
-		ghost: 'bg-transparent text-ink font-normal hover:bg-surface-gray',
-	}
 	return (
 		<Link to={to} className={`${baseClasses} ${variantClasses[variant]}`} onClick={onClick}>
 			{children}

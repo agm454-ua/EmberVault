@@ -6,9 +6,11 @@ export default function ForbiddenPage() {
 	const { t } = useTranslation()
 	const navigate = useNavigate()
 	useEffect(() => {
-		setTimeout(() => {
+		const timeoutId = setTimeout(() => {
 			navigate('/')
 		}, 3000)
+
+		return () => clearTimeout(timeoutId)
 	}, [navigate])
 
 	return (

@@ -10,8 +10,9 @@ export default function SearchBar() {
 				type="text"
 				placeholder={t('search.placeholder')}
 				className="border border-stroke-muted px-2 py-1 w-full text-ink-muted focus:outline-primary-500"
+				aria-label={t('search.search')}
 			/>
-			<SearchIcon className="text-ink-muted w-6 h-6 absolute right-2 cursor-pointer" />
+			<SearchIcon className="text-ink-muted size-6 absolute right-2 cursor-pointer" />
 		</div>
 	)
 }

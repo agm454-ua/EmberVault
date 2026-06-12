@@ -60,8 +60,24 @@ export function ImageDragInput({ label, onImageSelect }: ImageDragInputProps) {
 				}}
 				onDrop={handleDrop}
 				onClick={() => fileInputRef.current?.click()}
+				aria-label={t('media.dragAndDropImage')}
+				role="treeitem"
+				tabIndex={0}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault()
+						fileInputRef.current?.click()
+					}
+				}}
 			>
-				<input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+				<input
+					type="file"
+					ref={fileInputRef}
+					aria-label={t('media.dragAndDropImage')}
+					className="hidden"
+					accept="image/*"
+					onChange={handleFileChange}
+				/>
 
 				{preview ? (
 					<div className="relative">

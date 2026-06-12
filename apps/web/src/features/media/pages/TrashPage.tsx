@@ -131,7 +131,7 @@ export function TrashPage() {
 	return (
 		<>
 			<Title>{'› ' + titlePath}</Title>
-			<div className="py-4 px-4 flex justify-end gap-4">
+			<div className="p-4 flex justify-end gap-4">
 				<Button
 					type="button"
 					variant="primary"
@@ -161,7 +161,11 @@ export function TrashPage() {
 				path={path}
 				onOpenFolder={handleOpenFolder}
 				onNavigateToPath={handleNavigateToPath}
-				isLoading={getTrash.isLoading || (currentFolderId !== TRASH_ROOT_ID && currentFolderResources.isLoading) || (currentFolderId !== TRASH_ROOT_ID && currentFolderResources.isFetching)}
+				isLoading={
+					getTrash.isLoading ||
+					(currentFolderId !== TRASH_ROOT_ID && currentFolderResources.isLoading) ||
+					(currentFolderId !== TRASH_ROOT_ID && currentFolderResources.isFetching)
+				}
 			/>
 		</>
 	)

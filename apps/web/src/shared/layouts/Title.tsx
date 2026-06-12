@@ -7,7 +7,7 @@ export default function Title({ children }: { children: ReactNode }) {
 				{children}
 			</h1>
 			{/* separator */}
-			<div className="mt-16"></div>
+			<div className="mt-16" />
 		</>
 	)
 }

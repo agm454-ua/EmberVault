@@ -187,82 +187,102 @@ export default function FileRow({
 
 	const trashItems = isFolder
 		? [
-			{ label: t('media.open'), onClick: handleOpenFolder },
-			{ label: t('media.restore'), onClick: handleRestoreFromTrash, disabled: restoreFromTrash.isPending },
-			{
-				label: t('media.permanentlyDelete'),
-				onClick: handleDeleteFromTrash,
-				danger: true,
-				disabled: deleteFromTrash.isPending,
-			},
-		]
+				{ label: t('media.open'), onClick: handleOpenFolder },
+				{ label: t('media.restore'), onClick: handleRestoreFromTrash, disabled: restoreFromTrash.isPending },
+				{
+					label: t('media.permanentlyDelete'),
+					onClick: handleDeleteFromTrash,
+					danger: true,
+					disabled: deleteFromTrash.isPending,
+				},
+			]
 		: [
-			{ label: t('media.restore'), onClick: handleRestoreFromTrash, disabled: restoreFromTrash.isPending },
-			{
-				label: t('media.permanentlyDelete'),
-				onClick: handleDeleteFromTrash,
-				danger: true,
-				disabled: deleteFromTrash.isPending,
-			},
-		]
+				{ label: t('media.restore'), onClick: handleRestoreFromTrash, disabled: restoreFromTrash.isPending },
+				{
+					label: t('media.permanentlyDelete'),
+					onClick: handleDeleteFromTrash,
+					danger: true,
+					disabled: deleteFromTrash.isPending,
+				},
+			]
 
 	const libraryItems = isFolder
 		? [
-			{ label: t('media.open'), onClick: handleOpenFolder, disabled: moveToTrash.isPending },
-			{ label: t('media.rename'), onClick: () => setRenameModalOpen(true), disabled: moveToTrash.isPending },
-			{
-				label: t('media.download'),
-				onClick: handleDownload,
-				disabled: moveToTrash.isPending || download.isPending,
-			},
-			{ label: t('actions.share'), onClick: () => setShareModalOpen(true), disabled: moveToTrash.isPending },
-			{
-				label: t('actions.copy'),
-				onClick: handleCopy,
-				disabled: moveToTrash.isPending,
-			},
-			{
-				label: t('media.moveToTrash'),
-				onClick: handleMoveToTrash,
-				danger: true,
-				disabled: moveToTrash.isPending,
-			},
-		]
+				{ label: t('media.open'), onClick: handleOpenFolder, disabled: moveToTrash.isPending },
+				{ label: t('media.rename'), onClick: () => setRenameModalOpen(true), disabled: moveToTrash.isPending },
+				{
+					label: t('media.download'),
+					onClick: handleDownload,
+					disabled: moveToTrash.isPending || download.isPending,
+				},
+				{ label: t('actions.share'), onClick: () => setShareModalOpen(true), disabled: moveToTrash.isPending },
+				{
+					label: t('actions.copy'),
+					onClick: handleCopy,
+					disabled: moveToTrash.isPending,
+				},
+				{
+					label: t('media.moveToTrash'),
+					onClick: handleMoveToTrash,
+					danger: true,
+					disabled: moveToTrash.isPending,
+				},
+			]
 		: [
-			...(isImage
-				? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
-				: []),
-			...(isPdf ? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }] : []),
-			...(isPdf ? [{ label: t('actions.openInNewTab'), onClick: handlePreviewInNewTab, disabled: download.isPending }] : []),
-			{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
-			{ label: t('media.rename'), onClick: () => setRenameModalOpen(true), disabled: moveToTrash.isPending },
-			{ label: t('actions.share'), onClick: () => setShareModalOpen(true), disabled: moveToTrash.isPending },
-			{
-				label: t('actions.copy'),
-				onClick: handleCopy,
-				disabled: moveToTrash.isPending,
-			},
-			{
-				label: t('media.moveToTrash'),
-				onClick: handleMoveToTrash,
-				danger: true,
-				disabled: moveToTrash.isPending,
-			},
-		]
+				...(isImage
+					? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
+					: []),
+				...(isPdf
+					? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
+					: []),
+				...(isPdf
+					? [
+							{
+								label: t('actions.openInNewTab'),
+								onClick: handlePreviewInNewTab,
+								disabled: download.isPending,
+							},
+						]
+					: []),
+				{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
+				{ label: t('media.rename'), onClick: () => setRenameModalOpen(true), disabled: moveToTrash.isPending },
+				{ label: t('actions.share'), onClick: () => setShareModalOpen(true), disabled: moveToTrash.isPending },
+				{
+					label: t('actions.copy'),
+					onClick: handleCopy,
+					disabled: moveToTrash.isPending,
+				},
+				{
+					label: t('media.moveToTrash'),
+					onClick: handleMoveToTrash,
+					danger: true,
+					disabled: moveToTrash.isPending,
+				},
+			]
 
 	const sharedItems = isFolder
 		? [
-			{ label: t('media.open'), onClick: handleOpenFolder },
-			{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
-		]
+				{ label: t('media.open'), onClick: handleOpenFolder },
+				{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
+			]
 		: [
-			...(isImage
-				? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
-				: []),
-			...(isPdf ? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }] : []),
-			...(isPdf ? [{ label: t('actions.openInNewTab'), onClick: handlePreviewInNewTab, disabled: download.isPending }] : []),
-			{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
-		]
+				...(isImage
+					? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
+					: []),
+				...(isPdf
+					? [{ label: t('actions.preview'), onClick: handlePreview, disabled: download.isPending }]
+					: []),
+				...(isPdf
+					? [
+							{
+								label: t('actions.openInNewTab'),
+								onClick: handlePreviewInNewTab,
+								disabled: download.isPending,
+							},
+						]
+					: []),
+				{ label: t('media.download'), onClick: handleDownload, disabled: download.isPending },
+			]
 
 	const items = mode === 'trash' ? trashItems : mode === 'shared' ? sharedItems : libraryItems
 
@@ -277,11 +297,14 @@ export default function FileRow({
 				<ShareResourceModal resource={resource} onClose={() => setShareModalOpen(false)} />
 			)}
 			{previewOpen && previewSrc && isImage && <ImagePreviewModal src={previewSrc} onClose={closePreview} />}
-			{previewOpen && previewSrc && isPdf && <PdfPreviewModal src={previewSrc} name={resource.name} onClose={closePreview} />}
+			{previewOpen && previewSrc && isPdf && (
+				<PdfPreviewModal src={previewSrc} name={resource.name} onClose={closePreview} />
+			)}
 			{menu.isOpen && <ContextMenu x={menu.position.x} y={menu.position.y} items={items} onClose={menu.close} />}
 			<tr
-				className={`animate-fade-in border-b border-stroke-muted h-12 text-sm text-ink-muted hover:bg-surface-muted cursor-pointer ${isDropTarget ? 'bg-surface-tint ring-1 ring-primary-500' : ''
-					}`}
+				className={`animate-fade-in border-b border-stroke-muted h-12 text-sm text-ink-muted hover:bg-surface-muted cursor-pointer ${
+					isDropTarget ? 'bg-surface-tint ring-1 ring-primary-500' : ''
+				}`}
 				onClick={handleOpenFolder}
 				onDoubleClick={(e) => {
 					e.stopPropagation()
@@ -350,7 +373,7 @@ export default function FileRow({
 						className="rounded-sm p-1 hover:bg-surface-gray"
 						aria-label={t('actions.actions')}
 					>
-						<OptionsIcon className="w-4 h-4" />
+						<OptionsIcon className="size-4" />
 					</button>
 				</td>
 			</tr>

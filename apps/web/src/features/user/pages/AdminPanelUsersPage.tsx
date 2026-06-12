@@ -11,7 +11,7 @@ import PaginationButtons from '@/shared/components/PaginationButtons'
 
 export default function AdminPanelUsersPage() {
 	const { t } = useTranslation()
-	const [take] = useState('10')
+	const take = '10'
 	const { page, currentCursor, handleNext, handlePrevious } = usePagination()
 	const { data: users = [], isFetching } = useListUsers(take, currentCursor)
 	const hasMore = users.length === parseInt(take)

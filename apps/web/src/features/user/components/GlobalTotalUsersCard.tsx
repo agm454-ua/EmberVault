@@ -11,7 +11,7 @@ export default function GlobalTotalUsersCard() {
 	return (
 		<div className="flex items-center gap-4 p-4 border border-stroke w-sm rounded-xl">
 			<div className="bg-violet-600 rounded-lg p-4">
-				<UsersIcon className="w-8 h-8 text-white" />
+				<UsersIcon className="size-8 text-white" />
 			</div>
 			<div className="h-full flex flex-col gap-1">
 				<p className=" text-ink">{t('admin.totalUsers')}</p>

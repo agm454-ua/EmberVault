@@ -10,7 +10,8 @@
 		"forbidden": "Access denied",
 		"loading": "Loading...",
 		"wip": "Work in progress. Check back later!",
-		"page": "Page {{page}}"
+		"page": "Page {{page}}",
+		"options": "Options"
 	},
 	"auth": {
 		"login": "Sign in",

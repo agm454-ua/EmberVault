@@ -13,13 +13,17 @@ import SuccessMessage from '@/shared/components/SuccessMessage'
 import ErrorMessage from '@/shared/components/ErrorMessage'
 import sortResources from '../utils/sortResources'
 
+const EMPTY_ITEMS: TResourceResponse[] = []
+
+const hasExternalFiles = (event: DragEvent<HTMLElement>) => Array.from(event.dataTransfer.types).includes('Files')
+
 export default function FileTable({
-	resources = [],
+	resources = EMPTY_ITEMS,
 	className,
 	mode = 'library',
 	enableFolderControls = false,
 	currentFolderId,
-	path = [],
+	path = EMPTY_ITEMS,
 	onOpenFolder,
 	onNavigateToPath,
 	fullPage = true,
@@ -111,8 +115,6 @@ export default function FileTable({
 	const isSharedMode = mode === 'shared'
 	const canCreateFolders = !isTrashMode && !isAdminMode && !isSharedMode
 	const canUploadFiles = !isTrashMode && !isAdminMode && !isSharedMode
-
-	const hasExternalFiles = (event: DragEvent<HTMLElement>) => Array.from(event.dataTransfer.types).includes('Files')
 
 	const clearDragState = () => {
 		setDraggingFile(null)
@@ -226,24 +228,32 @@ export default function FileTable({
 		setUploadError(null)
 		setUploadedCount(0)
 
-		let successfulUploads = 0
-		const failedFiles: string[] = []
+		const results = await Promise.all(
+			droppedFiles.map(async (file) => {
+				try {
+					await createResourceMutation.mutateAsync({
+						name: file.name,
+						type: 'FILE',
+						isPrivate: false,
+						parentFolder: currentFolderId ?? null,
+						mimeType: file.type || 'application/octet-stream',
+						file,
+					})
+					return { ok: true, name: file.name }
+				} catch {
+					return { ok: false, name: file.name }
+				}
+			}),
+		)
 
-		for (const file of droppedFiles) {
-			try {
-				await createResourceMutation.mutateAsync({
-					name: file.name,
-					type: 'FILE',
-					isPrivate: false,
-					parentFolder: currentFolderId ?? null,
-					mimeType: file.type || 'application/octet-stream',
-					file,
-				})
-				successfulUploads += 1
-			} catch {
-				failedFiles.push(file.name)
+		//const failedFiles = results.filter(r => !r.ok).map(r => r.name)
+		const failedFiles = results.reduce<string[]>((acc, curr) => {
+			if (!curr.ok) {
+				acc.push(curr.name)
 			}
-		}
+			return acc
+		}, [])
+		const successfulUploads = results.filter((r) => r.ok).length
 
 		setUploadedCount(successfulUploads)
 
@@ -312,7 +322,10 @@ export default function FileTable({
 								{t('resourceData.lastModified')}
 							</th>
 							<th className="sticky top-0 z-10 bg-surface-gray font-medium">{t('resourceData.size')}</th>
-							<th className="sticky top-0 z-10 w-12 bg-surface-gray font-medium"></th>
+							<th
+								className="sticky top-0 z-10 w-12 bg-surface-gray font-medium"
+								aria-label={t('nav.options')}
+							/>
 						</tr>
 					</thead>
 					<tbody>
@@ -332,49 +345,48 @@ export default function FileTable({
 								<td className="text-center">-</td>
 								<td className="text-center">-</td>
 								<td className="text-center">-</td>
-								<td className="h-12"></td>
+								<td className="h-12" aria-label={t('nav.options')} />
 							</tr>
 						)}
 
 						{canCreateFolders && isInlineCreateOpen && (
-							<>
-								<tr className="border-b border-stroke-muted bg-surface-muted/40">
-									<td colSpan={5}>
-										<form onSubmit={handleCreateFolder} className="px-4 py-3 flex flex-col gap-2">
-											<div className="flex items-center gap-2">
-												<input
-													ref={newFolderInputRef}
-													type="text"
-													value={newFolderName}
-													onChange={(event) => setNewFolderName(event.target.value)}
-													placeholder={t('media.folderNamePlaceholder')}
-													className="flex-1 rounded-md border border-stroke bg-surface-canvas px-3 py-2 text-sm text-ink placeholder:text-ink-muted focus:border-stroke-focus focus:outline-none"
-													maxLength={120}
-												/>
-												<Button
-													type="button"
-													variant="ghost"
-													disabled={createResourceMutation.isPending}
-													onClick={closeInlineCreateRow}
-												>
-													{t('actions.cancel')}
-												</Button>
-												<Button
-													type="submit"
-													disabled={!newFolderName.trim() || createResourceMutation.isPending}
-												>
-													{createResourceMutation.isPending
-														? t('media.creatingFolder')
-														: t('media.createFolder')}
-												</Button>
-											</div>
-											{createFolderError && (
-												<p className="text-sm text-danger-500">{createFolderError}</p>
-											)}
-										</form>
-									</td>
-								</tr>
-							</>
+							<tr className="border-b border-stroke-muted bg-surface-muted/40">
+								<td colSpan={5}>
+									<form onSubmit={handleCreateFolder} className="px-4 py-3 flex flex-col gap-2">
+										<div className="flex items-center gap-2">
+											<input
+												ref={newFolderInputRef}
+												type="text"
+												value={newFolderName}
+												onChange={(event) => setNewFolderName(event.target.value)}
+												placeholder={t('media.folderNamePlaceholder')}
+												className="flex-1 rounded-md border border-stroke bg-surface-canvas px-3 py-2 text-sm text-ink placeholder:text-ink-muted focus:border-stroke-focus focus:outline-none"
+												maxLength={120}
+												aria-label={t('media.createFolder')}
+											/>
+											<Button
+												type="button"
+												variant="ghost"
+												disabled={createResourceMutation.isPending}
+												onClick={closeInlineCreateRow}
+											>
+												{t('actions.cancel')}
+											</Button>
+											<Button
+												type="submit"
+												disabled={!newFolderName.trim() || createResourceMutation.isPending}
+											>
+												{createResourceMutation.isPending
+													? t('media.creatingFolder')
+													: t('media.createFolder')}
+											</Button>
+										</div>
+										{createFolderError && (
+											<p className="text-sm text-danger-500">{createFolderError}</p>
+										)}
+									</form>
+								</td>
+							</tr>
 						)}
 
 						{sortedResources.map((resource) => (
@@ -397,7 +409,7 @@ export default function FileTable({
 							<tr>
 								<td colSpan={5}>
 									<div className="w-full py-16 flex flex-col items-center justify-center gap-4">
-										<FolderOpenIcon className="text-ink-muted w-8 h-8 " />
+										<FolderOpenIcon className="text-ink-muted size-8 " />
 										<div className="text-lg text-ink-muted">{t('media.noFiles')}</div>
 									</div>
 								</td>

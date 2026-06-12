@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useReducer, useRef, useState } from 'react'
 import * as pdfjsLib from 'pdfjs-dist'
 import BlurPage from './BlurPage'
 import { useTranslation } from 'react-i18next'
@@ -10,8 +10,36 @@ type Props = {
 	name?: string
 	onClose: () => void
 }
+type PdfState =
+	| { status: 'idle'; zoomIndex: number }
+	| { status: 'loading'; zoomIndex: number }
+	| { status: 'error'; zoomIndex: number }
+	| { status: 'ready'; zoomIndex: number; pdf: pdfjsLib.PDFDocumentProxy; numPages: number }
 
-type LoadState = 'idle' | 'loading' | 'ready' | 'error'
+type PdfAction =
+	| { type: 'load' }
+	| { type: 'success'; pdf: pdfjsLib.PDFDocumentProxy; numPages: number }
+	| { type: 'error' }
+	| { type: 'zoom_in' }
+	| { type: 'zoom_out' }
+	| { type: 'zoom_reset' }
+
+function pdfReducer(state: PdfState, action: PdfAction): PdfState {
+	switch (action.type) {
+		case 'load':
+			return { ...state, status: 'loading', zoomIndex: DEFAULT_ZOOM_INDEX }
+		case 'success':
+			return { ...state, status: 'ready', pdf: action.pdf, numPages: action.numPages }
+		case 'error':
+			return { ...state, status: 'error' }
+		case 'zoom_in':
+			return { ...state, zoomIndex: Math.min(state.zoomIndex + 1, ZOOM_STEPS.length - 1) }
+		case 'zoom_out':
+			return { ...state, zoomIndex: Math.max(state.zoomIndex - 1, 0) }
+		case 'zoom_reset':
+			return { ...state, zoomIndex: DEFAULT_ZOOM_INDEX }
+	}
+}
 
 const ZOOM_STEPS = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5]
 const DEFAULT_ZOOM_INDEX = 2 // 1.0
@@ -19,10 +47,11 @@ const DEFAULT_ZOOM_INDEX = 2 // 1.0
 export default function PdfPreviewModal({ src, name, onClose }: Props) {
 	const { t } = useTranslation()
 
-	const [loadState, setLoadState] = useState<LoadState>('idle')
-	const [numPages, setNumPages] = useState(0)
+	const [pdfState, dispatch] = useReducer(pdfReducer, { status: 'idle', zoomIndex: DEFAULT_ZOOM_INDEX })
 	const [zoomIndex, setZoomIndex] = useState(DEFAULT_ZOOM_INDEX)
-	
+
+	const [numPages, setNumPages] = useState(0)
+
 	const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null)
 
 	const scale = ZOOM_STEPS[zoomIndex]
@@ -34,11 +63,7 @@ export default function PdfPreviewModal({ src, name, onClose }: Props) {
 		let cancelled = false
 		let localPdf: pdfjsLib.PDFDocumentProxy | null = null
 
-		// eslint-disable-next-line react-hooks/set-state-in-effect
-		setLoadState('loading')
-		setZoomIndex(DEFAULT_ZOOM_INDEX)
-		setNumPages(0)
-		setPdfDoc(null)
+		dispatch({ type: 'load' })
 
 		pdfjsLib.getDocument(src).promise.then(
 			(pdf) => {
@@ -46,10 +71,10 @@ export default function PdfPreviewModal({ src, name, onClose }: Props) {
 				localPdf = pdf
 				setPdfDoc(pdf)
 				setNumPages(pdf.numPages)
-				setLoadState('ready')
+				dispatch({ type: 'success', pdf, numPages: pdf.numPages })
 			},
 			() => {
-				if (!cancelled) setLoadState('error')
+				if (!cancelled) dispatch({ type: 'error' })
 			},
 		)
 
@@ -80,7 +105,6 @@ export default function PdfPreviewModal({ src, name, onClose }: Props) {
 	const zoomOut = () => setZoomIndex((i) => Math.max(i - 1, 0))
 	const zoomReset = () => setZoomIndex(DEFAULT_ZOOM_INDEX)
 
-
 	return (
 		<BlurPage onClose={onClose}>
 			<div
@@ -92,7 +116,7 @@ export default function PdfPreviewModal({ src, name, onClose }: Props) {
 				<div className="flex items-center justify-between px-3 py-2 border-b border-stroke-muted bg-surface-muted shrink-0 gap-2">
 					{/* File name */}
 					<div className="flex items-center gap-2 min-w-0 flex-1">
-						<PdfFileIcon className="w-4 h-4 text-ink-muted shrink-0" />
+						<PdfFileIcon className="size-4 text-ink-muted shrink-0" />
 						<span className="text-sm font-medium text-ink-base truncate" title={name}>
 							{name ?? 'Document.pdf'}
 						</span>
@@ -101,7 +125,9 @@ export default function PdfPreviewModal({ src, name, onClose }: Props) {
 					{/* Center controls */}
 					<div className="flex items-center gap-1 shrink-0">
 						<span className="text-xs text-ink-muted tabular-nums select-none px-2 text-center">
-							{loadState === 'ready' ? `${numPages} ${numPages === 1 ? t('pdfPreview.page') : t('pdfPreview.pages')}` : '—'}
+							{pdfState.status === 'ready'
+								? `${numPages} ${numPages === 1 ? t('pdfPreview.page') : t('pdfPreview.pages')}`
+								: '—'}
 						</span>
 
 						<Divider />
@@ -137,42 +163,35 @@ export default function PdfPreviewModal({ src, name, onClose }: Props) {
 					</div>
 				</div>
 
-				<div 
-					className="flex-1 overflow-auto bg-surface-gray flex flex-col items-center p-6 gap-6" 
+				<div
+					className="flex-1 overflow-auto bg-surface-gray flex flex-col items-center p-6 gap-6"
 					style={{ minHeight: 0 }}
 				>
-					{loadState === 'loading' && (
+					{pdfState.status === 'loading' && (
 						<div className="flex flex-col items-center justify-center gap-3 text-ink-muted py-20 mt-auto mb-auto">
 							<Spinner />
 							<span className="text-sm">{t('nav.loading')}</span>
 						</div>
 					)}
 
-					{loadState === 'error' && (
+					{pdfState.status === 'error' && (
 						<div className="flex flex-col items-center justify-center gap-2 text-ink-muted py-20 mt-auto mb-auto">
-							<WarningIcon className="w-8 h-8 text-red-400" />
+							<WarningIcon className="size-8 text-red-400" />
 							<span className="text-sm">{t('pdfPreview.loadError')}</span>
 						</div>
 					)}
 
-					{loadState === 'ready' && pdfDoc && (
-						Array.from({ length: numPages }).map((_, i) => (
-							<PdfPage 
-								key={i + 1} 
-								pdf={pdfDoc} 
-								pageNumber={i + 1} 
-								scale={scale} 
-							/>
-						))
-					)}
+					{pdfState.status === 'ready' &&
+						pdfDoc &&
+						Array.from({ length: pdfState.numPages }).map((_, i) => (
+							<PdfPage key={i + 1} pdf={pdfDoc} pageNumber={i + 1} scale={scale} />
+						))}
 				</div>
 
 				{/* ── Footer hint ── */}
-				{loadState === 'ready' && (
+				{pdfState.status === 'ready' && (
 					<div className="shrink-0 flex items-center justify-center py-1.5 border-t border-stroke-muted bg-surface-muted">
-						<span className="text-[11px] text-ink-subtle select-none">
-							{t('pdfPreview.footerHint')}
-						</span>
+						<span className="text-[11px] text-ink-subtle select-none">{t('pdfPreview.footerHint')}</span>
 					</div>
 				)}
 			</div>
@@ -181,20 +200,13 @@ export default function PdfPreviewModal({ src, name, onClose }: Props) {
 }
 
 // Individual Page
-function PdfPage({ 
-	pdf, 
-	pageNumber, 
-	scale 
-}: { 
-	pdf: pdfjsLib.PDFDocumentProxy
-	pageNumber: number
-	scale: number 
-}) {
+function PdfPage({ pdf, pageNumber, scale }: { pdf: pdfjsLib.PDFDocumentProxy; pageNumber: number; scale: number }) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const renderTaskRef = useRef<pdfjsLib.RenderTask | null>(null)
 
 	useEffect(() => {
 		let cancelled = false
+		let task: pdfjsLib.RenderTask | null = null
 
 		const render = async () => {
 			const canvas = canvasRef.current
@@ -216,7 +228,7 @@ function PdfPage({
 				canvas.style.height = `${viewport.height}px`
 				ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-				const task = page.render({ canvasContext: ctx, canvas, viewport })
+				task = page.render({ canvasContext: ctx, canvas, viewport })
 				renderTaskRef.current = task
 
 				await task.promise
@@ -231,7 +243,7 @@ function PdfPage({
 
 		return () => {
 			cancelled = true
-			renderTaskRef.current?.cancel()
+			task?.cancel()
 		}
 	}, [pdf, pageNumber, scale])
 
@@ -239,7 +251,7 @@ function PdfPage({
 		<canvas
 			ref={canvasRef}
 			className="rounded shadow-lg bg-white shrink-0 max-w-full"
-			style={{ minHeight: '400px' }} 
+			style={{ minHeight: '400px' }}
 		/>
 	)
 }
@@ -275,7 +287,7 @@ function Divider() {
 
 function Spinner() {
 	return (
-		<svg className="w-6 h-6 animate-spin text-ink-muted" viewBox="0 0 24 24" fill="none">
+		<svg className="size-6 animate-spin text-ink-muted" viewBox="0 0 24 24" fill="none">
 			<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
 			<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
 		</svg>
@@ -297,7 +309,7 @@ function PdfFileIcon({ className }: { className?: string }) {
 
 function MinusIcon() {
 	return (
-		<svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+		<svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
 			<path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
 		</svg>
 	)
@@ -305,7 +317,7 @@ function MinusIcon() {
 
 function PlusIcon() {
 	return (
-		<svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+		<svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
 			<path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
 		</svg>
 	)
@@ -313,7 +325,7 @@ function PlusIcon() {
 
 function CloseIcon() {
 	return (
-		<svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+		<svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
 			<path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
 		</svg>
 	)

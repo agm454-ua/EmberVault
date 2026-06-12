@@ -33,7 +33,7 @@ export default function SearchUserListItem({
 					sharedClasses + (disabled ? 'opacity-60 cursor-not-allowed w-full' : 'cursor-pointer w-full')
 				}
 			>
-				<img src={imageUrl} alt={`${user.username}'s avatar`} className="w-8 h-8 rounded-full" />
+				<img src={imageUrl} alt={`${user.username}'s avatar`} className="size-8 rounded-full" />
 				<div className="min-w-0">
 					<p className="text-sm font-medium truncate">{user.username}</p>
 					<p className="text-xs text-ink-muted truncate">{user.email}</p>
@@ -45,7 +45,7 @@ export default function SearchUserListItem({
 
 	return (
 		<div className={sharedClasses}>
-			<img src={imageUrl} alt={`${user.username}'s avatar`} className="w-8 h-8 rounded-full" />
+			<img src={imageUrl} alt={`${user.username}'s avatar`} className="size-8 rounded-full" />
 			<div className="min-w-0">
 				<p className="text-sm font-medium">{user.username}</p>
 				<p className="text-xs text-ink-muted">{user.email}</p>

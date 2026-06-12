@@ -22,6 +22,8 @@ export type ContextMenuProps = {
 export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
 	const menuRef = useRef<HTMLDivElement>(null)
 
+	const closeHandler = useRef(onClose)
+
 	useLayoutEffect(() => {
 		if (!menuRef.current) return
 		const { offsetWidth: w, offsetHeight: h } = menuRef.current
@@ -34,22 +36,23 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
 	}, [x, y])
 
 	useEffect(() => {
+		const localCloseHandler = closeHandler.current
 		const handleClick = (e: globalThis.MouseEvent) => {
 			if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-				onClose()
+				localCloseHandler()
 			}
 		}
 		const handleKey = (e: KeyboardEvent) => {
-			if (e.key === 'Escape') onClose()
+			if (e.key === 'Escape') localCloseHandler()
 		}
 
 		document.addEventListener('mousedown', handleClick)
 		document.addEventListener('keydown', handleKey)
-		window.addEventListener('scroll', onClose, true)
+		window.addEventListener('scroll', localCloseHandler, true)
 		return () => {
 			document.removeEventListener('mousedown', handleClick)
 			document.removeEventListener('keydown', handleKey)
-			window.removeEventListener('scroll', onClose, true)
+			window.removeEventListener('scroll', localCloseHandler, true)
 		}
 	}, [onClose])
 
@@ -72,13 +75,14 @@ export function ContextMenu({ x, y, items, onClose }: ContextMenuProps) {
 
 				return (
 					<button
-						key={i}
+						key={item.label + i}
 						role="menuitem"
 						disabled={item.disabled}
 						onClick={() => {
 							item.onClick()
 							onClose()
 						}}
+						type="button"
 						className={`
                             w-full flex items-center gap-2 text-left px-3 py-2 text-sm rounded-sm transition-colors
                             ${item.disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-surface-gray cursor-pointer'}

@@ -10,7 +10,8 @@
 		"forbidden": "Acceso denegado",
 		"loading": "Cargando...",
 		"wip": "Estamos trabajando en ello. ¡Vuelve más tarde!",
-		"page": "Página {{page}}"
+		"page": "Página {{page}}",
+		"options": "Opciones"
 	},
 	"auth": {
 		"login": "Iniciar sesión",

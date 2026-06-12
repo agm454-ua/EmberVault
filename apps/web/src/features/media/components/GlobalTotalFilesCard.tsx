@@ -10,7 +10,7 @@ export default function GlobalTotalFilesCard() {
 	return (
 		<div className="flex items-center gap-4 p-4 border border-stroke w-sm rounded-xl">
 			<div className="bg-green-600 rounded-lg p-4">
-				<FileIcon className="w-8 h-8 text-white" />
+				<FileIcon className="size-8 text-white" />
 			</div>
 			<div className="h-full flex flex-col gap-1">
 				<p className=" text-ink">{t('admin.totalFiles')}</p>

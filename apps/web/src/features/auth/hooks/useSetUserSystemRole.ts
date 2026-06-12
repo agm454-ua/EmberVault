@@ -1,6 +1,6 @@
 import { authApi } from '@/api/auth/auth.api'
-import queryClient from '@/api/queryClient';
-import type { TUser } from '@/api/user/user.types';
+import queryClient from '@/api/queryClient'
+import type { TUser } from '@/api/user/user.types'
 import { useMutation } from '@tanstack/react-query'
 
 export const useSetUserSystemRole = (userId: string, role: string) => {
@@ -13,14 +13,8 @@ export const useSetUserSystemRole = (userId: string, role: string) => {
 
 			const previousUsers = queryClient.getQueriesData<TUser[]>({ queryKey: ['listUsers'] })
 
-			queryClient.setQueriesData<TUser[]>(
-				{ queryKey: ['listUsers'] },
-				(oldData) =>
-					oldData?.map((u) =>
-						u.id === userId
-							? { ...u, system_role: { ...u.system_role, name: role } }
-							: u
-					)
+			queryClient.setQueriesData<TUser[]>({ queryKey: ['listUsers'] }, (oldData) =>
+				oldData?.map((u) => (u.id === userId ? { ...u, system_role: { ...u.system_role, name: role } } : u)),
 			)
 
 			return { previousUsers }

@@ -9,6 +9,10 @@ import { useTranslation } from 'react-i18next'
 import ProfilePicture from './ProfilePicture'
 import UserStatus from './UserStatus'
 
+const refreshUserList = async () => {
+	await queryClient.invalidateQueries({ queryKey: ['listUsers'] })
+}
+
 export default function UserListItem({ user }: { user: TUser }) {
 	const { t } = useTranslation()
 	const menu = useContextMenu()
@@ -25,10 +29,6 @@ export default function UserListItem({ user }: { user: TUser }) {
 	const isAdmin = user.system_role?.name === 'admin'
 
 	const isPending = deleteUser.isPending || promoteToAdmin.isPending || demoteToUser.isPending || updateUser.isPending
-
-	const refreshUserList = async () => {
-		await queryClient.invalidateQueries({ queryKey: ['listUsers'] })
-	}
 
 	const handleDelete = async () => {
 		const confirmed = window.confirm(t('admin.confirmDeleteUser', { username: user.username }))

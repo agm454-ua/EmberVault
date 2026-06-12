@@ -45,12 +45,12 @@ function Header() {
 							menu.open(rect.left, rect.bottom)
 						}}
 						image={profile_picture_url}
-						className={`w-8 h-8 p-0`}
+						className="size-8 p-0"
 					/>
 				</div>
 			</header>
 			{/* separator */}
-			<div className="mt-16"></div>
+			<div className="mt-16" />
 		</>
 	)
 }

@@ -17,7 +17,6 @@ export function Spinner({ size = 'md', label }: SpinnerProps) {
 		<div className="flex flex-col items-center gap-2">
 			<div
 				className={`${sizes[size]} rounded-full border-2 border-surface-raised border-t-primary-500 animate-spin`}
-				role="status"
 				aria-label={label ?? t('nav.loading')}
 			/>
 			{label && <span className="text-sm text-muted-foreground">{label}</span>}

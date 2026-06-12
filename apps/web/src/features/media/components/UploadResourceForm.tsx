@@ -72,25 +72,32 @@ export default function UploadResourceForm({
 		}
 
 		setError(null)
-		let successfulUploads = 0
-		const failedFiles: string[] = []
 
-		for (const file of selectedFiles) {
-			try {
-				await createResourceMutation.mutateAsync({
-					name: file.name,
-					type: 'FILE',
-					isPrivate,
-					parentFolder,
-					mimeType: file.type || 'application/octet-stream',
-					file,
-				})
-				successfulUploads += 1
-			} catch {
-				failedFiles.push(file.name)
+		const results = await Promise.all(
+			selectedFiles.map(async (file) => {
+				try {
+					await createResourceMutation.mutateAsync({
+						name: file.name,
+						type: 'FILE',
+						isPrivate,
+						parentFolder,
+						mimeType: file.type || 'application/octet-stream',
+						file,
+					})
+					return { ok: true, name: file.name }
+				} catch {
+					return { ok: false, name: file.name }
+				}
+			}),
+		)
+
+		const failedFiles = results.reduce<string[]>((acc, curr) => {
+			if (!curr.ok) {
+				acc.push(curr.name)
 			}
-		}
-
+			return acc
+		}, [])
+		const successfulUploads = results.filter((r) => r.ok).length
 		setUploadedCount(successfulUploads)
 
 		if (!failedFiles.length) {
@@ -122,11 +129,27 @@ export default function UploadResourceForm({
 				}}
 				onDrop={onDrop}
 				onClick={() => fileInputRef.current?.click()}
+				aria-label={t('media.uploadFiles')}
+				role="treeitem"
+				tabIndex={0}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault()
+						fileInputRef.current?.click()
+					}
+				}}
 			>
-				<input ref={fileInputRef} type="file" className="hidden" multiple onChange={onFileInputChange} />
+				<input
+					ref={fileInputRef}
+					type="file"
+					aria-label={t('media.uploadFiles')}
+					className="hidden"
+					multiple
+					onChange={onFileInputChange}
+				/>
 
 				<div className="flex flex-col items-center gap-3 text-center">
-					<FileIcon className="h-9 w-9 text-stroke" />
+					<FileIcon className="size-9 text-stroke" />
 					<p className="text-sm text-ink-muted">{t('media.dragAndDropResource')}</p>
 					<Button type="button" variant="secondary" onClick={(event) => event.preventDefault()}>
 						{t('media.selectFiles')}

@@ -45,17 +45,22 @@ export function ResetPasswordLinkPage() {
 						value={email}
 						onChange={(e) => setEmail(e.target.value)}
 					/>
-					<p className="text-xs text-ink-linked cursor-pointer" onClick={handleSendRecoveryCode}>
-						{t('auth.resendRecoveryCode')}
-					</p>
+					{
+						//<p className="text-xs text-ink-linked cursor-pointer" onClick={handleSendRecoveryCode}>
+						//	{t('auth.resendRecoveryCode')}
+						//</p>
+					}
 				</div>
 				{showCodeSent && <WarningMessage text={t('auth.recoveryCodeSent')} />}
 				<Button variant="primary" type="submit">
 					{t('auth.sendRecoveryCode')}
 				</Button>
-				<LinkButton variant="secondary" to={routes.login}>
-					{t('nav.back')}
-				</LinkButton>
+				<div className="flex flex-col items-end w-full gap-2">
+					<div className="border-b-2 border-gray-200 w-full" />
+					<LinkButton variant="secondary" to={routes.login}>
+						{t('nav.back')}
+					</LinkButton>
+				</div>
 			</form>
 		</section>
 	)

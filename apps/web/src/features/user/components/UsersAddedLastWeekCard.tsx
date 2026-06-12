@@ -11,7 +11,7 @@ export default function UsersAddedLastWeekCard() {
 	return (
 		<div className="flex items-center gap-4 p-4 pr-8 border border-stroke rounded-xl">
 			<div className="bg-green-600 rounded-lg p-4">
-				<NewUserIcon className="w-8 h-8 text-white" />
+				<NewUserIcon className="size-8 text-white" />
 			</div>
 			<div className="h-full flex flex-col gap-1">
 				<p className=" text-ink">{t('admin.usersAddedLastWeek')}</p>

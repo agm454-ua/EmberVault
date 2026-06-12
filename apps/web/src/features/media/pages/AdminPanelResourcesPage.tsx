@@ -23,27 +23,25 @@ export default function AdminPanelResourcesPage() {
 	const lastResourceId = files[files.length - 1]?.id
 
 	return (
-		<>
-			<section className="p-4">
-				<div className="flex gap-4">
-					<GlobalStorageUsedCard />
-					<GlobalTotalFilesCard />
-				</div>
-				<div className="mt-12"></div>
-				<FileTable
-					className="border border-stroke rounded-xl"
-					resources={files}
-					fullPage={false}
-					mode="admin"
-					isLoading={isFetching}
-				/>
-				<PaginationButtons
-					page={page + 1}
-					handleNext={() => handleNext(lastResourceId)}
-					handlePrevious={handlePrevious}
-					hasMore={hasMore}
-				/>
-			</section>
-		</>
+		<section className="p-4">
+			<div className="flex gap-4">
+				<GlobalStorageUsedCard />
+				<GlobalTotalFilesCard />
+			</div>
+			<div className="mt-12" />
+			<FileTable
+				className="border border-stroke rounded-xl"
+				resources={files}
+				fullPage={false}
+				mode="admin"
+				isLoading={isFetching}
+			/>
+			<PaginationButtons
+				page={page + 1}
+				handleNext={() => handleNext(lastResourceId)}
+				handlePrevious={handlePrevious}
+				hasMore={hasMore}
+			/>
+		</section>
 	)
 }

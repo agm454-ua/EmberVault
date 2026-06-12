@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import Input from '@/shared/components/Input'
 import Button from '@/shared/components/Button'
 import UpdateProfilePicture from '../components/UpdateProfilePicture'
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type SubmitEvent } from 'react'
+import { useMemo, useRef, useState, type ChangeEvent, type SubmitEvent } from 'react'
 import useMe from '@/features/auth/hooks/useMe'
 import useGetUser from '../hooks/useGetUser'
 import useUpdateUser from '../hooks/useUpdateUser'
@@ -91,6 +91,15 @@ export default function ProfilePage() {
 	const uploadAvatar = useUploadAvatar()
 	const deleteAvatar = useDeleteAvatar()
 
+	// Derive server state — no useEffect needed to sync it into local state.
+	// This is the single source of truth for what the server currently holds.
+	const serverProfile = useMemo<TEditableProfile>(() => {
+		const nextUsername = fullUserData?.username ?? meData?.username ?? ''
+		const nextBirthDate = toDateInputValue(extractBirthDate(fullUserData) ?? extractBirthDate(meData))
+		const nextAvatarURL = extractAvatarFromUser(fullUserData) ?? extractAvatarFromUser(meData)
+		return { username: nextUsername, birthDate: nextBirthDate, avatarURL: nextAvatarURL }
+	}, [fullUserData, meData])
+
 	const [isEditing, setIsEditing] = useState(false)
 	const [username, setUsername] = useState('')
 	const [birthDate, setBirthDate] = useState('')
@@ -99,48 +108,34 @@ export default function ProfilePage() {
 	const [error, setError] = useState('')
 	const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false)
 
-	const [initialProfile, setInitialProfile] = useState<TEditableProfile>({
-		username: '',
-		birthDate: '',
-		avatarURL: null,
-	})
-
 	const canSubmit = useMemo(() => {
 		if (!isEditing || !userId) return false
 		if (!username.trim()) return false
 
 		const hasBaseFieldChanges =
-			username.trim() !== initialProfile.username ||
-			birthDate !== initialProfile.birthDate ||
-			normalizeAvatar(avatarURL) !== initialProfile.avatarURL
+			username.trim() !== serverProfile.username ||
+			birthDate !== serverProfile.birthDate ||
+			normalizeAvatar(avatarURL) !== serverProfile.avatarURL
 
 		return hasBaseFieldChanges || !!selectedAvatarFile
-	}, [avatarURL, birthDate, initialProfile, isEditing, selectedAvatarFile, userId, username])
+	}, [avatarURL, birthDate, serverProfile, isEditing, selectedAvatarFile, userId, username])
 
-	useEffect(() => {
-		if (!meData && !fullUserData) return
+	// Seed editable state directly in the event handler — no effect chain.
+	const handleStartEditing = (e: React.MouseEvent) => {
+		e.preventDefault()
+		setError('')
+		setUsername(serverProfile.username)
+		setBirthDate(serverProfile.birthDate)
+		setAvatarURL(serverProfile.avatarURL)
+		setSelectedAvatarFile(null)
+		setIsEditing(true)
+	}
 
-		const nextUsername = fullUserData?.username ?? meData?.username ?? ''
-		const nextBirthDate = toDateInputValue(extractBirthDate(fullUserData) ?? extractBirthDate(meData))
-		const nextAvatarURL = extractAvatarFromUser(fullUserData) ?? extractAvatarFromUser(meData)
-
-		if (!isEditing) {
-			setUsername(nextUsername)
-			setBirthDate(nextBirthDate)
-			setAvatarURL(nextAvatarURL)
-			setSelectedAvatarFile(null)
-			setInitialProfile({
-				username: nextUsername,
-				birthDate: nextBirthDate,
-				avatarURL: nextAvatarURL,
-			})
-		}
-	}, [fullUserData, isEditing, meData])
-
+	// All 5 pieces of state reset together in one synchronous handler.
 	const resetForm = () => {
-		setUsername(initialProfile.username)
-		setBirthDate(initialProfile.birthDate)
-		setAvatarURL(initialProfile.avatarURL)
+		setUsername(serverProfile.username)
+		setBirthDate(serverProfile.birthDate)
+		setAvatarURL(serverProfile.avatarURL)
 		setSelectedAvatarFile(null)
 		setError('')
 		setIsEditing(false)
@@ -203,15 +198,15 @@ export default function ProfilePage() {
 
 		const payload: { username?: string; birthDate?: string; avatarURL?: string | null } = {}
 
-		if (trimmedUsername !== initialProfile.username) {
+		if (trimmedUsername !== serverProfile.username) {
 			payload.username = trimmedUsername
 		}
 
-		if (birthDate !== initialProfile.birthDate) {
+		if (birthDate !== serverProfile.birthDate) {
 			payload.birthDate = birthDate
 		}
 
-		if (nextAvatarURL !== initialProfile.avatarURL) {
+		if (nextAvatarURL !== serverProfile.avatarURL) {
 			payload.avatarURL = nextAvatarURL
 		}
 
@@ -223,16 +218,13 @@ export default function ProfilePage() {
 		try {
 			await updateUser.mutateAsync(payload)
 
+			// Invalidating re-fetches server data, which updates serverProfile via
+			// the memo — no manual setInitialProfile needed.
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ['me'] }),
 				queryClient.invalidateQueries({ queryKey: ['getUser', userId] }),
 			])
 
-			setInitialProfile({
-				username: trimmedUsername,
-				birthDate,
-				avatarURL: nextAvatarURL,
-			})
 			setAvatarURL(nextAvatarURL)
 			setSelectedAvatarFile(null)
 			setIsEditing(false)
@@ -240,6 +232,13 @@ export default function ProfilePage() {
 			setError(t('errors.editFailed'))
 		}
 	}
+
+	const isPending = updateUser.isPending || uploadAvatar.isPending
+
+	// When not editing, display values come straight from the server memo.
+	const displayUsername = isEditing ? username : serverProfile.username
+	const displayBirthDate = isEditing ? birthDate : serverProfile.birthDate
+	const displayAvatarURL = isEditing ? avatarURL : serverProfile.avatarURL
 
 	return (
 		<>
@@ -255,39 +254,35 @@ export default function ProfilePage() {
 					className="hidden"
 					accept="image/*"
 					onChange={handleAvatarSelection}
-					disabled={!isEditing || uploadAvatar.isPending || updateUser.isPending}
+					disabled={!isEditing || isPending}
+					aria-label={t('profilePage.selectProfilePicture')}
 				/>
 
 				{error && <ErrorMessage text={error} />}
 
 				<div className="flex gap-10 items-start">
 					{/* Profile picture section */}
-					<div className="flex flex-col items-center gap-8 pr-8 ">
+					<div className="flex flex-col items-center gap-8 pr-8">
 						<p className="text-sm text-ink text-center">{t('userData.profilePicture')}</p>
 
 						<UpdateProfilePicture
-							pictureUrl={avatarURL}
+							pictureUrl={displayAvatarURL}
 							className="h-32! w-32!"
 							disabled={!isEditing}
 							onClick={() => fileInputRef.current?.click()}
 						/>
 
-						<div className="flex gap-2 ">
+						<div className="flex gap-2">
 							<Button
 								variant="secondary"
-								disabled={!isEditing || uploadAvatar.isPending || updateUser.isPending}
+								disabled={!isEditing || isPending}
 								onClick={() => fileInputRef.current?.click()}
 							>
 								{t('actions.edit')}
 							</Button>
 							<Button
 								variant="danger"
-								disabled={
-									!isEditing ||
-									(!avatarURL && !selectedAvatarFile) ||
-									uploadAvatar.isPending ||
-									updateUser.isPending
-								}
+								disabled={!isEditing || (!displayAvatarURL && !selectedAvatarFile) || isPending}
 								onClick={handleAvatarRemove}
 							>
 								{t('actions.remove')}
@@ -299,15 +294,15 @@ export default function ProfilePage() {
 					<div className="flex flex-col gap-5 flex-1 max-w-md">
 						<Input
 							label={t('userData.username') + ':'}
-							disabled={!isEditing || updateUser.isPending || uploadAvatar.isPending}
-							value={username}
+							disabled={!isEditing || isPending}
+							value={displayUsername}
 							onChange={(e) => setUsername(e.target.value)}
 						/>
 						<Input
 							label={t('userData.birthdate') + ':'}
 							type="date"
-							disabled={!isEditing || updateUser.isPending || uploadAvatar.isPending}
-							value={birthDate}
+							disabled={!isEditing || isPending}
+							value={displayBirthDate}
 							onChange={(e) => setBirthDate(e.target.value)}
 						/>
 					</div>
@@ -315,32 +310,20 @@ export default function ProfilePage() {
 
 				{/* Actions */}
 				<div className="flex justify-end gap-3 pt-4 border-t border-stroke">
-					<Button
-						variant="ghost"
-						disabled={updateUser.isPending || uploadAvatar.isPending}
-						onClick={resetForm}
-					>
+					<Button variant="ghost" disabled={isPending} onClick={resetForm}>
 						{t('actions.cancel')}
 					</Button>
 					<Button
 						variant="primary"
-						disabled={isEditing ? !canSubmit || updateUser.isPending || uploadAvatar.isPending : false}
-						onClick={(e) => {
-							if (isEditing) return
-							e.preventDefault()
-							setError('')
-							setIsEditing(true)
-						}}
+						disabled={isEditing ? !canSubmit || isPending : false}
+						onClick={isEditing ? undefined : handleStartEditing}
 						type={isEditing ? 'submit' : 'button'}
 					>
-						{updateUser.isPending || uploadAvatar.isPending
-							? t('nav.loading')
-							: isEditing
-								? t('actions.save')
-								: t('actions.edit')}
+						{isPending ? t('nav.loading') : isEditing ? t('actions.save') : t('actions.edit')}
 					</Button>
 				</div>
 			</form>
+
 			<div className="mt-8 p-8 border border-stroke rounded-lg max-w-3xl w-full mx-auto flex justify-between items-center">
 				<p className="text-sm">{t('profilePage.changePassword')}</p>
 				<Button variant="danger" onClick={() => setIsChangePasswordModalOpen(true)}>

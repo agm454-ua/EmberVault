@@ -6,12 +6,12 @@ import { useAuthStore } from '@features/auth/stores/authStore'
 import { useEffect } from 'react'
 
 function App() {
-	const { initialize, isInitialized } = useAuthStore()
+	const initialize = useAuthStore((state) => state.initialize)
+	const isInitialized = useAuthStore((state) => state.isInitialized)
 
 	useEffect(() => {
 		initialize()
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [initialize])
 
 	if (!isInitialized) return <PageLoader />
 

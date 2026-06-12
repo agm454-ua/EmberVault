@@ -103,7 +103,11 @@ export function SharedPage() {
 				path={path}
 				onOpenFolder={handleOpenFolder}
 				onNavigateToPath={handleNavigateToPath}
-				isLoading={sharedResources.isLoading || (currentFolderId !== SHARED_ROOT_ID && currentFolderResources.isLoading) || (currentFolderId !== SHARED_ROOT_ID && currentFolderResources.isFetching)}
+				isLoading={
+					sharedResources.isLoading ||
+					(currentFolderId !== SHARED_ROOT_ID && currentFolderResources.isLoading) ||
+					(currentFolderId !== SHARED_ROOT_ID && currentFolderResources.isFetching)
+				}
 			/>
 		</>
 	)
