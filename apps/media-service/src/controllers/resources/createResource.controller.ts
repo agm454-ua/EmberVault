@@ -1,7 +1,7 @@
 import {
     sendBadRequestResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import type { TCreateResourceRequest } from '@customTypes/resource.js'
 import { createFile } from '@services/files.service.js'
 import { createFolder } from '@services/folders.service.js'

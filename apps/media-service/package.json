@@ -3,10 +3,11 @@
     "version": "1.0.0",
     "description": "",
     "license": "ISC",
-    "author": "agm454",
+    "author": "agm-22",
     "type": "module",
     "main": "dist/src/server.js",
     "scripts": {
+        "preinstall": "npx only-allow pnpm",
         "dev": "tsx watch src/server.ts",
         "build": "prisma generate && tsc && tsc-alias",
         "start": "node dist/src/server.js",
@@ -40,7 +41,7 @@
         "vitest": "^4.0.18"
     },
     "dependencies": {
-        "@agm454-ua/auth-utils": "^1.1.1",
+        "@agm-22/auth-utils": "^1.1.1",
         "@aws-sdk/client-s3": "^3.1009.0",
         "@aws-sdk/s3-request-presigner": "^3.1009.0",
         "@prisma/adapter-pg": "^7.3.0",

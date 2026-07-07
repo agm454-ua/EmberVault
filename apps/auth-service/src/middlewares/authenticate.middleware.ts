@@ -1,8 +1,8 @@
 import { getUserById } from '@services/users.service.js'
 import type { Request, Response, NextFunction } from 'express'
-import { validateToken } from '@agm454-ua/auth-utils'
+import { validateToken } from '@agm-22/auth-utils'
 import { ENV } from '@config/env.js'
-import { sendUnauthorizedResponse } from '@agm454-ua/auth-utils'
+import { sendUnauthorizedResponse } from '@agm-22/auth-utils'
 import logger from '@utils/logger.js'
 
 const authenticate = async (

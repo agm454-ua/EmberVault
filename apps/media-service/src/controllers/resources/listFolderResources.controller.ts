@@ -2,7 +2,7 @@ import {
     sendBadRequestResponse,
     sendNotFoundResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import {
     isResourceAFile,
     listResourcesInFolder,

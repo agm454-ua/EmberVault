@@ -4,7 +4,7 @@ import {
     sendBadRequestResponse,
     sendErrorResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import { generateTOTP } from '@utils/totp.js'
 import type { NextFunction, Request, Response } from 'express'
 import { validateMailFormat } from '@utils/validateEmailFormat.js'

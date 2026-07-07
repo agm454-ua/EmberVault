@@ -1,7 +1,7 @@
 import {
     sendErrorResponse,
     sendUnauthorizedResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import { getAdminRole } from '@services/system_roles.service.js'
 import type { Request, Response, NextFunction } from 'express'
 

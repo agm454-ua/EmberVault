@@ -2,15 +2,15 @@ import {
     validatePassword,
     generateToken,
     sendBadRequestResponse,
-} from '@agm454-ua/auth-utils'
-import type { TokenPayload } from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
+import type { TokenPayload } from '@agm-22/auth-utils'
 import type { Request, Response, NextFunction } from 'express'
 import { getUser, login } from '@services/users.service.js'
 import { ENV } from '@config/env.js'
 import {
     sendUnauthorizedResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import { sendRefreshTokenCookie } from '@utils/cookieHandler.js'
 import type { TUserWithToken } from '@customTypes/user.js'
 import type { TLoginRequest } from '@customTypes/auth.js'

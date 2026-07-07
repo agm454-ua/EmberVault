@@ -1,4 +1,4 @@
-import { sendErrorResponse, sendSuccessResponse } from '@agm454-ua/auth-utils'
+import { sendErrorResponse, sendSuccessResponse } from '@agm-22/auth-utils'
 import { getStorageUsed } from '@services/files.service.js'
 import type { Request, Response } from 'express'
 

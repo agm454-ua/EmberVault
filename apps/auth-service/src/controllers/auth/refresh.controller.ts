@@ -1,12 +1,12 @@
 import type { Request, Response } from 'express'
 import { ENV } from '@config/env.js'
-import type { Token, TokenPayload } from '@agm454-ua/auth-utils'
-import { generateToken, validateToken } from '@agm454-ua/auth-utils'
+import type { Token, TokenPayload } from '@agm-22/auth-utils'
+import { generateToken, validateToken } from '@agm-22/auth-utils'
 import { getUserById } from '@services/users.service.js'
 import {
     sendSuccessResponse,
     sendUnauthorizedResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import type { TUserWithToken } from '@customTypes/user.js'
 import { sendRefreshTokenCookie } from '@utils/cookieHandler.js'
 

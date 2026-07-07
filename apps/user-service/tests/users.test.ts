@@ -2,11 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import request from 'supertest'
 import app from '../src/app.js'
 import { mockPrisma } from './setup.js'
-import * as authUtils from '@agm454-ua/auth-utils'
+import * as authUtils from '@agm-22/auth-utils'
 
 // Mock the auth-utils module
-vi.mock('@agm454-ua/auth-utils', async () => {
-    const actual = await vi.importActual('@agm454-ua/auth-utils')
+vi.mock('@agm-22/auth-utils', async () => {
+    const actual = await vi.importActual('@agm-22/auth-utils')
     return {
         ...actual,
         validateToken: vi.fn(),

@@ -3,7 +3,7 @@ import {
     sendBadRequestResponse,
     sendErrorResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import { getUserById, updatePassword } from '@services/users.service.js'
 import { validateTOTP } from '@utils/totp.js'
 import {

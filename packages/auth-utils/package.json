@@ -1,5 +1,5 @@
 {
-  "name": "@agm454-ua/auth-utils",
+  "name": "@agm-22/auth-utils",
   "version": "1.1.1",
   "type": "module",
   "main": "./dist/index.js",

@@ -1,22 +1,24 @@
 # ---- Build Stage ----
 FROM node:20-alpine AS builder
 
+RUN npm install -g pnpm
+
 WORKDIR /app
 
-COPY package*.json ./
-COPY .npmrc ./
+COPY package.json pnpm-lock.yaml .npmrc ./
 
-RUN --mount=type=secret,id=auth_lib_token \
-    export AUTH_LIB_TOKEN=$(cat /run/secrets/auth_lib_token) && \
-    npm ci
+RUN --mount=type=secret,id=auth_lib_token,env=AUTH_LIB_TOKEN,required=true \
+    echo "//npm.pkg.github.com/:_authToken=${AUTH_LIB_TOKEN}" >> ~/.npmrc && \
+    pnpm install --frozen-lockfile && \
+    rm -f /app/.npmrc
+
 
 COPY . .
 
-RUN --mount=type=secret,id=database_url \
-    export DATABASE_URL=$(cat /run/secrets/database_url) && \
-    npm run build && \
-    npm prune --omit=dev && \
-    npm cache clean --force
+RUN --mount=type=secret,id=database_url,env=DATABASE_URL,required=true \
+    pnpm run build && \
+    pnpm prune --prod && \
+    pnpm store prune
 
 
 # ---- Production Stage ----

@@ -1,6 +1,6 @@
 import {
     sendBadRequestResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import { streamFileDownload } from '@services/files.service.js'
 import { streamFolderDownload } from '@services/folders.service.js'
 import { isResourceAFile } from '@services/resources.service.js'

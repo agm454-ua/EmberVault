@@ -3,9 +3,9 @@ import {
     hashPassword,
     sendBadRequestResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import { validateMailFormat } from '@utils/validateEmailFormat.js'
-import { generateToken, type TokenPayload } from '@agm454-ua/auth-utils'
+import { generateToken, type TokenPayload } from '@agm-22/auth-utils'
 import { ENV } from '@config/env.js'
 import { createUser } from '@services/users.service.js'
 

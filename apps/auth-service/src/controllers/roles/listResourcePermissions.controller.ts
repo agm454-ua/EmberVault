@@ -1,7 +1,7 @@
 import {
     sendBadRequestResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import type { TResourceID } from '@customTypes/resource.js'
 import { listResourcePermissions } from '@services/resource_roles.service.js'
 import type { Request, Response } from 'express'

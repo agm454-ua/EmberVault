@@ -1,4 +1,4 @@
-import type { Token } from '@agm454-ua/auth-utils'
+import type { Token } from '@agm-22/auth-utils'
 
 export type TUserID = string
 

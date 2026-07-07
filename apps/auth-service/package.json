@@ -4,6 +4,7 @@
     "main": "dist/src/server.js",
     "type": "module",
     "scripts": {
+        "preinstall": "npx only-allow pnpm",
         "dev": "tsx watch src/server.ts",
         "build": "prisma generate && tsc && tsc-alias",
         "start": "node dist/src/server.js",
@@ -15,11 +16,11 @@
         "coverage": "vitest run --coverage"
     },
     "keywords": [],
-    "author": "agm454",
+    "author": "agm-22",
     "license": "ISC",
     "description": "",
     "dependencies": {
-        "@agm454-ua/auth-utils": "^1.1.1",
+        "@agm-22/auth-utils": "^1.1.1",
         "@prisma/adapter-pg": "^7.2.0",
         "@prisma/client": "7.3.0",
         "@types/cookie-parser": "^1.4.10",
@@ -56,5 +57,12 @@
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.51.0",
         "vitest": "^4.0.17"
+    },
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "bcrypt",
+            "@prisma/engines",
+            "prisma"
+        ]
     }
 }

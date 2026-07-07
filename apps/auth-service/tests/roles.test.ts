@@ -4,14 +4,14 @@ import app from '../src/app.js'
 import * as usersService from '../src/services/users.service.js'
 import * as systemRolesService from '../src/services/system_roles.service.js'
 import * as resourceRolesService from '../src/services/resource_roles.service.js'
-import * as authUtils from '@agm454-ua/auth-utils'
+import * as authUtils from '@agm-22/auth-utils'
 
 // Mock the services
 vi.mock('../src/services/users.service.js')
 vi.mock('../src/services/system_roles.service.js')
 vi.mock('../src/services/resource_roles.service.js')
-vi.mock('@agm454-ua/auth-utils', async () => {
-    const actual = await vi.importActual('@agm454-ua/auth-utils')
+vi.mock('@agm-22/auth-utils', async () => {
+    const actual = await vi.importActual('@agm-22/auth-utils')
     return {
         ...actual,
         validateToken: vi.fn(),

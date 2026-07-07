@@ -1,7 +1,7 @@
 import {
     sendBadRequestResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import { copyFile } from '@services/files.service.js'
 import { copyFolder } from '@services/folders.service.js'
 import { isResourceAFile } from '@services/resources.service.js'

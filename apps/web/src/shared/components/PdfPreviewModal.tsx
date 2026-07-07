@@ -1,9 +1,9 @@
 import { useEffect, useReducer, useRef, useState } from 'react'
-import * as pdfjsLib from 'pdfjs-dist'
+import { pdfjs } from 'react-pdf'
 import BlurPage from './BlurPage'
 import { useTranslation } from 'react-i18next'
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
 
 type Props = {
 	src: string | null
@@ -14,11 +14,11 @@ type PdfState =
 	| { status: 'idle'; zoomIndex: number }
 	| { status: 'loading'; zoomIndex: number }
 	| { status: 'error'; zoomIndex: number }
-	| { status: 'ready'; zoomIndex: number; pdf: pdfjsLib.PDFDocumentProxy; numPages: number }
+	| { status: 'ready'; zoomIndex: number; pdf: pdfjs.PDFDocumentProxy; numPages: number }
 
 type PdfAction =
 	| { type: 'load' }
-	| { type: 'success'; pdf: pdfjsLib.PDFDocumentProxy; numPages: number }
+	| { type: 'success'; pdf: pdfjs.PDFDocumentProxy; numPages: number }
 	| { type: 'error' }
 	| { type: 'zoom_in' }
 	| { type: 'zoom_out' }
@@ -52,7 +52,7 @@ export default function PdfPreviewModal({ src, name, onClose }: Props) {
 
 	const [numPages, setNumPages] = useState(0)
 
-	const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null)
+	const [pdfDoc, setPdfDoc] = useState<pdfjs.PDFDocumentProxy | null>(null)
 
 	const scale = ZOOM_STEPS[zoomIndex]
 
@@ -61,11 +61,11 @@ export default function PdfPreviewModal({ src, name, onClose }: Props) {
 		if (!src) return
 
 		let cancelled = false
-		let localPdf: pdfjsLib.PDFDocumentProxy | null = null
+		let localPdf: pdfjs.PDFDocumentProxy | null = null
 
 		dispatch({ type: 'load' })
 
-		pdfjsLib.getDocument(src).promise.then(
+		pdfjs.getDocument(src).promise.then(
 			(pdf) => {
 				if (cancelled) return
 				localPdf = pdf
@@ -200,13 +200,13 @@ export default function PdfPreviewModal({ src, name, onClose }: Props) {
 }
 
 // Individual Page
-function PdfPage({ pdf, pageNumber, scale }: { pdf: pdfjsLib.PDFDocumentProxy; pageNumber: number; scale: number }) {
+function PdfPage({ pdf, pageNumber, scale }: { pdf: pdfjs.PDFDocumentProxy; pageNumber: number; scale: number }) {
 	const canvasRef = useRef<HTMLCanvasElement>(null)
-	const renderTaskRef = useRef<pdfjsLib.RenderTask | null>(null)
+	const renderTaskRef = useRef<pdfjs.RenderTask | null>(null)
 
 	useEffect(() => {
 		let cancelled = false
-		let task: pdfjsLib.RenderTask | null = null
+		let task: pdfjs.RenderTask | null = null
 
 		const render = async () => {
 			const canvas = canvasRef.current

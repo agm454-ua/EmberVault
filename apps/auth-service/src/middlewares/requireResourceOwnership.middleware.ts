@@ -2,7 +2,7 @@ import {
     sendBadRequestResponse,
     sendErrorResponse,
     sendUnauthorizedResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import { isOwnerOfResource } from '@services/resource_roles.service.js'
 import { getAdminRole } from '@services/system_roles.service.js'
 import { getUserRole } from '@services/users.service.js'

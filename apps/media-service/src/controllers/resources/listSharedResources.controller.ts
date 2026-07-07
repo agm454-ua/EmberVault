@@ -1,4 +1,4 @@
-import { sendBadRequestResponse, sendSuccessResponse } from '@agm454-ua/auth-utils'
+import { sendBadRequestResponse, sendSuccessResponse } from '@agm-22/auth-utils'
 import { listSharedResources } from '@services/resources.service.js'
 import type { Request, Response } from 'express'
 

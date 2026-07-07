@@ -1,7 +1,7 @@
 import {
     sendBadRequestResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import { restoreResource } from '@services/resources.service.js'
 import type { Request, Response } from 'express'
 

@@ -1,7 +1,7 @@
 import {
     sendBadRequestResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import type { TUpdateUserRequest, TUserID } from '@customTypes/user.js'
 import { updateUser } from '@services/users.service.js'
 import logger from '@utils/logger.js'

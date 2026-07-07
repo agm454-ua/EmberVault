@@ -2,12 +2,12 @@ import {
     hashPassword,
     sendUnauthorizedResponse,
     validatePassword,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import { getUserById, updatePassword } from '@services/users.service.js'
 import {
     sendBadRequestResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import type { NextFunction, Request, Response } from 'express'
 import type { TChangePasswordRequest } from '@customTypes/passwd.js'
 import {

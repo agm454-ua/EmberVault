@@ -2,7 +2,7 @@ import {
     sendBadRequestResponse,
     sendNotFoundResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import type { TUpdateResourceRequest } from '@customTypes/resource.js'
 import { updateResource } from '@services/resources.service.js'
 import type { NextFunction, Request, Response } from 'express'

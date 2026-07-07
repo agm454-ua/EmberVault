@@ -3,7 +3,7 @@ import {
     sendBadRequestResponse,
     sendErrorResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import type { TCreateUserRequest } from '@customTypes/user.js'
 import { createUser } from '@services/users.service.js'
 import type { Response, Request, NextFunction } from 'express'

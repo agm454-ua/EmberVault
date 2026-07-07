@@ -1,4 +1,4 @@
-import { sendSuccessResponse } from '@agm454-ua/auth-utils'
+import { sendSuccessResponse } from '@agm-22/auth-utils'
 import { countUsers } from '@services/users.service.js'
 import type { Response, Request } from 'express'
 

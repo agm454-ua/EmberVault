@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express'
-import { sendSuccessResponse } from '@agm454-ua/auth-utils'
+import { sendSuccessResponse } from '@agm-22/auth-utils'
 import { clearRefreshTokenCookie } from '@utils/cookieHandler.js'
 
 export function logoutController(req: Request, res: Response) {

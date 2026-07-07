@@ -2,7 +2,7 @@ import {
     sendBadRequestResponse,
     sendErrorResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import { uploadUserAvatar } from '@services/users.service.js'
 import type { Request, Response } from 'express'
 

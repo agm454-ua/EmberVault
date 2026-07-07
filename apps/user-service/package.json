@@ -3,9 +3,10 @@
     "version": "1.0.0",
     "license": "ISC",
     "main": "dist/src/server.js",
-    "author": "agm454",
+    "author": "agm-22",
     "type": "module",
     "scripts": {
+        "preinstall": "npx only-allow pnpm",
         "dev": "tsx watch src/server.ts",
         "build": "prisma generate && tsc && tsc-alias",
         "start": "node dist/src/server.js",
@@ -17,7 +18,7 @@
         "coverage": "vitest run --coverage"
     },
     "dependencies": {
-        "@agm454-ua/auth-utils": "^1.1.1",
+        "@agm-22/auth-utils": "^1.1.1",
         "@prisma/adapter-pg": "^7.3.0",
         "@prisma/client": "^7.3.0",
         "cors": "^2.8.6",

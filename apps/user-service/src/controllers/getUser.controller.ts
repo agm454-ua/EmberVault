@@ -1,7 +1,7 @@
 import {
     sendBadRequestResponse,
     sendSuccessResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import type { TUserID } from '@customTypes/user.js'
 import { getUserById } from '@services/users.service.js'
 import type { Response, Request } from 'express'

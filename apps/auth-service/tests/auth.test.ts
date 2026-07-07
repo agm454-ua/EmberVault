@@ -2,15 +2,15 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import request from 'supertest'
 import app from '../src/app.js'
 import * as usersService from '../src/services/users.service.js'
-import * as authUtils from '@agm454-ua/auth-utils'
+import * as authUtils from '@agm-22/auth-utils'
 import { sendRefreshTokenCookie } from '../src/utils/cookieHandler.js'
 import type { Response } from 'express'
 import { status } from '../src/generated/prisma/enums.js'
 
 // Mock the services
 vi.mock('../src/services/users.service.js')
-vi.mock('@agm454-ua/auth-utils', async () => {
-    const actual = await vi.importActual('@agm454-ua/auth-utils')
+vi.mock('@agm-22/auth-utils', async () => {
+    const actual = await vi.importActual('@agm-22/auth-utils')
     return {
         ...actual,
         hashPassword: vi.fn(),

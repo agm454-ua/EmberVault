@@ -2,7 +2,7 @@ import { getUserById } from '@services/users.service.js'
 import {
     sendSuccessResponse,
     sendUnauthorizedResponse,
-} from '@agm454-ua/auth-utils'
+} from '@agm-22/auth-utils'
 import type { Request, Response } from 'express'
 import type { TUser } from '@customTypes/user.js'
 

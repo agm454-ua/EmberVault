@@ -15,7 +15,7 @@ import archiver from 'archiver'
 import type { Response } from 'express'
 import { getFileStream } from '@utils/storage.js'
 import { OWNER_ROLE } from '@constants/roles.js'
-import { sendBadRequestResponse } from '@agm454-ua/auth-utils'
+import { sendBadRequestResponse } from '@agm-22/auth-utils'
 import { invalidatePattern } from '@utils/cache.js'
 
 export const createFolder = async (

@@ -121,7 +121,7 @@ All services are orchestrated via Docker Compose and exposed under a single doma
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/agm454-ua/EmberVault/
+git clone https://github.com/agm-22/EmberVault/
 cd EmberVault
 ```
 
